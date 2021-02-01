@@ -131,7 +131,7 @@ pip install dist/jurity-X.X.X-py3-none-any.whl
 ```
 
 ### Test Your Setup
-To confirm that cloning the repo was successful, run the first example in the [Quick Start](#quick-start). 
+To confirm that cloning the repo was successful, run the first example in the [Quick Start](#quick-start-fairness-evaluation). 
 To confirm that the whole installation was successful, run the tests and all should pass. 
 
 ```bash
