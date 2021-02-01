@@ -1,0 +1,4 @@
+cvxpy>=1.0.7
+numpy
+pandas
+scikit-learn
