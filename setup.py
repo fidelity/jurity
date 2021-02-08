@@ -19,6 +19,7 @@ setuptools.setup(
     name="jurity",
     description="fairness and evaluation library",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     version=__version__,
     author="FMR LLC",
     url="https://github.com/fidelity/jurity",
