@@ -1,0 +1,1294 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Jurity Public API &mdash; Jurity 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="About Algorithmic Fairness" href="about.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Jurity
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About Algorithmic Fairness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about.html#about-recommenders-metrics">About Recommenders Metrics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Jurity Public API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#binary-classification-metrics">Binary Classification Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#binary-fairness-metrics">Binary Fairness Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiclass-fairness-metrics">Multiclass Fairness Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#binary-bias-mitigation">Binary Bias Mitigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#binary-recommenders-metrics">Binary Recommenders Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ranking-recommenders-metrics">Ranking Recommenders Metrics</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jurity</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Jurity Public API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-jurity">
+<span id="jurity-public-api"></span><span id="jurity-api"></span><h1>Jurity Public API<a class="headerlink" href="#module-jurity" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="binary-classification-metrics">
+<h2>Binary Classification Metrics<a class="headerlink" href="#binary-classification-metrics" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="jurity.classification.BinaryClassificationMetrics">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">jurity.classification.</span></code><code class="sig-name descname"><span class="pre">BinaryClassificationMetrics</span></code><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="py class">
+<dt id="jurity.classification.BinaryClassificationMetrics.AUC">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">AUC</span></code><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.AUC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="jurity.classification.BinaryClassificationMetrics.AUC.get_score">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihoods</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.AUC.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute Area Under the Receiver Operating Characteristic Curve (ROC AUC) from predicted likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth (correct) labels (0/1).</p></li>
+<li><p><strong>likelihoods</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Predicted likelihoods, as returned by a classifier.</p></li>
+<li><p><strong>sample_weight</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Sample weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Recall score.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.classification.BinaryClassificationMetrics.Accuracy">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Accuracy</span></code><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.Accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="jurity.classification.BinaryClassificationMetrics.Accuracy.get_score">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.Accuracy.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates accuracy score as the fraction of correctly classified samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth (correct) labels (0/1).</p></li>
+<li><p><strong>predicted</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predicted labels, as returned by a classifier (0/1).</p></li>
+<li><p><strong>sample_weight</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Sample weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Accuracy score.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.classification.BinaryClassificationMetrics.F1">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">F1</span></code><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.F1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="jurity.classification.BinaryClassificationMetrics.F1.get_score">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.F1.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the F1 score, also known as balanced F-score or F-measure.</p>
+<p>The F1 score is a weighted average of precision and recall, with equal relative contribution.
+The best value is 1 and the worst value is 0.</p>
+<dl class="simple">
+<dt>The formula for the F1 score is::</dt><dd><p>F1 = 2 * (precision * recall) / (precision + recall)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth (correct) labels (0/1).</p></li>
+<li><p><strong>predicted</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predicted labels, as returned by a classifier (0/1).</p></li>
+<li><p><strong>sample_weight</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Sample weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Recall score.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.classification.BinaryClassificationMetrics.Precision">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Precision</span></code><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.Precision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="jurity.classification.BinaryClassificationMetrics.Precision.get_score">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.Precision.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates precision.</p>
+<p>The precision is the ratio <code class="docutils literal notranslate"><span class="pre">tp</span> <span class="pre">/</span> <span class="pre">(tp</span> <span class="pre">+</span> <span class="pre">fp)</span></code> where <code class="docutils literal notranslate"><span class="pre">tp</span></code> is the number of true positives and <code class="docutils literal notranslate"><span class="pre">fp</span></code> the number
+of false positives. The precision is intuitively the ability of the classifier not to label as positive a
+sample that is negative.</p>
+<p>The best value is 1 and the worst value is 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth (correct) labels (0/1).</p></li>
+<li><p><strong>predicted</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predicted labels, as returned by a classifier (0/1).</p></li>
+<li><p><strong>sample_weight</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Sample weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Precision score.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.classification.BinaryClassificationMetrics.Recall">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Recall</span></code><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.Recall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="jurity.classification.BinaryClassificationMetrics.Recall.get_score">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.classification.BinaryClassificationMetrics.Recall.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates recall.</p>
+<p>The recall is the ratio <code class="docutils literal notranslate"><span class="pre">tp</span> <span class="pre">/</span> <span class="pre">(tp</span> <span class="pre">+</span> <span class="pre">fn)</span></code> where <code class="docutils literal notranslate"><span class="pre">tp</span></code> is the number of true positives and <code class="docutils literal notranslate"><span class="pre">fn</span></code> the number of
+false negatives. The recall is intuitively the ability of the classifier to find all the positive samples.</p>
+<p>The best value is 1 and the worst value is 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth (correct) labels (0/1).</p></li>
+<li><p><strong>predicted</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predicted labels, as returned by a classifier (0/1).</p></li>
+<li><p><strong>sample_weight</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Sample weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Recall score.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="binary-fairness-metrics">
+<h2>Binary Fairness Metrics<a class="headerlink" href="#binary-fairness-metrics" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="jurity.fairness.BinaryFairnessMetrics">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">jurity.fairness.</span></code><code class="sig-name descname"><span class="pre">BinaryFairnessMetrics</span></code><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Class containing a variety of fairness metrics for binary classification.</p>
+<dl class="py class">
+<dt id="jurity.fairness.BinaryFairnessMetrics.AverageOdds">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">AverageOdds</span></code><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.AverageOdds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.base._BaseBinaryFairness</span></code></p>
+<dl class="py method">
+<dt id="jurity.fairness.BinaryFairnessMetrics.AverageOdds.get_score">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membership_label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.AverageOdds.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>The average odds denote the average of difference in FPR and TPR for group 1 and group 2.</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{2} [(FPR_{D = \text{group 1}} - FPR_{D =
+\text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
+= \text{group 1}}))]\]</div>
+<p>If predictions within ANY group are homogeneous, we cannot calculate some of the performance measures
+(such as TPR,TNR,FPR,FNR), in this case, NaN is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth labels for the provided dataset (0/1).</p></li>
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>is_member</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary membership labels (0/1).</p></li>
+<li><p><strong>membership_label</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>float</em><em>, </em><em>int</em><em>]</em>) – Value indicating group membership.
+Default value is 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Average odds difference between groups.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="jurity.fairness.BinaryFairnessMetrics.DisparateImpact">
+<code class="sig-name descname"><span class="pre">DisparateImpact</span></code><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.DisparateImpact" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.disparate_impact.BinaryDisparateImpact</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.fairness.BinaryFairnessMetrics.EqualOpportunity">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">EqualOpportunity</span></code><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.EqualOpportunity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.base._BaseBinaryFairness</span></code></p>
+<dl class="py method">
+<dt id="jurity.fairness.BinaryFairnessMetrics.EqualOpportunity.get_score">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membership_label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.EqualOpportunity.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the ratio of true positives to positive examples in the dataset, <span class="math notranslate nohighlight">\(TPR = TP/P\)</span>,
+conditioned on a protected attribute.</p>
+<p>Adapted from IBM360 Research.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth labels for the provided dataset (0/1).</p></li>
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>is_member</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary membership labels (0/1).</p></li>
+<li><p><strong>membership_label</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>float</em><em>, </em><em>int</em><em>]</em>) – Value indicating group membership.
+Default value is 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Equal opportunity difference between groups.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.fairness.BinaryFairnessMetrics.FNRDifference">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">FNRDifference</span></code><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.FNRDifference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.base._BaseBinaryFairness</span></code></p>
+<dl class="py method">
+<dt id="jurity.fairness.BinaryFairnessMetrics.FNRDifference.get_score">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membership_label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.FNRDifference.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>The equality (or lack thereof) of the false negative rates across groups is an important fairness metric.
+In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.</p>
+<div class="math notranslate nohighlight">
+\[E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth labels for the provided dataset (0/1).</p></li>
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>is_member</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary membership labels (0/1).</p></li>
+<li><p><strong>membership_label</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>float</em><em>, </em><em>int</em><em>]</em>) – Value indicating group membership.
+Default value is 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>False Negative Rate difference between groups.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.fairness.BinaryFairnessMetrics.GeneralizedEntropyIndex">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">GeneralizedEntropyIndex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive_label_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.GeneralizedEntropyIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.base._BaseBinaryFairness</span></code></p>
+<dl class="py method">
+<dt id="jurity.fairness.BinaryFairnessMetrics.GeneralizedEntropyIndex.get_score">
+<code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.GeneralizedEntropyIndex.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generalized entropy index is proposed as a unified individual and group fairness measure in <a class="footnote-reference brackets" href="#id2" id="id1">3</a>.
+With <span class="math notranslate nohighlight">\(b_i = \hat{y}_i - y_i + 1\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathcal{E}(\alpha) = \begin{cases}
+   \frac{1}{n \alpha (\alpha-1)}\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &amp;
+   \alpha \ne 0, 1, \\
+   \frac{1}{n}\sum_{i=1}^n\frac{b_{i}}{\mu}\ln\frac{b_{i}}{\mu} &amp; \alpha=1, \\
+ -\frac{1}{n}\sum_{i=1}^n\ln\frac{b_{i}}{\mu},&amp; \alpha=0.
+ \end{cases}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth labels for the provided dataset (0/1).</p></li>
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Parameter that regulates weight given to distances between values at different parts of the distribution.
+Default value is 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><em>General Entropy Index of the classifier.</em></p></li>
+<li><p><em>References</em></p></li>
+<li><p><em>———-</em> –</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">3</a></span></dt>
+<dd><p>T. Speicher, H. Heidari, N. Grgic-Hlaca, K. P. Gummadi, A. Singla, A. Weller, and M. B. Zafar,
+A Unified Approach to Quantifying Algorithmic Unfairness: Measuring Individual and Group Unfairness via
+Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 2018.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.fairness.BinaryFairnessMetrics.PredictiveEquality">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">PredictiveEquality</span></code><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.PredictiveEquality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.base._BaseBinaryFairness</span></code></p>
+<dl class="py method">
+<dt id="jurity.fairness.BinaryFairnessMetrics.PredictiveEquality.get_score">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membership_label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.PredictiveEquality.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>We define the predictive equality as the situation when accuracy of decisions is equal across race groups,
+as measured by false positive rate (FPR).</p>
+<p>Drawing the analogy of gender classification, across all race groups,
+the ratio of men incorrectly predicted to be a woman is the same.</p>
+<p>More formally,</p>
+<div class="math notranslate nohighlight">
+\[E[d(X)|Y=0, g(X)] = E[d(X), Y=0]\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth labels for the provided dataset (0/1).</p></li>
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>is_member</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary membership labels (0/1).</p></li>
+<li><p><strong>membership_label</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>float</em><em>, </em><em>int</em><em>]</em>) – Value indicating group membership.
+Default value is 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Predictive Equality difference between groups.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="jurity.fairness.BinaryFairnessMetrics.StatisticalParity">
+<code class="sig-name descname"><span class="pre">StatisticalParity</span></code><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.StatisticalParity" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.statistical_parity.BinaryStatisticalParity</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.fairness.BinaryFairnessMetrics.TheilIndex">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">TheilIndex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive_label_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.TheilIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.base._BaseBinaryFairness</span></code></p>
+<dl class="py method">
+<dt id="jurity.fairness.BinaryFairnessMetrics.TheilIndex.get_score">
+<code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.TheilIndex.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Theil index is the generalized entropy index with <span class="math notranslate nohighlight">\(\alpha = 1\)</span>.
+See Generalized Entropy index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth labels for the provided dataset (0/1).</p></li>
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Theil Index of the classifier.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt id="jurity.fairness.BinaryFairnessMetrics.get_all_scores">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_all_scores</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membership_label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">pandas.core.frame.DataFrame</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.get_all_scores" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates and tabulates all of the fairness metric scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth labels for the provided dataset (0/1).</p></li>
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>is_member</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary membership labels (0/1).</p></li>
+<li><p><strong>membership_label</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>float</em><em>, </em><em>int</em><em>]</em>) – Value indicating group membership.
+Default value is 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Pandas data frame with all implemented binary fairness metrics.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="multiclass-fairness-metrics">
+<h2>Multiclass Fairness Metrics<a class="headerlink" href="#multiclass-fairness-metrics" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="jurity.fairness.MultiClassFairnessMetrics">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">jurity.fairness.</span></code><code class="sig-name descname"><span class="pre">MultiClassFairnessMetrics</span></code><a class="headerlink" href="#jurity.fairness.MultiClassFairnessMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Class containing a variety of fairness metrics for multi-class classification.</p>
+<dl class="py attribute">
+<dt id="jurity.fairness.MultiClassFairnessMetrics.DisparateImpact">
+<code class="sig-name descname"><span class="pre">DisparateImpact</span></code><a class="headerlink" href="#jurity.fairness.MultiClassFairnessMetrics.DisparateImpact" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.disparate_impact.MultiDisparateImpact</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="jurity.fairness.MultiClassFairnessMetrics.StatisticalParity">
+<code class="sig-name descname"><span class="pre">StatisticalParity</span></code><a class="headerlink" href="#jurity.fairness.MultiClassFairnessMetrics.StatisticalParity" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.fairness.statistical_parity.MultiStatisticalParity</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="jurity.fairness.MultiClassFairnessMetrics.get_all_scores">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_all_scores</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_classes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.fairness.MultiClassFairnessMetrics.get_all_scores" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates and tabulates all of the fairness metric scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>is_member</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary membership labels (0/1).</p></li>
+<li><p><strong>list_of_classes</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List with class labels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Pandas data frame with all implemented multi-class fairness metrics.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="binary-bias-mitigation">
+<h2>Binary Bias Mitigation<a class="headerlink" href="#binary-bias-mitigation" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="jurity.mitigation.BinaryMitigation">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">jurity.mitigation.</span></code><code class="sig-name descname"><span class="pre">BinaryMitigation</span></code><a class="headerlink" href="#jurity.mitigation.BinaryMitigation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Class containing methods for bias mitigation in binary classification tasks.</p>
+<dl class="py class">
+<dt id="jurity.mitigation.BinaryMitigation.EqualizedOdds">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">EqualizedOdds</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.mitigation.BinaryMitigation.EqualizedOdds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.mitigation.base._BaseMitigation</span></code></p>
+<dl class="py method">
+<dt id="jurity.mitigation.BinaryMitigation.EqualizedOdds.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihoods</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.mitigation.BinaryMitigation.EqualizedOdds.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Idea: Imagine two groups have different ROC curves.
+Find the convex hull such that any FPR, TPR pair can be satisfied by either
+protected-group-conditional predictor. This might not be possible without randomization <a class="footnote-reference brackets" href="#id4" id="id3">4</a>.</p>
+<p>The output of this optimization is a tuple of four probabilities of flipping the likelihood
+of a positive prediction to achieve equal FPR &amp; TPR across two groups. We can then apply
+these learned mixing rates on new unseen data to achieve fairer distributions of outcomes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth labels for the provided dataset (0/1).</p></li>
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>likelihoods</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Scores between 0 and 1 from some black-box classifier.</p></li>
+<li><p><strong>is_member</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary membership labels (0/1).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id3">4</a></span></dt>
+<dd><p>Hardt, Moritz and Price, Eric and Price, Eric and Srebro, Nati,</p>
+</dd>
+</dl>
+<p>“Equality of Opportunity in Supervised Learning, Advances in Neural Information Processing Systems 29, 2016.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="jurity.mitigation.BinaryMitigation.EqualizedOdds.fit_transform">
+<code class="sig-name descname"><span class="pre">fit_transform</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihoods</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.mitigation.BinaryMitigation.EqualizedOdds.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply fit and transform methods on the current dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary ground truth labels for the provided dataset (0/1).</p></li>
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>likelihoods</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Scores between 0 and 1 from some black-box classifier.</p></li>
+<li><p><strong>is_member</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary membership labels (0/1).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>fair_predictions</strong> (<em>np.ndarray</em>) – Fairer predictions with closely matching FPR &amp; TPR across groups</p></li>
+<li><p><strong>fair_likelihoods</strong> (<em>np.ndarray</em>) – Fairer likelihoods with closely matching FPR &amp; TPR across groups</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="jurity.mitigation.BinaryMitigation.EqualizedOdds.transform">
+<code class="sig-name descname"><span class="pre">transform</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihoods</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.mitigation.BinaryMitigation.EqualizedOdds.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply fairness probabilistic mixing rates to a new dataset.</p>
+<p>The idea here is to probabilistically flip a subset of likelihoods and labels in each group
+based on learned mixing rates so that we achieve fairer distribution of outcomes.</p>
+<p>There is a trade-off between fairness and accuracy of a classifier. In general, repairing fairness metrics
+results in lower accuracy, but the relationship is non-linear and data dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predictions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary predictions from some black-box classifier (0/1).</p></li>
+<li><p><strong>likelihoods</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Scores between 0 and 1 from some black-box classifier.</p></li>
+<li><p><strong>is_member</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>np.ndarray</em><em>, </em><em>pd.Series</em><em>]</em>) – Binary membership labels (0/1).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>fair_predictions</strong> (<em>np.ndarray</em>) – Fairer predictions with closely matching FPR &amp; TPR across groups</p></li>
+<li><p><strong>fair_likelihoods</strong> (<em>np.ndarray</em>) – Fairer likelihoods with closely matching FPR &amp; TPR across groups</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="binary-recommenders-metrics">
+<h2>Binary Recommenders Metrics<a class="headerlink" href="#binary-recommenders-metrics" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="jurity.recommenders.BinaryRecoMetrics">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">jurity.recommenders.</span></code><code class="sig-name descname"><span class="pre">BinaryRecoMetrics</span></code><a class="headerlink" href="#jurity.recommenders.BinaryRecoMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="py class">
+<dt id="jurity.recommenders.BinaryRecoMetrics.CTR">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">CTR</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">click_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'user_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'item_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.recommenders.BinaryRecoMetrics.CTR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.recommenders.base._BaseRecommenders</span></code></p>
+<p>Click-through rate</p>
+<p>Calculates the CTR using a direct matching method. That is, CTR is only calculated for instances where the
+actual item the user has seen matches the recommendation.</p>
+<dl class="py method">
+<dt id="jurity.recommenders.BinaryRecoMetrics.CTR.get_score">
+<code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_accumulate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_extended_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.recommenders.BinaryRecoMetrics.CTR.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the current metric on the given data.</p>
+<p>There are 4 scenarios controlled by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and <code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters:</p>
+<ol class="arabic simple">
+<li><p>Calculating the metric for the whole data:</p></li>
+</ol>
+<p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
+itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="2">
+<li><p>Calculating the extended results for the whole data:</p></li>
+</ol>
+<p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
+support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="3">
+<li><p>Calculating the metric across multiple batches.</p></li>
+</ol>
+<p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
+</div></blockquote>
+<p><a href="#id7"><span class="problematic" id="id8">``</span></a><a href="#id9"><span class="problematic" id="id10">`</span></a></p>
+<ol class="arabic simple" start="4">
+<li><p>Calculating the extended results across multiple matches:</p></li>
+</ol>
+<p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
+The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
+<p><a href="#id11"><span class="problematic" id="id12">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
+</div></blockquote>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the ground truth user item interaction data, captured from historical logs.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>predicted_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the recommended user item interaction data, captured from a recommendation algorithm.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>batch_accumulate</strong> (<em>bool</em>) – If specified, this parameter allows you to pass in minibatches of results and accumulate the metric
+correctly across the batches. This reduces the memory footprint and integrates easily with batched
+training. If specified, the <code class="docutils literal notranslate"><span class="pre">get_score</span></code> function will return a tuple of batch results and accumulated
+results.</p></li>
+<li><p><strong>return_extended_results</strong> (<em>bool</em>) – Whether the extended results such as the support should also be returned. If specified, the returned results
+will be of type <code class="docutils literal notranslate"><span class="pre">dict</span></code>. CTR currently returns <code class="docutils literal notranslate"><span class="pre">ctr</span></code> and the <code class="docutils literal notranslate"><span class="pre">support</span></code> used to calculate CTR.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>metric</strong> – The averaged result(s). The return type is determined by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and
+<code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters. See the examples above.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[float, dict, Tuple[float, float], Tuple[dict, dict]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="ranking-recommenders-metrics">
+<h2>Ranking Recommenders Metrics<a class="headerlink" href="#ranking-recommenders-metrics" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="jurity.recommenders.RankingRecoMetrics">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">jurity.recommenders.</span></code><code class="sig-name descname"><span class="pre">RankingRecoMetrics</span></code><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="py class">
+<dt id="jurity.recommenders.RankingRecoMetrics.MAP">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">MAP</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">click_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'user_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'item_id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.MAP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.recommenders.base._BaseRecommenders</span></code></p>
+<p>Mean Average Precision</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[MAP&#64;k =\]</div>
+</div></blockquote>
+<p>rac{1}{left | A
+ight <a href="#id17"><span class="problematic" id="id18">|</span></a>} sum_{i=1}^{left | A
+ight <a href="#id19"><span class="problematic" id="id20">|</span></a>}
+rac{1}{min(k,left | A_i
+ight <a href="#id21"><span class="problematic" id="id22">|</span></a>))}sum_{n=1}^k Precision_i(n)    imes rel(P_{i,n})</p>
+<blockquote>
+<div><p>Intuitively, MAP measures how precise the recommendations are while taking the ranking of the recommendations
+into account.
+Sources: <a class="reference external" href="https://medium.com/&#64;judaikawa/building-and-evaluating-a-recommender-system-for-implicit-feedback-59495d2077d4">https://medium.com/&#64;judaikawa/building-and-evaluating-a-recommender-system-for-implicit-feedback-59495d2077d4</a></p>
+</div></blockquote>
+<dl class="py method">
+<dt id="jurity.recommenders.RankingRecoMetrics.MAP.get_score">
+<code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_accumulate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_extended_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.MAP.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the current metric on the given data.</p>
+<p>There are 4 scenarios controlled by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and <code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters:</p>
+<ol class="arabic simple">
+<li><p>Calculating the metric for the whole data:</p></li>
+</ol>
+<p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
+itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="2">
+<li><p>Calculating the extended results for the whole data:</p></li>
+</ol>
+<p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
+support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="3">
+<li><p>Calculating the metric across multiple batches.</p></li>
+</ol>
+<p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
+<p><a href="#id23"><span class="problematic" id="id24">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
+</div></blockquote>
+<p><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a></p>
+<ol class="arabic simple" start="4">
+<li><p>Calculating the extended results across multiple matches:</p></li>
+</ol>
+<p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
+The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
+<p><a href="#id29"><span class="problematic" id="id30">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
+</div></blockquote>
+<p><a href="#id31"><span class="problematic" id="id32">``</span></a><a href="#id33"><span class="problematic" id="id34">`</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the ground truth user item interaction data, captured from historical logs.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>predicted_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the recommended user item interaction data, captured from a recommendation algorithm.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>batch_accumulate</strong> (<em>bool</em>) – If specified, this parameter allows you to pass in minibatches of results and accumulate the metric
+correctly across the batches. This reduces the memory footprint and integrates easily with batched
+training. If specified, the <code class="docutils literal notranslate"><span class="pre">get_score</span></code> function will return a tuple of batch results and accumulated
+results.</p></li>
+<li><p><strong>return_extended_results</strong> (<em>bool</em>) – Whether the extended results such as the support should also be returned. If specified, the returned results
+will be of type <code class="docutils literal notranslate"><span class="pre">dict</span></code>. MAP currently returns <code class="docutils literal notranslate"><span class="pre">map</span></code> and the <code class="docutils literal notranslate"><span class="pre">support</span></code> used to calculate MAP.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>metric</strong> – The averaged result(s). The return type is determined by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and
+<code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters. See the examples above.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[float, dict, Tuple[float, float], Tuple[dict, dict]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.recommenders.RankingRecoMetrics.NDCG">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">NDCG</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">click_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'user_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'item_id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.NDCG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.recommenders.base._BaseRecommenders</span></code></p>
+<p>Normalized Discounted Cumulative Gain</p>
+<blockquote>
+<div><p>NDCG measures the ranking of the relevant items with a non-linear, discounted (log2) score per rank. NDCG is
+normalized such that the scores are between 0 and 1.</p>
+<div class="math notranslate nohighlight">
+\[NDCG&#64;k =\]</div>
+</div></blockquote>
+<p>rac{1}{left | A
+ight <a href="#id35"><span class="problematic" id="id36">|</span></a>} sum_{i=1}^{left | A
+ight <a href="#id37"><span class="problematic" id="id38">|</span></a>}
+rac {sum_{r=1}^{left | P_i
+ight <a href="#id39"><span class="problematic" id="id40">|</span></a>}
+rac{rel(P_{i,r})}{log_2(r+1)}}{sum_{r=1}^{left | A_i
+ight <a href="#id41"><span class="problematic" id="id42">|</span></a>}
+rac{1}{log_2(r+1)}}</p>
+<dl class="py method">
+<dt id="jurity.recommenders.RankingRecoMetrics.NDCG.get_score">
+<code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_accumulate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_extended_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.NDCG.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the current metric on the given data.</p>
+<p>There are 4 scenarios controlled by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and <code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters:</p>
+<ol class="arabic simple">
+<li><p>Calculating the metric for the whole data:</p></li>
+</ol>
+<p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
+itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="2">
+<li><p>Calculating the extended results for the whole data:</p></li>
+</ol>
+<p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
+support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="3">
+<li><p>Calculating the metric across multiple batches.</p></li>
+</ol>
+<p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
+<p><a href="#id43"><span class="problematic" id="id44">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
+</div></blockquote>
+<p><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a></p>
+<ol class="arabic simple" start="4">
+<li><p>Calculating the extended results across multiple matches:</p></li>
+</ol>
+<p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
+The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
+<p><a href="#id49"><span class="problematic" id="id50">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
+</div></blockquote>
+<p><a href="#id51"><span class="problematic" id="id52">``</span></a><a href="#id53"><span class="problematic" id="id54">`</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the ground truth user item interaction data, captured from historical logs.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>predicted_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the recommended user item interaction data, captured from a recommendation algorithm.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>batch_accumulate</strong> (<em>bool</em>) – If specified, this parameter allows you to pass in minibatches of results and accumulate the metric
+correctly across the batches. This reduces the memory footprint and integrates easily with batched
+training. If specified, the <code class="docutils literal notranslate"><span class="pre">get_score</span></code> function will return a tuple of batch results and accumulated
+results.</p></li>
+<li><p><strong>return_extended_results</strong> (<em>bool</em>) – Whether the extended results such as the support should also be returned. If specified, the returned results
+will be of type <code class="docutils literal notranslate"><span class="pre">dict</span></code>. NDCG currently returns <code class="docutils literal notranslate"><span class="pre">ndcg</span></code> and the <code class="docutils literal notranslate"><span class="pre">support</span></code> used to calculate NDCG.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>metric</strong> – The averaged result(s). The return type is determined by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and
+<code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters. See the examples above.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[float, dict, Tuple[float, float], Tuple[dict, dict]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.recommenders.RankingRecoMetrics.Precision">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Precision</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">click_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'user_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'item_id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.Precision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.recommenders.base._BaseRecommenders</span></code></p>
+<p>Precision&#64;k</p>
+<blockquote>
+<div><p>Precision&#64;k measures the precision of the recommendations when only k recommendations are made to the user. That is,
+it measures the ratio of recommendations among the top k items that are relevant.</p>
+<div class="math notranslate nohighlight">
+\[Precision&#64;k =\]</div>
+</div></blockquote>
+<p>rac{1}{left | A cap P
+ight <a href="#id55"><span class="problematic" id="id56">|</span></a>}sum_{i=1}^{left | A cap P
+ight <a href="#id57"><span class="problematic" id="id58">|</span></a>}
+rac{left | A_i cap P_i[1:k]
+ight <a href="#id59"><span class="problematic" id="id60">|</span></a>}{left | P_i[1:k]
+ight <a href="#id61"><span class="problematic" id="id62">|</span></a>}</p>
+<dl class="py method">
+<dt id="jurity.recommenders.RankingRecoMetrics.Precision.get_score">
+<code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_accumulate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_extended_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.Precision.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the current metric on the given data.</p>
+<p>There are 4 scenarios controlled by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and <code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters:</p>
+<ol class="arabic simple">
+<li><p>Calculating the metric for the whole data:</p></li>
+</ol>
+<p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
+itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="2">
+<li><p>Calculating the extended results for the whole data:</p></li>
+</ol>
+<p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
+support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="3">
+<li><p>Calculating the metric across multiple batches.</p></li>
+</ol>
+<p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
+<p><a href="#id63"><span class="problematic" id="id64">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
+</div></blockquote>
+<p><a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a></p>
+<ol class="arabic simple" start="4">
+<li><p>Calculating the extended results across multiple matches:</p></li>
+</ol>
+<p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
+The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
+<p><a href="#id69"><span class="problematic" id="id70">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
+</div></blockquote>
+<p><a href="#id71"><span class="problematic" id="id72">``</span></a><a href="#id73"><span class="problematic" id="id74">`</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the ground truth user item interaction data, captured from historical logs.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>predicted_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the recommended user item interaction data, captured from a recommendation algorithm.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>batch_accumulate</strong> (<em>bool</em>) – If specified, this parameter allows you to pass in minibatches of results and accumulate the metric
+correctly across the batches. This reduces the memory footprint and integrates easily with batched
+training. If specified, the <code class="docutils literal notranslate"><span class="pre">get_score</span></code> function will return a tuple of batch results and accumulated
+results.</p></li>
+<li><p><strong>return_extended_results</strong> (<em>bool</em>) – Whether the extended results such as the support should also be returned. If specified, the returned results
+will be of type <code class="docutils literal notranslate"><span class="pre">dict</span></code>. Precision currently returns <code class="docutils literal notranslate"><span class="pre">precision</span></code> and the <code class="docutils literal notranslate"><span class="pre">support</span></code> used to calculate
+Precision.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>metric</strong> – The averaged result(s). The return type is determined by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and
+<code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters. See the examples above.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[float, dict, Tuple[float, float], Tuple[dict, dict]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="jurity.recommenders.RankingRecoMetrics.Recall">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Recall</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">click_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'user_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'item_id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.Recall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.recommenders.base._BaseRecommenders</span></code></p>
+<p>Recall&#64;k</p>
+<blockquote>
+<div><p>Recall&#64;k measures the recall of the recommendations when only k recommendations are made to the user. That is,
+it measures the ratio of relevant items that were among the top k recommendations.</p>
+<div class="math notranslate nohighlight">
+\[Recall&#64;k =\]</div>
+</div></blockquote>
+<p>rac{1}{left | A
+ight <a href="#id75"><span class="problematic" id="id76">|</span></a>}sum_{i=1}^{left | A
+ight <a href="#id77"><span class="problematic" id="id78">|</span></a>}
+rac{left | A_i cap P_i[1:k]
+ight <a href="#id79"><span class="problematic" id="id80">|</span></a>}{left | A_i
+ight <a href="#id81"><span class="problematic" id="id82">|</span></a>}</p>
+<dl class="py method">
+<dt id="jurity.recommenders.RankingRecoMetrics.Recall.get_score">
+<code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_accumulate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_extended_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.Recall.get_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the current metric on the given data.</p>
+<p>There are 4 scenarios controlled by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and <code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters:</p>
+<ol class="arabic simple">
+<li><p>Calculating the metric for the whole data:</p></li>
+</ol>
+<p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
+itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="2">
+<li><p>Calculating the extended results for the whole data:</p></li>
+</ol>
+<p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
+support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
+<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="3">
+<li><p>Calculating the metric across multiple batches.</p></li>
+</ol>
+<p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
+<p><a href="#id83"><span class="problematic" id="id84">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
+</div></blockquote>
+<p><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a></p>
+<ol class="arabic simple" start="4">
+<li><p>Calculating the extended results across multiple matches:</p></li>
+</ol>
+<p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
+batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
+The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
+<p><a href="#id89"><span class="problematic" id="id90">``</span></a>`
+for actual_responses_batch, recommendations_batch in ..</p>
+<blockquote>
+<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
+print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
+&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
+</div></blockquote>
+<p><a href="#id91"><span class="problematic" id="id92">``</span></a><a href="#id93"><span class="problematic" id="id94">`</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the ground truth user item interaction data, captured from historical logs.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>predicted_results</strong> (<em>pd.DataFrame</em>) – A pandas DataFrame for the recommended user item interaction data, captured from a recommendation algorithm.
+The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+scores associated with this interaction. There can be multiple interactions per user, and there can be
+multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+single DataFrame.</p></li>
+<li><p><strong>batch_accumulate</strong> (<em>bool</em>) – If specified, this parameter allows you to pass in minibatches of results and accumulate the metric
+correctly across the batches. This reduces the memory footprint and integrates easily with batched
+training. If specified, the <code class="docutils literal notranslate"><span class="pre">get_score</span></code> function will return a tuple of batch results and accumulated
+results.</p></li>
+<li><p><strong>return_extended_results</strong> (<em>bool</em>) – Whether the extended results such as the support should also be returned. If specified, the returned results
+will be of type <code class="docutils literal notranslate"><span class="pre">dict</span></code>. Recall currently returns <code class="docutils literal notranslate"><span class="pre">recall</span></code> and the <code class="docutils literal notranslate"><span class="pre">support</span></code> used to calculate
+Recall.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>metric</strong> – The averaged result(s). The return type is determined by the <code class="docutils literal notranslate"><span class="pre">batch_accumulate</span></code> and
+<code class="docutils literal notranslate"><span class="pre">return_extended_results</span></code> parameters. See the examples above.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[float, dict, Tuple[float, float], Tuple[dict, dict]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="about.html" class="btn btn-neutral float-left" title="About Algorithmic Fairness" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, FMR LLC.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,255 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>About Algorithmic Fairness &mdash; Jurity 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Jurity Public API" href="api.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Jurity
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">About Algorithmic Fairness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#about-recommenders-metrics">About Recommenders Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Jurity Public API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jurity</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>About Algorithmic Fairness</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/about.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="about-algorithmic-fairness">
+<span id="about"></span><h1>About Algorithmic Fairness<a class="headerlink" href="#about-algorithmic-fairness" title="Permalink to this headline">¶</a></h1>
+<p>Below, see the mathematical definition for each fairness metric in the library.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Average odds</strong> denotes the average of difference in FPR and TPR for group 1 and group 2.</p></li>
+</ul>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\frac{1}{2} [(FPR_{D = \text{group 1}} - FPR_{D =
+\text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
+= \text{group 1}}))]\]</div>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>Disparate Impact</strong> is the ratio of predictions for a “positive” outcome in a binary classification task</dt><dd><p>between members of group 1 and group 2, respectively.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{Pr(\hat{Y} = 1 | D = \text{group 1})}
+    {Pr(\hat{Y} = 1 | D = \text{group 2})}\]</div>
+<p>Tutorials:</p>
+<p>Step-by-step tutorials on algorithmic fairness can be found under the <code class="docutils literal notranslate"><span class="pre">examples/notebooks</span></code> folder.</p>
+<p>Fairness Metrics Tutorials:</p>
+<ul class="simple">
+<li><p>Quick Start Example: <code class="docutils literal notranslate"><span class="pre">examples/notebooks/usage_example_fairness_metrics.ipynb</span></code> presents quick start examples using various metrics.</p></li>
+<li><p>Gender as the Protected Attribute: <code class="docutils literal notranslate"><span class="pre">examples/notebooks/tutorial_metrics_gender.ipynb</span></code> presents a tutorial on a dataset from the <a class="reference external" href="https://archive.ics.uci.edu/ml/index.php">University of California Irvine Machine Learning Repository</a> . The learning task is a binary classification of whether an individual has an income over $50k. The <code class="docutils literal notranslate"><span class="pre">gender</span></code> attribute serves as the protected attribute.</p></li>
+<li><p>Race as the Protected Attribute: <code class="docutils literal notranslate"><span class="pre">examples/notebooks/tutorial_race.ipynb</span></code> presents a tutorial on the Propublica Recidivism using a dataset from a non-profit reporting agency <a class="reference external" href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing">Propublica</a> . The learning task is a binary classification of whether an individual will re-offend within the next two years. The <code class="docutils literal notranslate"><span class="pre">race</span></code> attribute serves as the protected attribute.</p></li>
+</ul>
+<p>Bias Mitigation Tutorials:</p>
+<ul class="simple">
+<li><p>Quick Start Example: <code class="docutils literal notranslate"><span class="pre">examples/notebooks/usage_example_bias_mitigation.ipynb</span></code> presents quick start example of applying bias mitigation to a real-world dataset to achieve fairer predictive outcomes.</p></li>
+<li><p>Gender as the protected attribute: <code class="docutils literal notranslate"><span class="pre">notebooks/tutorial_mitigation_gender.ipynb</span></code> presents a tutorial on a dataset from the <a class="reference external" href="https://archive.ics.uci.edu/ml/index.php">University of California Irvine Machine Learning Repository</a> . The learning task is a binary classification of whether an individual has an income over $50k. The <code class="docutils literal notranslate"><span class="pre">gender</span></code> attribute serves as the protected attribute.</p></li>
+</ul>
+<p>Make sure you also install the <code class="docutils literal notranslate"><span class="pre">notebooks/requirements.txt</span></code>
+as they depend on other packages that are not needed for the library itself.</p>
+</div>
+<div class="section" id="about-recommenders-metrics">
+<h1>About Recommenders Metrics<a class="headerlink" href="#about-recommenders-metrics" title="Permalink to this headline">¶</a></h1>
+<p>For the definitions below, <cite>A</cite> is the set of actual ratings for users and <cite>P</cite> is the set of predictions / recommendations. Each <cite>A_i</cite> and <cite>P_i</cite> represent the list of actual items and list of recommended items respectively for a user <cite>i</cite>.</p>
+<p>Some metrics use the relevance function <cite>rel(P_{i,n})</cite>, which is an indicator function that produces <cite>1</cite> if the predicted item at position <cite>n</cite> for user <cite>i</cite> is in the user’s relevant set of items.</p>
+<p>All the ranking metrics operate on a filtered set of users such that only the users with relevant/clicked items are taken into account. This is in line with industry practices. There is a further filtering for precision related metrics (Precision&#64;k and MAP&#64;k) where each user also has to have a recommendation. This is done to avoid divide by 0 errors.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="api.html" class="btn btn-neutral float-right" title="Jurity Public API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, FMR LLC.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
