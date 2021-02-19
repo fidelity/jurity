@@ -162,25 +162,36 @@
   <div class="section" id="about-algorithmic-fairness">
 <span id="about"></span><h1>About Algorithmic Fairness<a class="headerlink" href="#about-algorithmic-fairness" title="Permalink to this headline">¶</a></h1>
 <p>Below, see the mathematical definition for each fairness metric in the library.</p>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>Average odds denotes the average of difference in FPR and TPR for group 1 and group 2.</p></li>
 </ul>
-</div></blockquote>
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}\frac{1}{2} [(FPR_{D = \text{group 1}} - FPR_{D =
-   \text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
-   = \text{group 1}}))]\\- Disparate Impact is the ratio of predictions for a &quot;positive&quot; outcome in a binary classification task
-       between members of group 1 and group 2, respectively.\end{aligned}\end{align} \]</div>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}   \frac{Pr(\hat{Y} = 1 | D = \text{group 1})}
-       {Pr(\hat{Y} = 1 | D = \text{group 2})}\\- Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, :math:`TPR = TP/P`, conditioned on a protected attribute.\end{aligned}\end{align} \]</div>
+\[\frac{1}{2} [(FPR_{D = \text{group 1}} - FPR_{D =
+\text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
+= \text{group 1}}))]\]</div>
 <ul class="simple">
+<li><dl class="simple">
+<dt>Disparate Impact is the ratio of predictions for a “positive” outcome in a binary classification task</dt><dd><p>between members of group 1 and group 2, respectively.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{Pr(\hat{Y} = 1 | D = \text{group 1})}
+    {Pr(\hat{Y} = 1 | D = \text{group 2})}\]</div>
+<ul class="simple">
+<li><p>Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, <span class="math notranslate nohighlight">\(TPR = TP/P\)</span>, conditioned on a protected attribute.</p></li>
 <li><p>FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.</p></li>
 </ul>
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}   E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]\\\begin{split}- Generalized entropy index is proposed as a unified individual and group fairness measure in [3]_.
-       With :math:`b_i = \\hat{y}_i - y_i + 1`:\end{split}\end{aligned}\end{align} \]</div>
+\[E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]\]</div>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Generalized entropy index is proposed as a unified individual and group fairness measure in <a class="footnote-reference brackets" href="#id2" id="id1">3</a>.</dt><dd><p>With <span class="math notranslate nohighlight">\(b_i = \\hat{y}_i - y_i + 1\)</span>:</p>
+</dd>
+</dl>
+</li>
+</ul>
 <div class="math notranslate nohighlight">
 \[\begin{split}\mathcal{E}(\alpha) = \begin{cases}
    \frac{1}{n \\alpha (\alpha-1)}\\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &amp;
@@ -189,26 +200,32 @@
  -\frac{1}{n}\sum_{i=1}^n\ln\frac{b_{i}}{\mu},&amp; \alpha=0.
  \end{cases}\end{split}\]</div>
 <dl>
-<dt>References:</dt><dd><blockquote>
-<div><dl class="footnote brackets">
-<dt class="label" id="id1"><span class="brackets">3</span></dt>
+<dt>References:</dt><dd><dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">3</a></span></dt>
 <dd><p>T. Speicher, H. Heidari, N. Grgic-Hlaca, K. P. Gummadi, A. Singla, A. Weller, and M. B. Zafar,
 A Unified Approach to Quantifying Algorithmic Unfairness: Measuring Individual and Group Unfairness via
 Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 2018.</p>
 </dd>
 </dl>
-</div></blockquote>
+</dd>
+</dl>
 <ul class="simple">
 <li><p>Predictive Equality is defined as the situation when accuracy of decisions is equal across two groups, as measured by false positive rate (FPR).</p></li>
 </ul>
+<div class="math notranslate nohighlight">
+\[E[d(X)|Y=0, g(X)] = E[d(X), Y=0]\]</div>
+<ul class="simple">
+<li><p>Statistical Parity measures the difference in probabilities of a positive outcome across two groups.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[P(Y_{hat}=1 | group = \text{group 1} ) - P(Y_{hat} = 1 | \text{group 2})\]</div>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Theil Index is the generalized entropy index with <span class="math notranslate nohighlight">\(\\alpha = 1\)</span>.</dt><dd><p>See Generalized Entropy index.</p>
 </dd>
 </dl>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}   E[d(X)|Y=0, g(X)] = E[d(X), Y=0]\\- Statistical Parity measures the difference in probabilities of a positive outcome across two groups.\end{aligned}\end{align} \]</div>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}   P(Y_{hat}=1 | group = \text{group 1} ) - P(Y_{hat} = 1 | \text{group 2})\\\begin{split}
-- Theil Index is the generalized entropy index with :math:`\\alpha = 1`.
-       See Generalized Entropy index.\end{split}\end{aligned}\end{align} \]</div>
+</li>
+</ul>
 </div>
 <div class="section" id="about-recommenders-metrics">
 <h1>About Recommenders Metrics<a class="headerlink" href="#about-recommenders-metrics" title="Permalink to this headline">¶</a></h1>

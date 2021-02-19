@@ -5,14 +5,14 @@ About Algorithmic Fairness
 
 Below, see the mathematical definition for each fairness metric in the library.
 
- - Average odds denotes the average of difference in FPR and TPR for group 1 and group 2.
+- Average odds denotes the average of difference in FPR and TPR for group 1 and group 2.
 
 .. math::
     \frac{1}{2} [(FPR_{D = \text{group 1}} - FPR_{D =
     \text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
     = \text{group 1}}))]
 
- - Disparate Impact is the ratio of predictions for a "positive" outcome in a binary classification task
+- Disparate Impact is the ratio of predictions for a "positive" outcome in a binary classification task
         between members of group 1 and group 2, respectively.
 
 .. math::
@@ -20,7 +20,7 @@ Below, see the mathematical definition for each fairness metric in the library.
     \frac{Pr(\hat{Y} = 1 | D = \text{group 1})}
         {Pr(\hat{Y} = 1 | D = \text{group 2})}
         
- - Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, :math:`TPR = TP/P`, conditioned on a protected attribute.
+- Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, :math:`TPR = TP/P`, conditioned on a protected attribute.
 
 - FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.
 
@@ -28,7 +28,7 @@ Below, see the mathematical definition for each fairness metric in the library.
 
     E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]
 
- - Generalized entropy index is proposed as a unified individual and group fairness measure in [3]_.
+- Generalized entropy index is proposed as a unified individual and group fairness measure in [3]_.
         With :math:`b_i = \\hat{y}_i - y_i + 1`:
 
 .. math::
@@ -45,20 +45,20 @@ References:
              A Unified Approach to Quantifying Algorithmic Unfairness: Measuring Individual and Group Unfairness via
              Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 2018.
 
- - Predictive Equality is defined as the situation when accuracy of decisions is equal across two groups, as measured by false positive rate (FPR).
+- Predictive Equality is defined as the situation when accuracy of decisions is equal across two groups, as measured by false positive rate (FPR).
 
 .. math::
 
     E[d(X)|Y=0, g(X)] = E[d(X), Y=0]
     
- - Statistical Parity measures the difference in probabilities of a positive outcome across two groups.
+- Statistical Parity measures the difference in probabilities of a positive outcome across two groups.
  
 .. math::
 
     P(Y_{hat}=1 | group = \text{group 1} ) - P(Y_{hat} = 1 | \text{group 2})
 
 
- - Theil Index is the generalized entropy index with :math:`\\alpha = 1`.
+- Theil Index is the generalized entropy index with :math:`\\alpha = 1`.
         See Generalized Entropy index.
 
 
