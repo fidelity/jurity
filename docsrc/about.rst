@@ -12,6 +12,7 @@ Below, see the mathematical definition for each fairness metric in the library.
     \text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
     = \text{group 1}}))]
 
+
 - Disparate Impact is the ratio of predictions for a "positive" outcome in a binary classification task
         between members of group 1 and group 2, respectively.
 
@@ -19,8 +20,10 @@ Below, see the mathematical definition for each fairness metric in the library.
 
     \frac{Pr(\hat{Y} = 1 | D = \text{group 1})}
         {Pr(\hat{Y} = 1 | D = \text{group 2})}
-        
+
+
 - Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, :math:`TPR = TP/P`, conditioned on a protected attribute.
+
 
 - FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.
 
@@ -34,9 +37,9 @@ Below, see the mathematical definition for each fairness metric in the library.
 .. math::
 
            \mathcal{E}(\alpha) = \begin{cases}
-              \frac{1}{n \\alpha (\alpha-1)}\\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &
+              \frac{1}{n \\alpha (\alpha-1)}\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &
               \alpha \ne 0, 1, \\
-              \frac{1}{n}\sum_{i=1}^n\frac{b_{i}}{\\mu}\ln\frac{b_{i}}{\mu} & \alpha=1, \\
+              \frac{1}{n}\sum_{i=1}^n\frac{b_{i}}{\mu}\ln\frac{b_{i}}{\mu} & \alpha=1, \\
             -\frac{1}{n}\sum_{i=1}^n\ln\frac{b_{i}}{\mu},& \alpha=0.
             \end{cases}
 
