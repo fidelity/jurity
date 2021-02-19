@@ -19,7 +19,6 @@ Below, see the mathematical definition for each fairness metric in the library.
     \frac{Pr(\hat{Y} = 1 | D = \text{group 1})}
         {Pr(\hat{Y} = 1 | D = \text{group 2})}
 
-
 - Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, :math:`TPR = TP/P`, conditioned on a protected attribute.
 
 - FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.
@@ -27,7 +26,6 @@ Below, see the mathematical definition for each fairness metric in the library.
 .. math::
 
     E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]
-
 
 - Generalized entropy index is proposed as a unified individual and group fairness measure in [3]_. With :math:`b_i = \hat{y}_i - y_i + 1`:
 
@@ -57,8 +55,7 @@ References:
 
     P(Y_{hat}=1 | group = \text{group 1} ) - P(Y_{hat} = 1 | \text{group 2})
 
-- Theil Index is the generalized entropy index with :math:`\\alpha = 1`.
-        See Generalized Entropy index.
+- Theil Index is the generalized entropy index with :math:`\alpha = 1`. See Generalized Entropy index.
 
 
 About Recommenders Metrics
