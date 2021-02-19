@@ -12,9 +12,7 @@ Below, see the mathematical definition for each fairness metric in the library.
     \text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
     = \text{group 1}}))]
 
-
-- Disparate Impact is the ratio of predictions for a "positive" outcome in a binary classification task
-        between members of group 1 and group 2, respectively.
+- Disparate Impact is the ratio of predictions for a "positive" outcome in a binary classification task between members of group 1 and group 2, respectively.
 
 .. math::
 
@@ -24,20 +22,19 @@ Below, see the mathematical definition for each fairness metric in the library.
 
 - Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, :math:`TPR = TP/P`, conditioned on a protected attribute.
 
-
 - FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.
 
 .. math::
 
     E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]
 
-- Generalized entropy index is proposed as a unified individual and group fairness measure in [3]_.
-        With :math:`b_i = \\hat{y}_i - y_i + 1`:
+
+- Generalized entropy index is proposed as a unified individual and group fairness measure in [3]_. With :math:`b_i = \hat{y}_i - y_i + 1`:
 
 .. math::
 
            \mathcal{E}(\alpha) = \begin{cases}
-              \frac{1}{n \\alpha (\alpha-1)}\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &
+              \frac{1}{n \alpha (\alpha-1)}\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &
               \alpha \ne 0, 1, \\
               \frac{1}{n}\sum_{i=1}^n\frac{b_{i}}{\mu}\ln\frac{b_{i}}{\mu} & \alpha=1, \\
             -\frac{1}{n}\sum_{i=1}^n\ln\frac{b_{i}}{\mu},& \alpha=0.
@@ -59,7 +56,6 @@ References:
 .. math::
 
     P(Y_{hat}=1 | group = \text{group 1} ) - P(Y_{hat} = 1 | \text{group 2})
-
 
 - Theil Index is the generalized entropy index with :math:`\\alpha = 1`.
         See Generalized Entropy index.

@@ -170,11 +170,7 @@
 \text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
 = \text{group 1}}))]\]</div>
 <ul class="simple">
-<li><dl class="simple">
-<dt>Disparate Impact is the ratio of predictions for a “positive” outcome in a binary classification task</dt><dd><p>between members of group 1 and group 2, respectively.</p>
-</dd>
-</dl>
-</li>
+<li><p>Disparate Impact is the ratio of predictions for a “positive” outcome in a binary classification task between members of group 1 and group 2, respectively.</p></li>
 </ul>
 <div class="math notranslate nohighlight">
 \[\frac{Pr(\hat{Y} = 1 | D = \text{group 1})}
@@ -186,15 +182,11 @@
 <div class="math notranslate nohighlight">
 \[E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]\]</div>
 <ul class="simple">
-<li><dl class="simple">
-<dt>Generalized entropy index is proposed as a unified individual and group fairness measure in <a class="footnote-reference brackets" href="#id2" id="id1">3</a>.</dt><dd><p>With <span class="math notranslate nohighlight">\(b_i = \\hat{y}_i - y_i + 1\)</span>:</p>
-</dd>
-</dl>
-</li>
+<li><p>Generalized entropy index is proposed as a unified individual and group fairness measure in <a class="footnote-reference brackets" href="#id2" id="id1">3</a>. With <span class="math notranslate nohighlight">\(b_i = \hat{y}_i - y_i + 1\)</span>:</p></li>
 </ul>
 <div class="math notranslate nohighlight">
 \[\begin{split}\mathcal{E}(\alpha) = \begin{cases}
-   \frac{1}{n \\alpha (\alpha-1)}\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &amp;
+   \frac{1}{n \alpha (\alpha-1)}\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &amp;
    \alpha \ne 0, 1, \\
    \frac{1}{n}\sum_{i=1}^n\frac{b_{i}}{\mu}\ln\frac{b_{i}}{\mu} &amp; \alpha=1, \\
  -\frac{1}{n}\sum_{i=1}^n\ln\frac{b_{i}}{\mu},&amp; \alpha=0.
