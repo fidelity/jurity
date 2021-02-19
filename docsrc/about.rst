@@ -3,7 +3,7 @@
 About Algorithmic Fairness
 ==========================
 
-Below, see the mathematical definition for each fairness metric in the library.
+Below, see the mathematical definition for each of the fairness metrics in the library.
 
 - Average odds denotes the average of difference in FPR and TPR for group 1 and group 2.
 
@@ -61,7 +61,7 @@ References:
 About Recommenders Metrics
 ==========================
 
-For the definitions below, `A` is the set of actual ratings for users and `P` is the set of predictions / recommendations. Each `A_i` and `P_i` represent the list of actual items and list of recommended items respectively for a user `i`.
+For the definitions below, `A` is the set of actual ratings for users and `P` is the set of predictions / recommendations. Each `A_i` and `P_i` represents the list of actual items and list of recommended items, respectively, for a user `i`.
 
 Some metrics use the relevance function `rel(P_{i,n})`, which is an indicator function that produces `1` if the predicted item at position `n` for user `i` is in the user's relevant set of items.
 

@@ -161,7 +161,7 @@
             
   <div class="section" id="about-algorithmic-fairness">
 <span id="about"></span><h1>About Algorithmic Fairness<a class="headerlink" href="#about-algorithmic-fairness" title="Permalink to this headline">¶</a></h1>
-<p>Below, see the mathematical definition for each fairness metric in the library.</p>
+<p>Below, see the mathematical definition for each of the fairness metrics in the library.</p>
 <ul class="simple">
 <li><p>Average odds denotes the average of difference in FPR and TPR for group 1 and group 2.</p></li>
 </ul>
@@ -217,7 +217,7 @@ Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery a
 </div>
 <div class="section" id="about-recommenders-metrics">
 <h1>About Recommenders Metrics<a class="headerlink" href="#about-recommenders-metrics" title="Permalink to this headline">¶</a></h1>
-<p>For the definitions below, <cite>A</cite> is the set of actual ratings for users and <cite>P</cite> is the set of predictions / recommendations. Each <cite>A_i</cite> and <cite>P_i</cite> represent the list of actual items and list of recommended items respectively for a user <cite>i</cite>.</p>
+<p>For the definitions below, <cite>A</cite> is the set of actual ratings for users and <cite>P</cite> is the set of predictions / recommendations. Each <cite>A_i</cite> and <cite>P_i</cite> represents the list of actual items and list of recommended items, respectively, for a user <cite>i</cite>.</p>
 <p>Some metrics use the relevance function <cite>rel(P_{i,n})</cite>, which is an indicator function that produces <cite>1</cite> if the predicted item at position <cite>n</cite> for user <cite>i</cite> is in the user’s relevant set of items.</p>
 <p>All the ranking metrics operate on a filtered set of users such that only the users with relevant/clicked items are taken into account. This is in line with industry practices. There is a further filtering for precision related metrics (Precision&#64;k and MAP&#64;k) where each user also has to have a recommendation. This is done to avoid divide by 0 errors.</p>
 </div>
