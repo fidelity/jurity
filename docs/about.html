@@ -173,8 +173,8 @@
 <li><p>Disparate Impact is the ratio of predictions for a “positive” outcome in a binary classification task between members of group 1 and group 2, respectively.</p></li>
 </ul>
 <div class="math notranslate nohighlight">
-\[\frac{Pr(\hat{Y} = 1 | D = \text{group 1})}
-    {Pr(\hat{Y} = 1 | D = \text{group 2})}\]</div>
+\[\frac{P(\hat{Y} = 1 | D = \text{group 1})}
+    {P(\hat{Y} = 1 | D = \text{group 2})}\]</div>
 <ul class="simple">
 <li><p>Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, <span class="math notranslate nohighlight">\(TPR = TP/P\)</span>, conditioned on a protected attribute.</p></li>
 <li><p>FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.</p></li>
@@ -210,7 +210,7 @@ Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery a
 <li><p>Statistical Parity measures the difference in probabilities of a positive outcome across two groups.</p></li>
 </ul>
 <div class="math notranslate nohighlight">
-\[P(Y_{hat}=1 | group = \text{group 1} ) - P(Y_{hat} = 1 | \text{group 2})\]</div>
+\[P(\hat{Y} = 1 | D = \text{group 1}) - P(\hat{Y} = 1 | D = \text{group 2})\]</div>
 <ul class="simple">
 <li><p>Theil Index is the generalized entropy index with <span class="math notranslate nohighlight">\(\alpha = 1\)</span>. See Generalized Entropy index.</p></li>
 </ul>

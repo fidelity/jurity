@@ -16,8 +16,8 @@ Below, see the mathematical definition for each fairness metric in the library.
 
 .. math::
 
-    \frac{Pr(\hat{Y} = 1 | D = \text{group 1})}
-        {Pr(\hat{Y} = 1 | D = \text{group 2})}
+    \frac{P(\hat{Y} = 1 | D = \text{group 1})}
+        {P(\hat{Y} = 1 | D = \text{group 2})}
 
 - Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, :math:`TPR = TP/P`, conditioned on a protected attribute.
 
@@ -53,7 +53,7 @@ References:
  
 .. math::
 
-    P(Y_{hat}=1 | group = \text{group 1} ) - P(Y_{hat} = 1 | \text{group 2})
+    P(\hat{Y} = 1 | D = \text{group 1}) - P(\hat{Y} = 1 | D = \text{group 2})
 
 - Theil Index is the generalized entropy index with :math:`\alpha = 1`. See Generalized Entropy index.
 
