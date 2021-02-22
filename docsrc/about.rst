@@ -37,7 +37,7 @@ FNR Difference measures the equality (or lack thereof) of the false negative rat
 
 Generalized Entropy Index
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-Generalized Entropy Index is proposed as a unified individual and group fairness measure in [3]_. With :math:`b_i = \hat{y}_i - y_i + 1`:
+Generalized Entropy Index is proposed as a unified individual and group fairness measure in [1]_. With :math:`b_i = \hat{y}_i - y_i + 1`:
 
 .. math::
 
@@ -49,7 +49,7 @@ Generalized Entropy Index is proposed as a unified individual and group fairness
             \end{cases}
 
 References:
-            .. [3] T. Speicher, H. Heidari, N. Grgic-Hlaca, K. P. Gummadi, A. Singla, A. Weller, and M. B. Zafar,
+            .. [1] T. Speicher, H. Heidari, N. Grgic-Hlaca, K. P. Gummadi, A. Singla, A. Weller, and M. B. Zafar,
              A Unified Approach to Quantifying Algorithmic Unfairness: Measuring Individual and Group Unfairness via
              Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 2018.
 
@@ -73,6 +73,14 @@ Theil Index
 ^^^^^^^^^^^
 Theil Index is the generalized entropy index with :math:`\alpha = 1`. See Generalized Entropy Index.
 
+
+Equalized Odds
+^^^^^^^^^^^^^^
+
+Equalized odds is a bias mitigation technique where subset of decisions of a binary classifier is flipped at uniform random in each of two groups to achieve equality of TPR and FPR across the two groups as proposed in [2]_. This subset rate in each group is learned via constrained optimization.
+
+References:
+            .. [2] Moritz Hardt, Eric Price, and Nathan Srebro. 2016. Equality of opportunity in supervised learning. In Proceedings of the 30th International Conference on Neural Information Processing Systems (NIPS'16).
 
 About Recommenders Metrics
 ==========================
