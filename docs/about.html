@@ -92,7 +92,13 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">About Algorithmic Fairness</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#about-recommenders-metrics">About Recommenders Metrics</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#binary-recommender-metrics">Binary Recommender Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ranking-recommender-metrics">Ranking Recommender Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ranking-recommender-metrics">Ranking Recommender Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#precision">Precision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#recall">Recall</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#map-mean-average-precision">MAP: Mean Average Precision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ndcg-normalized-discounted-cumulative-gain">NDCG: Normalized Discounted Cumulative Gain</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Jurity Public API</a></li>
@@ -242,26 +248,35 @@ Some metrics use the relevance function <span class="math notranslate nohighligh
 This is in line with industry practices.
 There is a further filtering for precision related metrics (Precision&#64;k and MAP&#64;k) where each user also has to have a recommendation.
 This is done to avoid divide by 0 errors.</p>
-<ul class="simple">
-<li><p><strong>Precision</strong></p></li>
-</ul>
+<div class="section" id="precision">
+<h3>Precision<a class="headerlink" href="#precision" title="Permalink to this headline">¶</a></h3>
+<p>Precision&#64;k measures how consistently a model is able to pinpoint the items a user would interact with.
+A recommender system that only provides recommendations for 5% of the users will have a high precision if the users receiving the recommendations always interact with them.</p>
 <div class="math notranslate nohighlight">
 \[Precision&#64;k = \frac{1}{\left | A \cap P \right |}\sum_{i=1}^{\left | A \cap P \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | P_i[1:k] \right |}\]</div>
-<ul class="simple">
-<li><p><strong>Recall</strong></p></li>
-</ul>
+</div>
+<div class="section" id="recall">
+<h3>Recall<a class="headerlink" href="#recall" title="Permalink to this headline">¶</a></h3>
+<p>Recall&#64;k measures whether a model can capture all the items the user has interacted with.
+If __k__ is high enough, a recommender system can get a high recall even if it has a large amount of irrelevant recommendations, if it has also identified the relevant recommendations.</p>
 <div class="math notranslate nohighlight">
 \[Recall&#64;k = \frac{1}{\left | A \right |}\sum_{i=1}^{\left | A \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | A_i \right |}\]</div>
-<ul class="simple">
-<li><p><strong>MAP: Mean Average Precision</strong></p></li>
-</ul>
+</div>
+<div class="section" id="map-mean-average-precision">
+<h3>MAP: Mean Average Precision<a class="headerlink" href="#map-mean-average-precision" title="Permalink to this headline">¶</a></h3>
+<p>MAP&#64;k measures a position-sensitive version of Precision&#64;k, where getting the top-most recommendations more precise has a more important effect than getting the last recommendations correct.
+When <span class="math notranslate nohighlight">\(k=1\)</span>, Precision&#64;k and MAP&#64;k are the same.</p>
 <div class="math notranslate nohighlight">
 \[MAP&#64;k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac{1}{min(k,\left | A_i \right |))}\sum_{n=1}^k Precision_i(n) \times rel(P_{i,n})\]</div>
-<ul class="simple">
-<li><p><strong>NDCG: Normalized Discounted Cumulative Gain</strong></p></li>
-</ul>
+</div>
+<div class="section" id="ndcg-normalized-discounted-cumulative-gain">
+<h3>NDCG: Normalized Discounted Cumulative Gain<a class="headerlink" href="#ndcg-normalized-discounted-cumulative-gain" title="Permalink to this headline">¶</a></h3>
+<p>NDCG&#64;k measures the relevance of the ranked recommendations discounted by the rank at which they appear.
+It is normalized to be between 0 and 1.
+Improving the highest-ranked recommendations has a more important effect than improving the lowest-ranked recommendations.</p>
 <div class="math notranslate nohighlight">
 \[NDCG&#64;k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac {\sum_{r=1}^{\left | P_i \right |} \frac{rel(P_{i,r})}{log_2(r+1)}}{\sum_{r=1}^{\left | A_i \right |} \frac{1}{log_2(r+1)}}\]</div>
+</div>
 </div>
 </div>
 

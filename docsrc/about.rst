@@ -87,22 +87,35 @@ This is in line with industry practices.
 There is a further filtering for precision related metrics (Precision@k and MAP@k) where each user also has to have a recommendation.
 This is done to avoid divide by 0 errors.
 
-- **Precision**
+Precision
+^^^^^^^^^
+Precision@k measures how consistently a model is able to pinpoint the items a user would interact with.
+A recommender system that only provides recommendations for 5% of the users will have a high precision if the users receiving the recommendations always interact with them.
 
 .. math::
     Precision@k = \frac{1}{\left | A \cap P \right |}\sum_{i=1}^{\left | A \cap P \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | P_i[1:k] \right |}
 
-- **Recall**
+Recall
+^^^^^^
+Recall@k measures whether a model can capture all the items the user has interacted with.
+If __k__ is high enough, a recommender system can get a high recall even if it has a large amount of irrelevant recommendations, if it has also identified the relevant recommendations.
 
 .. math::
     Recall@k = \frac{1}{\left | A \right |}\sum_{i=1}^{\left | A \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | A_i \right |}
 
-- **MAP: Mean Average Precision**
+MAP: Mean Average Precision
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+MAP@k measures a position-sensitive version of Precision@k, where getting the top-most recommendations more precise has a more important effect than getting the last recommendations correct.
+When :math:`k=1`, Precision@k and MAP@k are the same.
 
 .. math::
     MAP@k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac{1}{min(k,\left | A_i \right |))}\sum_{n=1}^k Precision_i(n) \times rel(P_{i,n})
 
-- **NDCG: Normalized Discounted Cumulative Gain**
+NDCG: Normalized Discounted Cumulative Gain
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NDCG@k measures the relevance of the ranked recommendations discounted by the rank at which they appear.
+It is normalized to be between 0 and 1.
+Improving the highest-ranked recommendations has a more important effect than improving the lowest-ranked recommendations.
 
 .. math::
     NDCG@k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac {\sum_{r=1}^{\left | P_i \right |} \frac{rel(P_{i,r})}{log_2(r+1)}}{\sum_{r=1}^{\left | A_i \right |} \frac{1}{log_2(r+1)}}
