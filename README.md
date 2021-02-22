@@ -6,30 +6,30 @@ Jurity is developed by the Artificial Intelligence Center of Excellence at Fidel
 
 ## Fairness Metrics
 * [Average Odds](https://fidelity.github.io/jurity/about.html#average-odds)
-* Disparate Impact
-* Equal Opportunity
-* False Negative Rate (FNR) Difference
-* Generalized Entropy Index
-* Predictive Equality
-* Statistical Parity
-* Theil Index
+* [Disparate Impact](https://fidelity.github.io/jurity/about.html#disparate-impact)
+* [Equal Opportunity](https://fidelity.github.io/jurity/about.html#equal-opportunity)
+* [False Negative Rate (FNR) Difference](https://fidelity.github.io/jurity/about.html#fnr-difference)
+* [Generalized Entropy Index](https://fidelity.github.io/jurity/about.html#generalized-entropy-index)
+* [Predictive Equality](https://fidelity.github.io/jurity/about.html#predictive-equality)
+* [Statistical Parity](https://fidelity.github.io/jurity/about.html#statistical-parity)
+* [Theil Index](https://fidelity.github.io/jurity/about.html#theil-index)
 
 ## Binary Bias Mitigation Techniques
-* Equalized Odds
+* [Equalized Odds](https://fidelity.github.io/jurity/about.html#equalized-odds)
 
 ## Recommenders Metrics
-* CTR: Click-through rate 
-* NDCG: Normalized discounted cumulative gain
-* MAP@K: Mean Average Precision
-* Precision@K
-* Recall@K
+* [CTR: Click-through rate](https://fidelity.github.io/jurity/about.html#ctr-click-through-rate)
+* [Precision@K](https://fidelity.github.io/jurity/about.html#precision)
+* [Recall@K](https://fidelity.github.io/jurity/about.html#recall)
+* [MAP@K: Mean Average Precision](https://fidelity.github.io/jurity/about.html#map-mean-average-precision)
+* [NDCG: Normalized discounted cumulative gain](https://fidelity.github.io/jurity/about.html#ndcg-normalized-discounted-cumulative-gain)
 
 ## Classification Metrics
-* Accuracy
-* AUC
-* F1 Score
-* Precision
-* Recall
+* [Accuracy](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html)
+* [AUC](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_auc_score.html#sklearn.metrics.roc_auc_score)
+* [F1 Score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html)
+* [Precision](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html)
+* [Recall](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html)
 
 
 ## Quick Start: Fairness Evaluation
