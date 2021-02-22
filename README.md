@@ -1,11 +1,11 @@
 # Jurity: Fairness & Evaluation Library
 
-Jurity is a research library that provides fairness metrics, recommender system evaluations and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily. 
+Jurity is a research library that provides classification metrics, fairness metrics, recommender system evaluations, and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.
 
 Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments.
 
 ## Fairness Metrics
-* Average Odds
+* [Average Odds](https://fidelity.github.io/jurity/about.html#average-odds)
 * Disparate Impact
 * Equal Opportunity
 * False Negative Rate (FNR) Difference
@@ -23,6 +23,14 @@ Jurity is developed by the Artificial Intelligence Center of Excellence at Fidel
 * MAP@K: Mean Average Precision
 * Precision@K
 * Recall@K
+
+## Classification Metrics
+* Accuracy
+* AUC
+* F1 Score
+* Precision
+* Recall
+
 
 ## Quick Start: Fairness Evaluation
 
@@ -119,7 +127,7 @@ is_member = [0, 0, 0, 0, 1, 1, 1, 1]
 # Available: Accuracy, F1, Precision, Recall, and AUC
 f1_score = BinaryClassificationMetrics.F1()
 
-print('F1 score is', accuracy.get_score(predictions, labels))
+print('F1 score is', f1_score.get_score(predictions, labels))
 ```
 
 

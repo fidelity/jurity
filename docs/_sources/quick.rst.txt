@@ -99,4 +99,4 @@ Calculate Classification Metrics:
     # Available: Accuracy, F1, Precision, Recall, and AUC 
     f1_score = BinaryClassificationMetrics.F1()
 
-    print('F1 score is', accuracy.get_score(predictions, labels))
+    print('F1 score is', f1_score.get_score(predictions, labels))

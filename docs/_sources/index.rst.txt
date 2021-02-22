@@ -14,7 +14,7 @@ Jurity is developed by the Artificial Intelligence Center of Excellence at Fidel
 Available Fairness Metrics
 ---------------------------------
 
-* Average Odds
+* `Average Odds  <https://fidelity.github.io/jurity/about.html#average-odds>`_
 * Disparate Impact
 * Equal Opportunity
 * False Negative Rate Difference
@@ -40,8 +40,8 @@ Available Recommenders Metrics
 Available Classification Metrics
 ---------------------------------
 
-* Accuracy
-* AUC
+* `Accuracy  <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html>`_
+* AU
 * F1 Score
 * Precision
 * Recall
