@@ -72,7 +72,12 @@ Binary Recommender Metrics
 --------------------------
 Binary recommender metrics directly measure the click interaction.
 
-- **CTR**: Let :math:`M` denote the set of user-item pairs that appear both in actual ratings and recommendations, and :math:`C(M_i)` be an indicator function that procudes :math:`1` if the user clicked on the item, and :math:`0` if they didn't.
+CTR: Click-through Rate
+^^^^^^^^^^^^^^^^^^^^^^^
+
+CTR measures the accuracy of the recommendations over the subset of user-item pairs that appear in both actual ratings and recommendations.
+
+Let :math:`M` denote the set of user-item pairs that appear in both actual ratings and recommendations, and :math:`C(M_i)` be an indicator function that procudes :math:`1` if the user clicked on the item, and :math:`0` if they didn't.
 
 .. math::
     CTR = \frac{1}{\left | M \right |}\sum_{i=1}^{\left | M \right |} C(M_i)

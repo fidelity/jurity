@@ -91,7 +91,10 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">About Algorithmic Fairness</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#about-recommenders-metrics">About Recommenders Metrics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#binary-recommender-metrics">Binary Recommender Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#binary-recommender-metrics">Binary Recommender Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ctr-click-through-rate">CTR: Click-through Rate</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#ranking-recommender-metrics">Ranking Recommender Metrics</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#precision">Precision</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#recall">Recall</a></li>
@@ -234,11 +237,13 @@ Each <span class="math notranslate nohighlight">\(A_i\)</span> and <span class="
 <div class="section" id="binary-recommender-metrics">
 <h2>Binary Recommender Metrics<a class="headerlink" href="#binary-recommender-metrics" title="Permalink to this headline">¶</a></h2>
 <p>Binary recommender metrics directly measure the click interaction.</p>
-<ul class="simple">
-<li><p><strong>CTR</strong>: Let <span class="math notranslate nohighlight">\(M\)</span> denote the set of user-item pairs that appear both in actual ratings and recommendations, and <span class="math notranslate nohighlight">\(C(M_i)\)</span> be an indicator function that procudes <span class="math notranslate nohighlight">\(1\)</span> if the user clicked on the item, and <span class="math notranslate nohighlight">\(0\)</span> if they didn’t.</p></li>
-</ul>
+<div class="section" id="ctr-click-through-rate">
+<h3>CTR: Click-through Rate<a class="headerlink" href="#ctr-click-through-rate" title="Permalink to this headline">¶</a></h3>
+<p>CTR measures the accuracy of the recommendations over the subset of user-item pairs that appear in both actual ratings and recommendations.</p>
+<p>Let <span class="math notranslate nohighlight">\(M\)</span> denote the set of user-item pairs that appear in both actual ratings and recommendations, and <span class="math notranslate nohighlight">\(C(M_i)\)</span> be an indicator function that procudes <span class="math notranslate nohighlight">\(1\)</span> if the user clicked on the item, and <span class="math notranslate nohighlight">\(0\)</span> if they didn’t.</p>
 <div class="math notranslate nohighlight">
 \[CTR = \frac{1}{\left | M \right |}\sum_{i=1}^{\left | M \right |} C(M_i)\]</div>
+</div>
 </div>
 <div class="section" id="ranking-recommender-metrics">
 <h2>Ranking Recommender Metrics<a class="headerlink" href="#ranking-recommender-metrics" title="Permalink to this headline">¶</a></h2>
