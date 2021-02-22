@@ -161,16 +161,6 @@
 <h1>Jurity: Algorithmic Fairness Library<a class="headerlink" href="#jurity-algorithmic-fairness-library" title="Permalink to this headline">¶</a></h1>
 <p>Jurity is a research library that provides classification metrics, fairness metrics, recommender system evaluations, and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.</p>
 <p>Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments.</p>
-<div class="section" id="available-classification-metrics">
-<h2>Available Classification Metrics<a class="headerlink" href="#available-classification-metrics" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Accuracy</p></li>
-<li><p>AUC</p></li>
-<li><p>F1 Score</p></li>
-<li><p>Precision</p></li>
-<li><p>Recall</p></li>
-</ul>
-</div>
 <div class="section" id="available-fairness-metrics">
 <h2>Available Fairness Metrics<a class="headerlink" href="#available-fairness-metrics" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -198,6 +188,16 @@
 <li><p>MAP&#64;K: Mean Average Precision</p></li>
 <li><p>Precision&#64;K</p></li>
 <li><p>Recall&#64;K</p></li>
+</ul>
+</div>
+<div class="section" id="available-classification-metrics">
+<h2>Available Classification Metrics<a class="headerlink" href="#available-classification-metrics" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Accuracy</p></li>
+<li><p>AUC</p></li>
+<li><p>F1 Score</p></li>
+<li><p>Precision</p></li>
+<li><p>Recall</p></li>
 </ul>
 </div>
 </div>
@@ -277,6 +277,22 @@
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MAP@K:&quot;</span><span class="p">,</span> <span class="n">map_k</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">predicted</span><span class="p">))</span>
 </pre></div>
 </div>
+<p>Calculate Classification Metrics:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import classification metrics</span>
+<span class="kn">from</span> <span class="nn">jurity.classification</span> <span class="kn">import</span> <span class="n">BinaryClassificationMetrics</span>
+
+<span class="c1"># Data</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">likelihoods</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>
+<span class="n">is_member</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Available: Accuracy, F1, Precision, Recall, and AUC</span>
+<span class="n">f1_score</span> <span class="o">=</span> <span class="n">BinaryClassificationMetrics</span><span class="o">.</span><span class="n">F1</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;F1 score is&#39;</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">))</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="source-code">
 <h1>Source Code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h1>
@@ -295,10 +311,23 @@
 <li class="toctree-l2"><a class="reference internal" href="install.html#upgrading-the-library">Upgrading the Library</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="about.html">About Algorithmic Fairness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About Algorithmic Fairness</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="about.html#average-odds">Average odds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#disparate-impact">Disparate Impact</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#equal-opportunity">Equal Opportunity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#fnr-difference">FNR Difference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#generalized-entropy-index">Generalized Entropy Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#predictive-equality">Predictive Equality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#statistical-parity">Statistical Parity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#theil-index">Theil Index</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="about.html#about-recommenders-metrics">About Recommenders Metrics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="about.html#binary-recommender-metrics">Binary Recommender Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="about.html#ranking-recommender-metrics">Ranking Recommender Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#ctr-click-through-rate">CTR: Click-through Rate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#precision">Precision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#recall">Recall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#map-mean-average-precision">MAP: Mean Average Precision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about.html#ndcg-normalized-discounted-cumulative-gain">NDCG: Normalized Discounted Cumulative Gain</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Jurity Public API</a><ul>

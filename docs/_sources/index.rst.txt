@@ -11,16 +11,6 @@ Jurity is a research library that provides classification metrics, fairness metr
 Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments.
 
 
-Available Classification Metrics
----------------------------------
-
-* Accuracy
-* AUC
-* F1 Score
-* Precision
-* Recall
-
-
 Available Fairness Metrics
 ---------------------------------
 
@@ -46,6 +36,16 @@ Available Recommenders Metrics
 * MAP@K: Mean Average Precision
 * Precision@K
 * Recall@K
+
+Available Classification Metrics
+---------------------------------
+
+* Accuracy
+* AUC
+* F1 Score
+* Precision
+* Recall
+
 
 .. include:: quick.rst
 

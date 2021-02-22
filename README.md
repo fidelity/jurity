@@ -104,6 +104,25 @@ print("Recall@K:", recall_k.get_score(actual, predicted))
 print("MAP@K:", map_k.get_score(actual, predicted))
 ```
 
+## Quick Start: Classifier Evaluation
+
+```python
+# Import classification metrics
+from jurity.classification import BinaryClassificationMetrics
+
+# Data
+labels = [1, 1, 0, 1, 0, 0, 1, 0]
+predictions = [0, 0, 0, 1, 1, 1, 1, 0]
+likelihoods = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.1]
+is_member = [0, 0, 0, 0, 1, 1, 1, 1]
+
+# Available: Accuracy, F1, Precision, Recall, and AUC
+f1_score = BinaryClassificationMetrics.F1()
+
+print('F1 score is', accuracy.get_score(predictions, labels))
+```
+
+
 ## Installation
 
 ### Requirements
