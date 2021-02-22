@@ -15,7 +15,7 @@ class MAP(_BaseRecommenders):
     """Mean Average Precision
 
     .. math::
-        MAP@k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac{1}{min(k,\left | A_i \right |))}\sum_{n=1}^k Precision_i(n) \times rel(P_{i,n})
+        MAP@k = \\frac{1}{\left | A \\right |} \sum_{i=1}^{\left | A \\right |} \\frac{1}{min(k,\left | A_i \\right |))}\sum_{n=1}^k Precision_i(n) \\times rel(P_{i,n})
 
     Intuitively, MAP measures how precise the recommendations are while taking the ranking of the recommendations
     into account.
@@ -39,32 +39,35 @@ class MAP(_BaseRecommenders):
         This is the default method, which assumes you are operating on the full data and you want to get the metric by
         itself. Returns ``float``.
 
-        ```
-        print(ctr.get_score(actual_responses_batch, recommendations_batch))
-        >>> 0.316
-        ```
+        .. highlight:: python
+        .. code-block:: python
+
+            print(ctr.get_score(actual_responses_batch, recommendations_batch))
+            >>> 0.316
 
         2) Calculating the extended results for the whole data:
 
         This assumes you are operating on the full data and you want to get the auxiliary information such as the
         support in addition to the metric. The information returned depends on the metric. Returns ``dict``.
 
-        ```
-        print(ctr.get_score(actual_responses_batch, recommendations_batch, return_extended_results=True))
-        >>> {'ctr': 0.316, 'support': 122}
-        ```
+        .. highlight:: python
+        .. code-block:: python
+
+            print(ctr.get_score(actual_responses_batch, recommendations_batch, return_extended_results=True))
+            >>> {'ctr': 0.316, 'support': 122}
 
         3) Calculating the metric across multiple batches.
 
         This assumes that you are operating on batched data, and will therefore call this method multiple times for each
         batch. It also assumes that you want to get the metric by itself. Returns ``Tuple[float, float]``.
 
-        ```
-        for actual_responses_batch, recommendations_batch in ..
-            ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
-            print(f'CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}')
-            >>> CTR for this batch: 0.453 Overall CTR: 0.316
-        ```
+        .. highlight:: python
+        .. code-block:: python
+
+            for actual_responses_batch, recommendations_batch in ..
+                ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
+                print(f'CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}')
+                >>> CTR for this batch: 0.453 Overall CTR: 0.316
 
         4) Calculating the extended results across multiple matches:
 
@@ -72,12 +75,13 @@ class MAP(_BaseRecommenders):
         batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
         The information returned depends on the metric. Returns ``Tuple[dict, dict]``.
 
-        ```
-        for actual_responses_batch, recommendations_batch in ..
-            ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
-            print(f'CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}')
-            >>> CTR for this batch: {'ctr': 0.453, 'support': 12} Overall CTR: {'ctr': 0.316, 'support': 122}
-        ```
+        .. highlight:: python
+        .. code-block:: python
+
+            for actual_responses_batch, recommendations_batch in ..
+                ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
+                print(f'CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}')
+                >>> CTR for this batch: {'ctr': 0.453, 'support': 12} Overall CTR: {'ctr': 0.316, 'support': 122}
 
         Parameters
         ---------

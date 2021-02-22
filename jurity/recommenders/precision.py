@@ -44,7 +44,7 @@ class Precision(_BaseRecommenders):
     it measures the ratio of recommendations among the top k items that are relevant.
 
     .. math::
-        Precision@k = \frac{1}{\left | A \cap P \right |}\sum_{i=1}^{\left | A \cap P \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | P_i[1:k] \right |}
+        Precision@k = \\frac{1}{\left | A \cap P \\right |}\sum_{i=1}^{\left | A \cap P \\right |} \\frac{\left | A_i \cap P_i[1:k] \\right |}{\left | P_i[1:k] \\right |}
 
     """
 
@@ -65,32 +65,35 @@ class Precision(_BaseRecommenders):
         This is the default method, which assumes you are operating on the full data and you want to get the metric by
         itself. Returns ``float``.
 
-        ```
-        print(ctr.get_score(actual_responses_batch, recommendations_batch))
-        >>> 0.316
-        ```
+        .. highlight:: python
+        .. code-block:: python
+
+            print(ctr.get_score(actual_responses_batch, recommendations_batch))
+            >>> 0.316
 
         2) Calculating the extended results for the whole data:
 
         This assumes you are operating on the full data and you want to get the auxiliary information such as the
         support in addition to the metric. The information returned depends on the metric. Returns ``dict``.
 
-        ```
-        print(ctr.get_score(actual_responses_batch, recommendations_batch, return_extended_results=True))
-        >>> {'ctr': 0.316, 'support': 122}
-        ```
+        .. highlight:: python
+        .. code-block:: python
+
+            print(ctr.get_score(actual_responses_batch, recommendations_batch, return_extended_results=True))
+            >>> {'ctr': 0.316, 'support': 122}
 
         3) Calculating the metric across multiple batches.
 
         This assumes that you are operating on batched data, and will therefore call this method multiple times for each
         batch. It also assumes that you want to get the metric by itself. Returns ``Tuple[float, float]``.
 
-        ```
-        for actual_responses_batch, recommendations_batch in ..
-            ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
-            print(f'CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}')
-            >>> CTR for this batch: 0.453 Overall CTR: 0.316
-        ```
+        .. highlight:: python
+        .. code-block:: python
+
+            for actual_responses_batch, recommendations_batch in ..
+                ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
+                print(f'CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}')
+                >>> CTR for this batch: 0.453 Overall CTR: 0.316
 
         4) Calculating the extended results across multiple matches:
 
@@ -98,12 +101,13 @@ class Precision(_BaseRecommenders):
         batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
         The information returned depends on the metric. Returns ``Tuple[dict, dict]``.
 
-        ```
-        for actual_responses_batch, recommendations_batch in ..
-            ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
-            print(f'CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}')
-            >>> CTR for this batch: {'ctr': 0.453, 'support': 12} Overall CTR: {'ctr': 0.316, 'support': 122}
-        ```
+        .. highlight:: python
+        .. code-block:: python
+
+            for actual_responses_batch, recommendations_batch in ..
+                ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
+                print(f'CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}')
+                >>> CTR for this batch: {'ctr': 0.453, 'support': 12} Overall CTR: {'ctr': 0.316, 'support': 122}
 
         Parameters
         ---------

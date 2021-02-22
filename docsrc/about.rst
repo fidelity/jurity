@@ -61,8 +61,48 @@ References:
 About Recommenders Metrics
 ==========================
 
-For the definitions below, `A` is the set of actual ratings for users and `P` is the set of predictions / recommendations. Each `A_i` and `P_i` represents the list of actual items and list of recommended items, respectively, for a user `i`.
+Jurity offers various standardized metrics for measuring the recommendation performance.
+While the recommendation systems community agrees on these metrics, the implementations can be different, especially when it comes to edge-cases.
 
-Some metrics use the relevance function `rel(P_{i,n})`, which is an indicator function that produces `1` if the predicted item at position `n` for user `i` is in the user's relevant set of items.
+For the definitions below, :math:`A` is the set of actual ratings for users and :math:`P` is the set of predictions / recommendations.
+Each :math:`A_i` and :math:`P_i` represents the list of actual items and list of recommended items, respectively, for a user :math:`i`.
 
-All the ranking metrics operate on a filtered set of users such that only the users with relevant/clicked items are taken into account. This is in line with industry practices. There is a further filtering for precision related metrics (Precision@k and MAP@k) where each user also has to have a recommendation. This is done to avoid divide by 0 errors.
+
+Binary Recommender Metrics
+--------------------------
+Binary recommender metrics directly measure the click interaction.
+
+- **CTR**: Let :math:`M` denote the set of user-item pairs that appear both in actual ratings and recommendations, and :math:`C(M_i)` be an indicator function that procudes :math:`1` if the user clicked on the item, and :math:`0` if they didn't.
+
+.. math::
+    CTR = \frac{1}{\left | M \right |}\sum_{i=1}^{\left | M \right |} C(M_i)
+
+Ranking Recommender Metrics
+---------------------------
+Ranking metrics reward putting the clicked items on a higher position/rank than the others.
+Some metrics use the relevance function :math:`rel(P_{i,n})`, which is an indicator function that produces :math:`1` if the predicted item at position :math:`n` for user :math:`i` is in the user's relevant set of items.
+
+All the ranking metrics operate on a filtered set of users such that only the users with relevant/clicked items are taken into account.
+This is in line with industry practices.
+There is a further filtering for precision related metrics (Precision@k and MAP@k) where each user also has to have a recommendation.
+This is done to avoid divide by 0 errors.
+
+- **Precision**
+
+.. math::
+    Precision@k = \frac{1}{\left | A \cap P \right |}\sum_{i=1}^{\left | A \cap P \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | P_i[1:k] \right |}
+
+- **Recall**
+
+.. math::
+    Recall@k = \frac{1}{\left | A \right |}\sum_{i=1}^{\left | A \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | A_i \right |}
+
+- **MAP: Mean Average Precision**
+
+.. math::
+    MAP@k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac{1}{min(k,\left | A_i \right |))}\sum_{n=1}^k Precision_i(n) \times rel(P_{i,n})
+
+- **NDCG: Normalized Discounted Cumulative Gain**
+
+.. math::
+    NDCG@k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac {\sum_{r=1}^{\left | P_i \right |} \frac{rel(P_{i,r})}{log_2(r+1)}}{\sum_{r=1}^{\left | A_i \right |} \frac{1}{log_2(r+1)}}
