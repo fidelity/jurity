@@ -90,7 +90,11 @@
 <li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">About Algorithmic Fairness</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#about-recommenders-metrics">About Recommenders Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#about-recommenders-metrics">About Recommenders Metrics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#binary-recommender-metrics">Binary Recommender Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ranking-recommender-metrics">Ranking Recommender Metrics</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Jurity Public API</a></li>
 </ul>
 
@@ -217,9 +221,48 @@ Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery a
 </div>
 <div class="section" id="about-recommenders-metrics">
 <h1>About Recommenders Metrics<a class="headerlink" href="#about-recommenders-metrics" title="Permalink to this headline">¶</a></h1>
-<p>For the definitions below, <cite>A</cite> is the set of actual ratings for users and <cite>P</cite> is the set of predictions / recommendations. Each <cite>A_i</cite> and <cite>P_i</cite> represents the list of actual items and list of recommended items, respectively, for a user <cite>i</cite>.</p>
-<p>Some metrics use the relevance function <cite>rel(P_{i,n})</cite>, which is an indicator function that produces <cite>1</cite> if the predicted item at position <cite>n</cite> for user <cite>i</cite> is in the user’s relevant set of items.</p>
-<p>All the ranking metrics operate on a filtered set of users such that only the users with relevant/clicked items are taken into account. This is in line with industry practices. There is a further filtering for precision related metrics (Precision&#64;k and MAP&#64;k) where each user also has to have a recommendation. This is done to avoid divide by 0 errors.</p>
+<p>Jurity offers various standardized metrics for measuring the recommendation performance.
+While the recommendation systems community agrees on these metrics, the implementations can be different, especially when it comes to edge-cases.</p>
+<p>For the definitions below, <span class="math notranslate nohighlight">\(A\)</span> is the set of actual ratings for users and <span class="math notranslate nohighlight">\(P\)</span> is the set of predictions / recommendations.
+Each <span class="math notranslate nohighlight">\(A_i\)</span> and <span class="math notranslate nohighlight">\(P_i\)</span> represents the list of actual items and list of recommended items, respectively, for a user <span class="math notranslate nohighlight">\(i\)</span>.</p>
+<div class="section" id="binary-recommender-metrics">
+<h2>Binary Recommender Metrics<a class="headerlink" href="#binary-recommender-metrics" title="Permalink to this headline">¶</a></h2>
+<p>Binary recommender metrics directly measure the click interaction.</p>
+<ul class="simple">
+<li><p><strong>CTR</strong>: Let <span class="math notranslate nohighlight">\(M\)</span> denote the set of user-item pairs that appear both in actual ratings and recommendations, and <span class="math notranslate nohighlight">\(C(M_i)\)</span> be an indicator function that procudes <span class="math notranslate nohighlight">\(1\)</span> if the user clicked on the item, and <span class="math notranslate nohighlight">\(0\)</span> if they didn’t.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[CTR = \frac{1}{\left | M \right |}\sum_{i=1}^{\left | M \right |} C(M_i)\]</div>
+</div>
+<div class="section" id="ranking-recommender-metrics">
+<h2>Ranking Recommender Metrics<a class="headerlink" href="#ranking-recommender-metrics" title="Permalink to this headline">¶</a></h2>
+<p>Ranking metrics reward putting the clicked items on a higher position/rank than the others.
+Some metrics use the relevance function <span class="math notranslate nohighlight">\(rel(P_{i,n})\)</span>, which is an indicator function that produces <span class="math notranslate nohighlight">\(1\)</span> if the predicted item at position <span class="math notranslate nohighlight">\(n\)</span> for user <span class="math notranslate nohighlight">\(i\)</span> is in the user’s relevant set of items.</p>
+<p>All the ranking metrics operate on a filtered set of users such that only the users with relevant/clicked items are taken into account.
+This is in line with industry practices.
+There is a further filtering for precision related metrics (Precision&#64;k and MAP&#64;k) where each user also has to have a recommendation.
+This is done to avoid divide by 0 errors.</p>
+<ul class="simple">
+<li><p><strong>Precision</strong></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[Precision&#64;k = \frac{1}{\left | A \cap P \right |}\sum_{i=1}^{\left | A \cap P \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | P_i[1:k] \right |}\]</div>
+<ul class="simple">
+<li><p><strong>Recall</strong></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[Recall&#64;k = \frac{1}{\left | A \right |}\sum_{i=1}^{\left | A \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | A_i \right |}\]</div>
+<ul class="simple">
+<li><p><strong>MAP: Mean Average Precision</strong></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[MAP&#64;k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac{1}{min(k,\left | A_i \right |))}\sum_{n=1}^k Precision_i(n) \times rel(P_{i,n})\]</div>
+<ul class="simple">
+<li><p><strong>NDCG: Normalized Discounted Cumulative Gain</strong></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[NDCG&#64;k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac {\sum_{r=1}^{\left | P_i \right |} \frac{rel(P_{i,r})}{log_2(r+1)}}{\sum_{r=1}^{\left | A_i \right |} \frac{1}{log_2(r+1)}}\]</div>
+</div>
 </div>
 
 

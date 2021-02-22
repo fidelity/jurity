@@ -491,7 +491,7 @@ Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery a
 <em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_member</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">pandas.core.series.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membership_label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#jurity.fairness.BinaryFairnessMetrics.PredictiveEquality.get_score" title="Permalink to this definition">¶</a></dt>
 <dd><p>We define the predictive equality as the situation when accuracy of decisions is equal across race groups,
 as measured by false positive rate (FPR).</p>
-<p>Drawing the analogy of gender classification, across all race groups,
+<p>Drawing the analogy of gender classification where race is the protected attribute, across all race groups,
 the ratio of men incorrectly predicted to be a woman is the same.</p>
 <p>More formally,</p>
 <div class="math notranslate nohighlight">
@@ -741,46 +741,42 @@ actual item the user has seen matches the recommendation.</p>
 </ol>
 <p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
 itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="2">
 <li><p>Calculating the extended results for the whole data:</p></li>
 </ol>
 <p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
 support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="3">
 <li><p>Calculating the metric across multiple batches.</p></li>
 </ol>
 <p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
-<p><a href="#id5"><span class="problematic" id="id6">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
-</div></blockquote>
-<p><a href="#id7"><span class="problematic" id="id8">``</span></a><a href="#id9"><span class="problematic" id="id10">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="mf">0.453</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="4">
 <li><p>Calculating the extended results across multiple matches:</p></li>
 </ol>
 <p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
 The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
-<p><a href="#id11"><span class="problematic" id="id12">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
-</div></blockquote>
-<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.453</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">}</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -830,20 +826,11 @@ will be of type <code class="docutils literal notranslate"><span class="pre">dic
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">MAP</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">click_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'user_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'item_id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.MAP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.recommenders.base._BaseRecommenders</span></code></p>
 <p>Mean Average Precision</p>
-<blockquote>
-<div><div class="math notranslate nohighlight">
-\[MAP&#64;k =\]</div>
-</div></blockquote>
-<p>rac{1}{left | A
-ight <a href="#id17"><span class="problematic" id="id18">|</span></a>} sum_{i=1}^{left | A
-ight <a href="#id19"><span class="problematic" id="id20">|</span></a>}
-rac{1}{min(k,left | A_i
-ight <a href="#id21"><span class="problematic" id="id22">|</span></a>))}sum_{n=1}^k Precision_i(n)    imes rel(P_{i,n})</p>
-<blockquote>
-<div><p>Intuitively, MAP measures how precise the recommendations are while taking the ranking of the recommendations
+<div class="math notranslate nohighlight">
+\[MAP&#64;k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac{1}{min(k,\left | A_i \right |))}\sum_{n=1}^k Precision_i(n) \times rel(P_{i,n})\]</div>
+<p>Intuitively, MAP measures how precise the recommendations are while taking the ranking of the recommendations
 into account.
 Sources: <a class="reference external" href="https://medium.com/&#64;judaikawa/building-and-evaluating-a-recommender-system-for-implicit-feedback-59495d2077d4">https://medium.com/&#64;judaikawa/building-and-evaluating-a-recommender-system-for-implicit-feedback-59495d2077d4</a></p>
-</div></blockquote>
 <dl class="py method">
 <dt id="jurity.recommenders.RankingRecoMetrics.MAP.get_score">
 <code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_accumulate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_extended_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.MAP.get_score" title="Permalink to this definition">¶</a></dt>
@@ -854,46 +841,42 @@ Sources: <a class="reference external" href="https://medium.com/&#64;judaikawa/b
 </ol>
 <p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
 itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="2">
 <li><p>Calculating the extended results for the whole data:</p></li>
 </ol>
 <p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
 support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="3">
 <li><p>Calculating the metric across multiple batches.</p></li>
 </ol>
 <p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
-<p><a href="#id23"><span class="problematic" id="id24">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
-</div></blockquote>
-<p><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="mf">0.453</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="4">
 <li><p>Calculating the extended results across multiple matches:</p></li>
 </ol>
 <p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
 The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
-<p><a href="#id29"><span class="problematic" id="id30">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
-</div></blockquote>
-<p><a href="#id31"><span class="problematic" id="id32">``</span></a><a href="#id33"><span class="problematic" id="id34">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.453</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">}</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -934,20 +917,10 @@ will be of type <code class="docutils literal notranslate"><span class="pre">dic
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">NDCG</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">click_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'user_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'item_id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.NDCG" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.recommenders.base._BaseRecommenders</span></code></p>
 <p>Normalized Discounted Cumulative Gain</p>
-<blockquote>
-<div><p>NDCG measures the ranking of the relevant items with a non-linear, discounted (log2) score per rank. NDCG is
+<p>NDCG measures the ranking of the relevant items with a non-linear, discounted (log2) score per rank. NDCG is
 normalized such that the scores are between 0 and 1.</p>
 <div class="math notranslate nohighlight">
-\[NDCG&#64;k =\]</div>
-</div></blockquote>
-<p>rac{1}{left | A
-ight <a href="#id35"><span class="problematic" id="id36">|</span></a>} sum_{i=1}^{left | A
-ight <a href="#id37"><span class="problematic" id="id38">|</span></a>}
-rac {sum_{r=1}^{left | P_i
-ight <a href="#id39"><span class="problematic" id="id40">|</span></a>}
-rac{rel(P_{i,r})}{log_2(r+1)}}{sum_{r=1}^{left | A_i
-ight <a href="#id41"><span class="problematic" id="id42">|</span></a>}
-rac{1}{log_2(r+1)}}</p>
+\[NDCG&#64;k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac {\sum_{r=1}^{\left | P_i \right |} \frac{rel(P_{i,r})}{log_2(r+1)}}{\sum_{r=1}^{\left | A_i \right |} \frac{1}{log_2(r+1)}}\]</div>
 <dl class="py method">
 <dt id="jurity.recommenders.RankingRecoMetrics.NDCG.get_score">
 <code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_accumulate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_extended_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.NDCG.get_score" title="Permalink to this definition">¶</a></dt>
@@ -958,46 +931,42 @@ rac{1}{log_2(r+1)}}</p>
 </ol>
 <p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
 itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="2">
 <li><p>Calculating the extended results for the whole data:</p></li>
 </ol>
 <p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
 support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="3">
 <li><p>Calculating the metric across multiple batches.</p></li>
 </ol>
 <p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
-<p><a href="#id43"><span class="problematic" id="id44">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
-</div></blockquote>
-<p><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="mf">0.453</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="4">
 <li><p>Calculating the extended results across multiple matches:</p></li>
 </ol>
 <p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
 The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
-<p><a href="#id49"><span class="problematic" id="id50">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
-</div></blockquote>
-<p><a href="#id51"><span class="problematic" id="id52">``</span></a><a href="#id53"><span class="problematic" id="id54">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.453</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">}</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1038,18 +1007,10 @@ will be of type <code class="docutils literal notranslate"><span class="pre">dic
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Precision</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">click_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'user_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'item_id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.Precision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.recommenders.base._BaseRecommenders</span></code></p>
 <p>Precision&#64;k</p>
-<blockquote>
-<div><p>Precision&#64;k measures the precision of the recommendations when only k recommendations are made to the user. That is,
+<p>Precision&#64;k measures the precision of the recommendations when only k recommendations are made to the user. That is,
 it measures the ratio of recommendations among the top k items that are relevant.</p>
 <div class="math notranslate nohighlight">
-\[Precision&#64;k =\]</div>
-</div></blockquote>
-<p>rac{1}{left | A cap P
-ight <a href="#id55"><span class="problematic" id="id56">|</span></a>}sum_{i=1}^{left | A cap P
-ight <a href="#id57"><span class="problematic" id="id58">|</span></a>}
-rac{left | A_i cap P_i[1:k]
-ight <a href="#id59"><span class="problematic" id="id60">|</span></a>}{left | P_i[1:k]
-ight <a href="#id61"><span class="problematic" id="id62">|</span></a>}</p>
+\[Precision&#64;k = \frac{1}{\left | A \cap P \right |}\sum_{i=1}^{\left | A \cap P \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | P_i[1:k] \right |}\]</div>
 <dl class="py method">
 <dt id="jurity.recommenders.RankingRecoMetrics.Precision.get_score">
 <code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_accumulate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_extended_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.Precision.get_score" title="Permalink to this definition">¶</a></dt>
@@ -1060,46 +1021,42 @@ ight <a href="#id61"><span class="problematic" id="id62">|</span></a>}</p>
 </ol>
 <p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
 itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="2">
 <li><p>Calculating the extended results for the whole data:</p></li>
 </ol>
 <p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
 support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="3">
 <li><p>Calculating the metric across multiple batches.</p></li>
 </ol>
 <p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
-<p><a href="#id63"><span class="problematic" id="id64">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
-</div></blockquote>
-<p><a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="mf">0.453</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="4">
 <li><p>Calculating the extended results across multiple matches:</p></li>
 </ol>
 <p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
 The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
-<p><a href="#id69"><span class="problematic" id="id70">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
-</div></blockquote>
-<p><a href="#id71"><span class="problematic" id="id72">``</span></a><a href="#id73"><span class="problematic" id="id74">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.453</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">}</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1141,18 +1098,10 @@ Precision.</p></li>
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Recall</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">click_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'user_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id_column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'item_id'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.Recall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">jurity.recommenders.base._BaseRecommenders</span></code></p>
 <p>Recall&#64;k</p>
-<blockquote>
-<div><p>Recall&#64;k measures the recall of the recommendations when only k recommendations are made to the user. That is,
+<p>Recall&#64;k measures the recall of the recommendations when only k recommendations are made to the user. That is,
 it measures the ratio of relevant items that were among the top k recommendations.</p>
 <div class="math notranslate nohighlight">
-\[Recall&#64;k =\]</div>
-</div></blockquote>
-<p>rac{1}{left | A
-ight <a href="#id75"><span class="problematic" id="id76">|</span></a>}sum_{i=1}^{left | A
-ight <a href="#id77"><span class="problematic" id="id78">|</span></a>}
-rac{left | A_i cap P_i[1:k]
-ight <a href="#id79"><span class="problematic" id="id80">|</span></a>}{left | A_i
-ight <a href="#id81"><span class="problematic" id="id82">|</span></a>}</p>
+\[Recall&#64;k = \frac{1}{\left | A \right |}\sum_{i=1}^{\left | A \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | A_i \right |}\]</div>
 <dl class="py method">
 <dt id="jurity.recommenders.RankingRecoMetrics.Recall.get_score">
 <code class="sig-name descname"><span class="pre">get_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_accumulate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_extended_results</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#jurity.recommenders.RankingRecoMetrics.Recall.get_score" title="Permalink to this definition">¶</a></dt>
@@ -1163,46 +1112,42 @@ ight <a href="#id81"><span class="problematic" id="id82">|</span></a>}</p>
 </ol>
 <p>This is the default method, which assumes you are operating on the full data and you want to get the metric by
 itself. Returns <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">0.316</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="2">
 <li><p>Calculating the extended results for the whole data:</p></li>
 </ol>
 <p>This assumes you are operating on the full data and you want to get the auxiliary information such as the
 support in addition to the metric. The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">print(ctr.get_score(actual_responses_batch,</span> <span class="pre">recommendations_batch,</span> <span class="pre">return_extended_results=True))</span>
-<span class="pre">&gt;&gt;&gt;</span> <span class="pre">{'ctr':</span> <span class="pre">0.316,</span> <span class="pre">'support':</span> <span class="pre">122}</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="3">
 <li><p>Calculating the metric across multiple batches.</p></li>
 </ol>
 <p>This assumes that you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes that you want to get the metric by itself. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[float,</span> <span class="pre">float]</span></code>.</p>
-<p><a href="#id83"><span class="problematic" id="id84">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: 0.453 Overall CTR: 0.316</p>
-</div></blockquote>
-<p><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="mf">0.453</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="mf">0.316</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="4">
 <li><p>Calculating the extended results across multiple matches:</p></li>
 </ol>
 <p>This assumes you are operating on batched data, and will therefore call this method multiple times for each
 batch. It also assumes you want to get the auxiliary information such as the support in addition to the metric.
 The information returned depends on the metric. Returns <code class="docutils literal notranslate"><span class="pre">Tuple[dict,</span> <span class="pre">dict]</span></code>.</p>
-<p><a href="#id89"><span class="problematic" id="id90">``</span></a>`
-for actual_responses_batch, recommendations_batch in ..</p>
-<blockquote>
-<div><p>ctr_batch, ctr_acc = ctr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
-print(f’CTR for this batch: {ctr_batch} Overall CTR: {ctr_acc}’)
-&gt;&gt;&gt; CTR for this batch: {‘ctr’: 0.453, ‘support’: 12} Overall CTR: {‘ctr’: 0.316, ‘support’: 122}</p>
-</div></blockquote>
-<p><a href="#id91"><span class="problematic" id="id92">``</span></a><a href="#id93"><span class="problematic" id="id94">`</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span> <span class="ow">in</span> <span class="o">..</span>
+    <span class="n">ctr_batch</span><span class="p">,</span> <span class="n">ctr_acc</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual_responses_batch</span><span class="p">,</span> <span class="n">recommendations_batch</span><span class="p">,</span> <span class="n">accumulate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_extended_results</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CTR for this batch: </span><span class="si">{</span><span class="n">ctr_batch</span><span class="si">}</span><span class="s1"> Overall CTR: </span><span class="si">{</span><span class="n">ctr_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">CTR</span> <span class="k">for</span> <span class="n">this</span> <span class="n">batch</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.453</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">}</span> <span class="n">Overall</span> <span class="n">CTR</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ctr&#39;</span><span class="p">:</span> <span class="mf">0.316</span><span class="p">,</span> <span class="s1">&#39;support&#39;</span><span class="p">:</span> <span class="mi">122</span><span class="p">}</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
