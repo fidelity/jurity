@@ -4,7 +4,7 @@ Quick Start
 ===========
 
 Calculate Fairness Metrics
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 .. code-block:: python
 
@@ -32,7 +32,7 @@ Calculate Fairness Metrics
     print("Multi-class multi-label Fairness scores: ", multi_metric.get_scores(multi_class_multi_label_predictions, is_member))
 
 Fit and Apply Bias Mitigation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 .. code-block:: python
 
@@ -60,7 +60,7 @@ Fit and Apply Bias Mitigation
     print("Fairness Metrics After:", BinaryFairnessMetrics().get_all_scores(labels, fair_predictions, is_member))
     
 Calculate Recommenders Metrics
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------
 
 .. code-block:: python
 
@@ -87,7 +87,7 @@ Calculate Recommenders Metrics
     print("MAP@K:", map_k.get_score(actual, predicted))
 
 Calculate Classification Metrics
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------
 
 .. code-block:: python
     
