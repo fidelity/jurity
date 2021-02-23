@@ -6,7 +6,7 @@
 Jurity: Algorithmic Fairness Library
 ====================================
 
-Jurity is a research library that provides classification metrics, fairness metrics, recommender system evaluations, and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.
+Jurity is a research library that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.
 
 Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments.
 
@@ -61,7 +61,8 @@ The source code is hosted on :repo:`GitHub <>`.
 
 	   quick
 	   install
-	   about
+	   about_fairness
+	   about_reco
 	   api
 
 

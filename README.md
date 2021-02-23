@@ -112,7 +112,7 @@ print("Recall@K:", recall_k.get_score(actual, predicted))
 print("MAP@K:", map_k.get_score(actual, predicted))
 ```
 
-## Quick Start: Classifier Evaluation
+## Quick Start: Classification Evaluation
 
 ```python
 # Import classification metrics
