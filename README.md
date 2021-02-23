@@ -1,28 +1,36 @@
 # Jurity: Fairness & Evaluation Library
 
-Jurity is a research library that provides fairness metrics, recommender system evaluations and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily. 
+Jurity is a research library that provides classification metrics, fairness metrics, recommender system evaluations, and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.
 
 Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments.
 
 ## Fairness Metrics
-* Average Odds
-* Disparate Impact
-* Equal Opportunity
-* False Negative Rate (FNR) Difference
-* Generalized Entropy Index
-* Predictive Equality
-* Statistical Parity
-* Theil Index
+* [Average Odds](https://fidelity.github.io/jurity/about.html#average-odds)
+* [Disparate Impact](https://fidelity.github.io/jurity/about.html#disparate-impact)
+* [Equal Opportunity](https://fidelity.github.io/jurity/about.html#equal-opportunity)
+* [False Negative Rate (FNR) Difference](https://fidelity.github.io/jurity/about.html#fnr-difference)
+* [Generalized Entropy Index](https://fidelity.github.io/jurity/about.html#generalized-entropy-index)
+* [Predictive Equality](https://fidelity.github.io/jurity/about.html#predictive-equality)
+* [Statistical Parity](https://fidelity.github.io/jurity/about.html#statistical-parity)
+* [Theil Index](https://fidelity.github.io/jurity/about.html#theil-index)
 
 ## Binary Bias Mitigation Techniques
-* Equalized Odds
+* [Equalized Odds](https://fidelity.github.io/jurity/about.html#equalized-odds)
 
 ## Recommenders Metrics
-* CTR: Click-through rate 
-* NDCG: Normalized discounted cumulative gain
-* MAP@K: Mean Average Precision
-* Precision@K
-* Recall@K
+* [CTR: Click-through rate](https://fidelity.github.io/jurity/about.html#ctr-click-through-rate)
+* [Precision@K](https://fidelity.github.io/jurity/about.html#precision)
+* [Recall@K](https://fidelity.github.io/jurity/about.html#recall)
+* [MAP@K: Mean Average Precision](https://fidelity.github.io/jurity/about.html#map-mean-average-precision)
+* [NDCG: Normalized discounted cumulative gain](https://fidelity.github.io/jurity/about.html#ndcg-normalized-discounted-cumulative-gain)
+
+## Classification Metrics
+* [Accuracy](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html)
+* [AUC](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_auc_score.html#sklearn.metrics.roc_auc_score)
+* [F1 Score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html)
+* [Precision](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html)
+* [Recall](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html)
+
 
 ## Quick Start: Fairness Evaluation
 
@@ -103,6 +111,25 @@ print("Precision@K:", precision_k.get_score(actual, predicted))
 print("Recall@K:", recall_k.get_score(actual, predicted))
 print("MAP@K:", map_k.get_score(actual, predicted))
 ```
+
+## Quick Start: Classification Evaluation
+
+```python
+# Import classification metrics
+from jurity.classification import BinaryClassificationMetrics
+
+# Data
+labels = [1, 1, 0, 1, 0, 0, 1, 0]
+predictions = [0, 0, 0, 1, 1, 1, 1, 0]
+likelihoods = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.1]
+is_member = [0, 0, 0, 0, 1, 1, 1, 1]
+
+# Available: Accuracy, F1, Precision, Recall, and AUC
+f1_score = BinaryClassificationMetrics.F1()
+
+print('F1 score is', f1_score.get_score(predictions, labels))
+```
+
 
 ## Installation
 

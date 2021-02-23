@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>About Algorithmic Fairness &mdash; Jurity 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="About Recommenders Metrics" href="about_reco.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Jurity
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">About Algorithmic Fairness</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#average-odds">Average Odds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#disparate-impact">Disparate Impact</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#equal-opportunity">Equal Opportunity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fnr-difference">FNR Difference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generalized-entropy-index">Generalized Entropy Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#predictive-equality">Predictive Equality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#statistical-parity">Statistical Parity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#theil-index">Theil Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#equalized-odds">Equalized Odds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="about_reco.html">About Recommenders Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Jurity Public API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jurity</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>About Algorithmic Fairness</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/about_fairness.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="about-algorithmic-fairness">
+<span id="about-fairness"></span><h1>About Algorithmic Fairness<a class="headerlink" href="#about-algorithmic-fairness" title="Permalink to this headline">¶</a></h1>
+<p>Below, see the mathematical definition for each of the fairness metrics in the library.</p>
+<div class="section" id="average-odds">
+<h2>Average Odds<a class="headerlink" href="#average-odds" title="Permalink to this headline">¶</a></h2>
+<p>Average Odds denotes the average of difference in FPR and TPR for group 1 and group 2.</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{2} [(FPR_{D = \text{group 1}} - FPR_{D =
+\text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
+= \text{group 1}}))]\]</div>
+</div>
+<div class="section" id="disparate-impact">
+<h2>Disparate Impact<a class="headerlink" href="#disparate-impact" title="Permalink to this headline">¶</a></h2>
+<p>Disparate Impact is the ratio of predictions for a “positive” outcome in a binary classification task between members of group 1 and group 2, respectively.</p>
+<div class="math notranslate nohighlight">
+\[\frac{P(\hat{Y} = 1 | D = \text{group 1})}
+    {P(\hat{Y} = 1 | D = \text{group 2})}\]</div>
+</div>
+<div class="section" id="equal-opportunity">
+<h2>Equal Opportunity<a class="headerlink" href="#equal-opportunity" title="Permalink to this headline">¶</a></h2>
+<p>Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, <span class="math notranslate nohighlight">\(TPR = TP/P\)</span>, conditioned on a protected attribute.</p>
+</div>
+<div class="section" id="fnr-difference">
+<h2>FNR Difference<a class="headerlink" href="#fnr-difference" title="Permalink to this headline">¶</a></h2>
+<p>FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.</p>
+<div class="math notranslate nohighlight">
+\[E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]\]</div>
+</div>
+<div class="section" id="generalized-entropy-index">
+<h2>Generalized Entropy Index<a class="headerlink" href="#generalized-entropy-index" title="Permalink to this headline">¶</a></h2>
+<p>Generalized Entropy Index is proposed as a unified individual and group fairness measure in <a class="footnote-reference brackets" href="#id2" id="id1">1</a>. With <span class="math notranslate nohighlight">\(b_i = \hat{y}_i - y_i + 1\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathcal{E}(\alpha) = \begin{cases}
+   \frac{1}{n \alpha (\alpha-1)}\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &amp;
+   \alpha \ne 0, 1, \\
+   \frac{1}{n}\sum_{i=1}^n\frac{b_{i}}{\mu}\ln\frac{b_{i}}{\mu} &amp; \alpha=1, \\
+ -\frac{1}{n}\sum_{i=1}^n\ln\frac{b_{i}}{\mu},&amp; \alpha=0.
+ \end{cases}\end{split}\]</div>
+<dl>
+<dt>References:</dt><dd><dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>T. Speicher, H. Heidari, N. Grgic-Hlaca, K. P. Gummadi, A. Singla, A. Weller, and M. B. Zafar,
+A Unified Approach to Quantifying Algorithmic Unfairness: Measuring Individual and Group Unfairness via
+Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 2018.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+<div class="section" id="predictive-equality">
+<h2>Predictive Equality<a class="headerlink" href="#predictive-equality" title="Permalink to this headline">¶</a></h2>
+<p>Predictive Equality is defined as the situation when accuracy of decisions is equal across two groups, as measured by false positive rate (FPR).</p>
+<div class="math notranslate nohighlight">
+\[E[d(X)|Y=0, g(X)] = E[d(X), Y=0]\]</div>
+</div>
+<div class="section" id="statistical-parity">
+<h2>Statistical Parity<a class="headerlink" href="#statistical-parity" title="Permalink to this headline">¶</a></h2>
+<p>Statistical Parity measures the difference in probabilities of a positive outcome across two groups.</p>
+<div class="math notranslate nohighlight">
+\[P(\hat{Y} = 1 | D = \text{group 1}) - P(\hat{Y} = 1 | D = \text{group 2})\]</div>
+</div>
+<div class="section" id="theil-index">
+<h2>Theil Index<a class="headerlink" href="#theil-index" title="Permalink to this headline">¶</a></h2>
+<p>Theil Index is the generalized entropy index with <span class="math notranslate nohighlight">\(\alpha = 1\)</span>. See Generalized Entropy Index.</p>
+</div>
+<div class="section" id="equalized-odds">
+<h2>Equalized Odds<a class="headerlink" href="#equalized-odds" title="Permalink to this headline">¶</a></h2>
+<p>Equalized odds is a bias mitigation technique where subset of decisions of a binary classifier is flipped at uniform random in each of two groups to achieve equality of TPR and FPR across the two groups as proposed in <a class="footnote-reference brackets" href="#id4" id="id3">2</a>. This subset rate in each group is learned via constrained optimization.</p>
+<dl>
+<dt>References:</dt><dd><dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd><p>Moritz Hardt, Eric Price, and Nathan Srebro. 2016. Equality of opportunity in supervised learning. In Proceedings of the 30th International Conference on Neural Information Processing Systems (NIPS’16).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="about_reco.html" class="btn btn-neutral float-right" title="About Recommenders Metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, FMR LLC.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

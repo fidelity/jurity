@@ -20,7 +20,7 @@ class PredictiveEquality(_BaseBinaryFairness):
     def __init__(self):
         super().__init__("Predictive Equality",
                          "We define the predictive equality as the situation when accuracy \
-                         of decisions is equal across race groups, as measured by false positive rate (FPR).",
+                         of decisions is equal across two groups, as measured by false positive rate (FPR).",
                          lower_bound=-0.2,
                          upper_bound=0.2,
                          ideal_value=0)
@@ -34,7 +34,7 @@ class PredictiveEquality(_BaseBinaryFairness):
         We define the predictive equality as the situation when accuracy of decisions is equal across race groups,
         as measured by false positive rate (FPR).
 
-        Drawing the analogy of gender classification, across all race groups,
+        Drawing the analogy of gender classification where race is the protected attribute, across all race groups,
         the ratio of men incorrectly predicted to be a woman is the same.
 
         More formally,
