@@ -5,9 +5,9 @@ About Algorithmic Fairness
 
 Below, see the mathematical definition for each of the fairness metrics in the library.
 
-Average odds
+Average Odds
 ^^^^^^^^^^^^
-Average odds denotes the average of difference in FPR and TPR for group 1 and group 2.
+Average Odds denotes the average of difference in FPR and TPR for group 1 and group 2.
 
 .. math::
     \frac{1}{2} [(FPR_{D = \text{group 1}} - FPR_{D =

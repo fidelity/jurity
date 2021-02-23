@@ -85,7 +85,13 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#calculate-fairness-metrics">Calculate Fairness Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fit-and-apply-bias-mitigation">Fit and Apply Bias Mitigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#calculate-recommenders-metrics">Calculate Recommenders Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#calculate-classification-metrics">Calculate Classification Metrics</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="about_fairness.html">About Algorithmic Fairness</a></li>
 <li class="toctree-l1"><a class="reference internal" href="about_reco.html">About Recommenders Metrics</a></li>
@@ -159,7 +165,8 @@
             
   <div class="section" id="quick-start">
 <span id="quick"></span><h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
-<p>Calculate Fairness Metrics:</p>
+<div class="section" id="calculate-fairness-metrics">
+<h2>Calculate Fairness Metrics<a class="headerlink" href="#calculate-fairness-metrics" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import binary and multi-class fairness metrics</span>
 <span class="kn">from</span> <span class="nn">jurity.fairness</span> <span class="kn">import</span> <span class="n">BinaryFairnessMetrics</span><span class="p">,</span> <span class="n">MultiClassFairnessMetrics</span>
 
@@ -184,7 +191,9 @@
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Multi-class multi-label Fairness scores: &quot;</span><span class="p">,</span> <span class="n">multi_metric</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span><span class="n">multi_class_multi_label_predictions</span><span class="p">,</span> <span class="n">is_member</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Fit and Apply Bias Mitigation:</p>
+</div>
+<div class="section" id="fit-and-apply-bias-mitigation">
+<h2>Fit and Apply Bias Mitigation<a class="headerlink" href="#fit-and-apply-bias-mitigation" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import binary fairness metrics and mitigation</span>
 <span class="kn">from</span> <span class="nn">jurity.fairness</span> <span class="kn">import</span> <span class="n">BinaryFairnessMetrics</span>
 <span class="kn">from</span> <span class="nn">jurity.mitigation</span> <span class="kn">import</span> <span class="n">BinaryMitigation</span>
@@ -209,7 +218,9 @@
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fairness Metrics After:&quot;</span><span class="p">,</span> <span class="n">BinaryFairnessMetrics</span><span class="p">()</span><span class="o">.</span><span class="n">get_all_scores</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">fair_predictions</span><span class="p">,</span> <span class="n">is_member</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Calculate Recommenders Metrics:</p>
+</div>
+<div class="section" id="calculate-recommenders-metrics">
+<h2>Calculate Recommenders Metrics<a class="headerlink" href="#calculate-recommenders-metrics" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import recommenders metrics</span>
 <span class="kn">from</span> <span class="nn">jurity.recommenders</span> <span class="kn">import</span> <span class="n">BinaryRecoMetrics</span><span class="p">,</span> <span class="n">RankingRecoMetrics</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -233,7 +244,9 @@
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MAP@K:&quot;</span><span class="p">,</span> <span class="n">map_k</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">predicted</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Calculate Classification Metrics:</p>
+</div>
+<div class="section" id="calculate-classification-metrics">
+<h2>Calculate Classification Metrics<a class="headerlink" href="#calculate-classification-metrics" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import classification metrics</span>
 <span class="kn">from</span> <span class="nn">jurity.classification</span> <span class="kn">import</span> <span class="n">BinaryClassificationMetrics</span>
 
@@ -248,6 +261,7 @@
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;F1 score is&#39;</span><span class="p">,</span> <span class="n">f1_score</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">))</span>
 </pre></div>
+</div>
 </div>
 </div>
 
