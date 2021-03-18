@@ -133,7 +133,7 @@ print('F1 score is', f1_score.get_score(predictions, labels))
 
 ## Installation
 
-Jurity is available to install as `pip install jurity`. It can also be installed from the source by following [these instructions](https://fidelity.github.io/jurity/installation.html).
+Jurity is available to install as `pip install jurity`. It can also be installed by building from source by following the instructions in our [documentation](https://fidelity.github.io/jurity/installation.html).
 
 ## Support
 Please submit bug reports and feature requests as [Issues](https://github.com/fidelity/jurity/issues).
