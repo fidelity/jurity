@@ -2,7 +2,7 @@
 
 Jurity is a research library that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.
 
-Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments.
+Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments. Full documentation is available at [fidelity.github.io/jurity](https://fidelity.github.io/jurity).
 
 ## Fairness Metrics
 * [Average Odds](https://fidelity.github.io/jurity/about.html#average-odds)
@@ -136,45 +136,10 @@ print('F1 score is', f1_score.get_score(predictions, labels))
 
 ## Installation
 
-### Requirements
-
-The library requires Python **3.6+** and depends on standard packages such as ```pandas, numpy``` 
-The ``requirements.txt`` lists the necessary packages. 
-
-### Install from wheel package
-
-After installing the requirements, you can install the library from the provided wheel package using the following commands:
-
-```bash
-pip install dist/jurity-X.X.X-py3-none-any.whl
-```
-Note: Don't forget to replace ``X.X.X`` with the current version number.
-
-### Install from source code
-
-Alternatively, you can build a wheel package on your platform from scratch using the source code:
-
-```bash
-pip install setuptools wheel # if wheel is not installed
-python setup.py bdist_wheel
-pip install dist/jurity-X.X.X-py3-none-any.whl
-```
-
-### Test Your Setup
-To confirm that cloning the repo was successful, run the first example in the [Quick Start](#quick-start-fairness-evaluation). 
-To confirm that the whole installation was successful, run the tests and all should pass. 
-
-```bash
-python -m unittest discover -v tests
-```
-
-### Upgrading the Library
-
-To upgrade to the latest version of the library, run ``git pull origin master`` in the repo folder,
-and then run ``pip install --upgrade --no-cache-dir dist/jurity-X.X.X-py3-none-any.whl``.
+Jurity is available to install as `pip install jurity`. It can also be installed by building from source by following the instructions in our [documentation](https://fidelity.github.io/jurity/installation.html).
 
 ## Support
-Please submit bug reports and feature requests as Issues. You can also submit any additional questions or feedback as issues.
+Please submit bug reports and feature requests as [Issues](https://github.com/fidelity/jurity/issues).
 
 ## License
 Jurity is licensed under the [Apache License 2.0.](https://github.com/fidelity/jurity/blob/master/LICENSE)
