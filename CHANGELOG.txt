@@ -7,6 +7,7 @@ April 13, 2021 1.0.1
 -------------------------------------------------------------------------------
 
 - Added Area under the Curve (AUC) metric to Recommenders.
+- Dropped installation using wheel
 
 -------------------------------------------------------------------------------
 February 1, 2021 1.0.0
