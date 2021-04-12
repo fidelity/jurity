@@ -24,6 +24,19 @@ Let :math:`M` denote the set of user-item pairs that appear in both actual ratin
 .. math::
     CTR = \frac{1}{\left | M \right |}\sum_{i=1}^{\left | M \right |} C(M_i)
 
+AUC: Area Under the Curve
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+AUC is the probability that the recommender will rank a randomly chosen positive instance higher than a randomly chosen
+negative one over the subset of user-item pairs that appear in both actual ratings and recommendations.
+
+Let :math:`M` denote the set of user-item pairs that appear in both actual ratings and recommendations with
+:math:`M^1` the set of relevant/clicked instances and :math:`M^0` the non-clicked instances. If :math:`f(t)` is the
+score returned by the recommender for the :math:`t`-th instance then:
+
+.. math::
+    AUC = \frac{\sum_{t_0 \in M^0}\sum_{t_1 \in M^1}\mathbb{I}[(f(t_0) < f(t_1)]}{\left | M^0 \right | \left | M^1 \right |}
+
 Ranking Recommender Metrics
 ---------------------------
 Ranking metrics reward putting the clicked items on a higher position/rank than the others.

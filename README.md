@@ -18,6 +18,7 @@ Jurity is developed by the Artificial Intelligence Center of Excellence at Fidel
 * [Equalized Odds](https://fidelity.github.io/jurity/about.html#equalized-odds)
 
 ## Recommenders Metrics
+* [AUC: Area Under the Curve](https://fidelity.github.io/jurity/about.html#auc-area-under-the-curve)
 * [CTR: Click-through rate](https://fidelity.github.io/jurity/about.html#ctr-click-through-rate)
 * [Precision@K](https://fidelity.github.io/jurity/about.html#precision)
 * [Recall@K](https://fidelity.github.io/jurity/about.html#recall)
@@ -98,6 +99,7 @@ actual = pd.DataFrame({"user_id": [1, 2, 3, 4], "item_id": [1, 2, 0, 3], "clicks
 predicted = pd.DataFrame({"user_id": [1, 2, 3, 4], "item_id": [1, 2, 2, 3], "clicks": [0.8, 0.7, 0.8, 0.7]})
 
 # Metrics
+auc = BinaryRecoMetrics.AUC(click_column="clicks")
 ctr = BinaryRecoMetrics.CTR(click_column="clicks")
 ncdg_k = RankingRecoMetrics.NDCG(click_column="clicks", k=3)
 precision_k = RankingRecoMetrics.Precision(click_column="clicks", k=2)
@@ -105,6 +107,7 @@ recall_k = RankingRecoMetrics.Recall(click_column="clicks", k=2)
 map_k = RankingRecoMetrics.MAP(click_column="clicks", k=2)
 
 # Scores
+print("AUC:", auc.get_score(actual, predicted))
 print("CTR:", ctr.get_score(actual, predicted))
 print("NCDG:", ncdg_k.get_score(actual, predicted))
 print("Precision@K:", precision_k.get_score(actual, predicted))
