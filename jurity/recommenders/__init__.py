@@ -1,5 +1,6 @@
 from typing import NamedTuple
 
+from .auc import AUC
 from .combined import CombinedMetrics
 from .ctr import CTR
 from .map import MAP
@@ -9,6 +10,7 @@ from .recall import Recall
 
 
 class BinaryRecoMetrics(NamedTuple):
+    AUC = AUC
     CTR = CTR
 
 

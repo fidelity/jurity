@@ -64,3 +64,45 @@ class TestBinaryRecommenders(unittest.TestCase):
 
         self.assertEqual(1. / 2, results['ctr'])
         self.assertEqual(2, results['support'])
+
+    def test_auc(self):
+        # Test immediate calculation of AUC
+        metric = BinaryRecoMetrics.AUC(click_column='click')
+        actual = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                               Constants.item_id: [1, 2, 0, 3],
+                               'click': [0, 1, 0, 0]})
+
+        predicted = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                                  Constants.item_id: [1, 2, 2, 3],
+                                  'click': [0.1, 0.9, 0.1, 0.1]})
+
+        auc = metric.get_score(actual, predicted)
+        self.assertEqual(1., auc)
+
+        # Test accumulated calculation
+        metric = BinaryRecoMetrics.AUC(click_column='click')
+        _, results = metric.get_score(actual, predicted, batch_accumulate=True, return_extended_results=True)
+
+        self.assertEqual(1., results['auc'])
+        self.assertEqual(3, results['support'])
+
+    def test_auc_extended(self):
+        # Test immediate calculation of AUC
+        metric = BinaryRecoMetrics.AUC(click_column='click')
+        actual = pd.DataFrame({Constants.user_id: [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4],
+                               Constants.item_id: [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3],
+                               'click': [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1]})
+
+        predicted = pd.DataFrame({Constants.user_id: [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4],
+                                  Constants.item_id: [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3],
+                                  'click': [0.3, 0.9, 0.4, 0.3, 0.2, 0.9, 0.2, 0.6, 0.9, 0.2, 0.7, 0.8]})
+
+        auc = metric.get_score(actual, predicted)
+        self.assertEqual(0.78125, auc)
+
+        # Test accumulated calculation
+        metric = BinaryRecoMetrics.AUC(click_column='click')
+        _, results = metric.get_score(actual, predicted, batch_accumulate=True, return_extended_results=True)
+
+        self.assertEqual(0.78125, results['auc'])
+        self.assertEqual(12, results['support'])

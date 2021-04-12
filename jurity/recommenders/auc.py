@@ -135,18 +135,18 @@ class AUC(_BaseRecommenders):
         matches = actual_results.join(sorted_clicks, how='inner', rsuffix='_r')
         clicks = matches[self.click_column].values
         predictions = matches[self.click_column + '_r'].values
-        results = np.vstack((clicks, predictions))
+        results = np.vstack((clicks, predictions)).T
 
         return self._accumulate_and_return(results, batch_accumulate, return_extended_results)
 
     @staticmethod
     def _get_results(results: List[np.ndarray]) -> float:
+        results = np.concatenate(results)
         return roc_auc_score(results[:, 0], results[:, 1])
 
     def _get_extended_results(self, results: List[np.ndarray]) -> dict:
-        results = np.concatenate(results)
         auc = self._get_results(results)
-        return {'auc': auc, 'support': results.size}
+        return {'auc': auc, 'support': len(np.concatenate(results))}
 
     def __str__(self):
         if self.k is not None:
