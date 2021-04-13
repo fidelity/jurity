@@ -8,7 +8,7 @@ Installation
     There are two alternatives to install the library:
 
     1. Install via pip
-    3. Build from source code
+    2. Build from source code
 
 .. _requirements:
 
