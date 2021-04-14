@@ -77,7 +77,7 @@ class AUC(_BaseRecommenders):
             for actual_responses_batch, recommendations_batch in ..
                 auc_batch, auc_acc = auc.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
                 print(f'AUC for this batch: {auc_batch} Overall AUC: {auc_acc}')
-                >>> AUC for this batch: 0.65 Overall CTR: 0.68
+                >>> AUC for this batch: 0.65 Overall AUC: 0.68
 
         4) Calculating the extended results across multiple matches:
 
