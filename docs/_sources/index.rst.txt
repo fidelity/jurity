@@ -31,6 +31,7 @@ Available Bias Mitigation Techniques
 Available Recommenders Metrics
 -------------------------------------------
 
+* `AUC: Area Under the Curve <https://fidelity.github.io/jurity/about.html#auc-area-under-the-curve>`_
 * `CTR: Click-through rate <https://fidelity.github.io/jurity/about.html#ctr-click-through-rate>`_
 * `Precision@K <https://fidelity.github.io/jurity/about.html#precision>`_
 * `Recall@K <https://fidelity.github.io/jurity/about.html#recall>`_
