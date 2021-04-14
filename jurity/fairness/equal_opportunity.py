@@ -33,8 +33,6 @@ class EqualOpportunity(_BaseBinaryFairness):
         """Calculate the ratio of true positives to positive examples in the dataset, :math:`TPR = TP/P`,
         conditioned on a protected attribute.
 
-        Adapted from IBM360 Research.
-
         Parameters
         ----------
         labels: Union[List, np.ndarray, pd.Series]

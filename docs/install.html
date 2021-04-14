@@ -32,6 +32,8 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -89,7 +91,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-via-pip">Install via pip</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#install-from-wheel-package">Install from wheel package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-from-source-code">Install from source code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-your-setup">Test Your Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#upgrading-the-library">Upgrading the Library</a></li>
@@ -169,10 +170,9 @@
 <span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="admonition-installation-options admonition">
 <p class="admonition-title">Installation Options</p>
-<p>There are three alternatives to install the library:</p>
+<p>There are two alternatives to install the library:</p>
 <ol class="arabic simple">
 <li><p>Install via pip</p></li>
-<li><p>Install from wheel package</p></li>
 <li><p>Build from source code</p></li>
 </ol>
 </div>
@@ -187,14 +187,6 @@ The <code class="docutils literal notranslate"><span class="pre">requirements.tx
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install jurity
 </pre></div>
 </div>
-</div>
-<div class="section" id="install-from-wheel-package">
-<h2>Install from wheel package<a class="headerlink" href="#install-from-wheel-package" title="Permalink to this headline">¶</a></h2>
-<p>After installing the requirements, you can install the library from the provided wheel package using the following commands:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install dist/jurity-X.X.X-py3-none-any.whl
-</pre></div>
-</div>
-<p>Note: Don’t forget to replace <code class="docutils literal notranslate"><span class="pre">X.X.X</span></code> with the current version number.</p>
 </div>
 <div class="section" id="install-from-source-code">
 <h2>Install from source code<a class="headerlink" href="#install-from-source-code" title="Permalink to this headline">¶</a></h2>

@@ -32,6 +32,7 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -92,6 +93,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">About Recommenders Metrics</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#binary-recommender-metrics">Binary Recommender Metrics</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ctr-click-through-rate">CTR: Click-through Rate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#auc-area-under-the-curve">AUC: Area Under the Curve</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ranking-recommender-metrics">Ranking Recommender Metrics</a><ul>
@@ -186,6 +188,14 @@ Each <span class="math notranslate nohighlight">\(A_i\)</span> and <span class="
 <p>Let <span class="math notranslate nohighlight">\(M\)</span> denote the set of user-item pairs that appear in both actual ratings and recommendations, and <span class="math notranslate nohighlight">\(C(M_i)\)</span> be an indicator function that produces <span class="math notranslate nohighlight">\(1\)</span> if the user clicked on the item, and <span class="math notranslate nohighlight">\(0\)</span> if they didn’t.</p>
 <div class="math notranslate nohighlight">
 \[CTR = \frac{1}{\left | M \right |}\sum_{i=1}^{\left | M \right |} C(M_i)\]</div>
+</div>
+<div class="section" id="auc-area-under-the-curve">
+<h3>AUC: Area Under the Curve<a class="headerlink" href="#auc-area-under-the-curve" title="Permalink to this headline">¶</a></h3>
+<p>AUC is the probability that the recommender will rank a randomly chosen relevant/clicked instance higher than a randomly chosen non-relevant/not-clicked one over the subset of user-item pairs that appear in both actual ratings and recommendations.</p>
+<p>Let <span class="math notranslate nohighlight">\(M\)</span> denote the set of user-item pairs that appear in both actual ratings and recommendations with <span class="math notranslate nohighlight">\(M^1\)</span> the set of relevant/clicked instances and <span class="math notranslate nohighlight">\(M^0\)</span> the non-clicked instances.
+If <span class="math notranslate nohighlight">\(f(t)\)</span> is the score returned by the recommender for the <span class="math notranslate nohighlight">\(t\)</span>-th instance then:</p>
+<div class="math notranslate nohighlight">
+\[AUC = \frac{\sum_{t_0 \in M^0}\sum_{t_1 \in M^1}I[(f(t_0) &lt; f(t_1)]}{\left | M^0 \right | \left | M^1 \right |}\]</div>
 </div>
 </div>
 <div class="section" id="ranking-recommender-metrics">

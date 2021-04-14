@@ -86,6 +86,7 @@ class TestJurity(unittest.TestCase):
         predicted = pd.DataFrame({"user_id": [1, 2, 3, 4], "item_id": [1, 2, 2, 3], "clicks": [0.8, 0.7, 0.8, 0.7]})
 
         # Metrics
+        auc = BinaryRecoMetrics.AUC(click_column="clicks")
         ctr = BinaryRecoMetrics.CTR(click_column="clicks")
         ncdg_k = RankingRecoMetrics.NDCG(click_column="clicks", k=3)
         precision_k = RankingRecoMetrics.Precision(click_column="clicks", k=2)
@@ -93,6 +94,7 @@ class TestJurity(unittest.TestCase):
         map_k = RankingRecoMetrics.MAP(click_column="clicks", k=2)
 
         # Scores
+        self.assertEqual(auc.get_score(actual, predicted), 0.25)
         self.assertEqual(ctr.get_score(actual, predicted), 0.3333333333333333)
         self.assertEqual(ncdg_k.get_score(actual, predicted), 1)
         self.assertEqual(precision_k.get_score(actual, predicted), 1)
