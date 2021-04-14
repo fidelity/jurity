@@ -284,8 +284,6 @@ def performance_measures(ground_truth: np.ndarray,
     """Compute various performance measures, optionally conditioned on protected attribute.
     Assume that positive label is encoded as 1 and negative label as 0.
 
-    Note this method was adapted from AIF360 library developed at IBM Research.
-
     Parameters
     ---------
     ground_truth: np.ndarray
