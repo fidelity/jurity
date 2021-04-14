@@ -5,11 +5,10 @@ Installation
 
 .. admonition:: Installation Options
 
-    There are three alternatives to install the library:
+    There are two alternatives to install the library:
 
     1. Install via pip
-    2. Install from wheel package
-    3. Build from source code
+    2. Build from source code
 
 .. _requirements:
 
@@ -26,19 +25,7 @@ After installing the requirements, you can install the library using the followi
 
 .. code-block:: bash
 
-	pip install jurity
-
-
-Install from wheel package
---------------------------
-
-After installing the requirements, you can install the library from the provided wheel package using the following commands:
-
-.. code-block:: bash
-
-	pip install dist/jurity-X.X.X-py3-none-any.whl
-
-Note: Don't forget to replace ``X.X.X`` with the current version number.
+    pip install jurity
 
 Install from source code
 ------------------------
@@ -47,10 +34,9 @@ Alternatively, you can build a wheel package on your platform from scratch using
 
 .. code-block:: bash
 
-	pip install setuptools wheel # if wheel is not installed
-	python setup.py bdist_wheel
-	pip install dist/jurity-X.X.X-py3-none-any.whl
-
+    pip install setuptools wheel # if wheel is not installed
+    python setup.py bdist_wheel
+    pip install dist/jurity-X.X.X-py3-none-any.whl
 
 Test Your Setup
 ---------------
@@ -61,8 +47,7 @@ To confirm that the whole installation was successful, run the tests and all sho
 
 .. code-block:: bash
 
-	python -m unittest discover -v tests
-
+    python -m unittest discover -v tests
 
 Upgrading the Library
 ---------------------

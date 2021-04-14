@@ -33,7 +33,7 @@ Let :math:`M` denote the set of user-item pairs that appear in both actual ratin
 If :math:`f(t)` is the score returned by the recommender for the :math:`t`-th instance then:
 
 .. math::
-    AUC = \frac{\sum_{t_0 \in M^0}\sum_{t_1 \in M^1}\mathbb{I}[(f(t_0) < f(t_1)]}{\left | M^0 \right | \left | M^1 \right |}
+    AUC = \frac{\sum_{t_0 \in M^0}\sum_{t_1 \in M^1}I[(f(t_0) < f(t_1)]}{\left | M^0 \right | \left | M^1 \right |}
 
 Ranking Recommender Metrics
 ---------------------------
