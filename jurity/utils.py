@@ -179,7 +179,7 @@ def check_elementwise_input_type(input_: Union[List, np.ndarray, pd.Series], bin
     check_booleans = all([isinstance(i, bool) for i in input_]) is True
     check_numpy_ints32 = all([isinstance(i, np.int32) for i in input_]) is True
     check_numpy_ints64 = all([isinstance(i, np.int64) for i in input_]) is True
-    check_numpy_booleans = all([isinstance(i, np.bool) for i in input_]) is True
+    check_numpy_booleans = all([isinstance(i, bool) for i in input_]) is True
     check_numpy_floats32 = all([isinstance(i, np.float32) for i in input_]) is True
     check_numpy_floats64 = all([isinstance(i, np.float64) for i in input_]) is True
 
