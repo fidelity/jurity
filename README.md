@@ -5,25 +5,25 @@ Jurity is a research library that provides fairness metrics, recommender system 
 Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments. Full documentation is available at [fidelity.github.io/jurity](https://fidelity.github.io/jurity).
 
 ## Fairness Metrics
-* [Average Odds](https://fidelity.github.io/jurity/about.html#average-odds)
-* [Disparate Impact](https://fidelity.github.io/jurity/about.html#disparate-impact)
-* [Equal Opportunity](https://fidelity.github.io/jurity/about.html#equal-opportunity)
-* [False Negative Rate (FNR) Difference](https://fidelity.github.io/jurity/about.html#fnr-difference)
-* [Generalized Entropy Index](https://fidelity.github.io/jurity/about.html#generalized-entropy-index)
-* [Predictive Equality](https://fidelity.github.io/jurity/about.html#predictive-equality)
-* [Statistical Parity](https://fidelity.github.io/jurity/about.html#statistical-parity)
-* [Theil Index](https://fidelity.github.io/jurity/about.html#theil-index)
+* [Average Odds](https://fidelity.github.io/jurity/about_fairness.html#average-odds)
+* [Disparate Impact](https://fidelity.github.io/jurity/about_fairness.html#disparate-impact)
+* [Equal Opportunity](https://fidelity.github.io/jurity/about_fairness.html#equal-opportunity)
+* [False Negative Rate (FNR) Difference](https://fidelity.github.io/jurity/about_fairness.html#fnr-difference)
+* [Generalized Entropy Index](https://fidelity.github.io/jurity/about_fairness.html#generalized-entropy-index)
+* [Predictive Equality](https://fidelity.github.io/jurity/about_fairness.html#predictive-equality)
+* [Statistical Parity](https://fidelity.github.io/jurity/about_fairness.html#statistical-parity)
+* [Theil Index](https://fidelity.github.io/jurity/about_fairness.html#theil-index)
 
 ## Binary Bias Mitigation Techniques
-* [Equalized Odds](https://fidelity.github.io/jurity/about.html#equalized-odds)
+* [Equalized Odds](https://fidelity.github.io/jurity/about_fairness.html#equalized-odds)
 
 ## Recommenders Metrics
-* [AUC: Area Under the Curve](https://fidelity.github.io/jurity/about.html#auc-area-under-the-curve)
-* [CTR: Click-through rate](https://fidelity.github.io/jurity/about.html#ctr-click-through-rate)
-* [Precision@K](https://fidelity.github.io/jurity/about.html#precision)
-* [Recall@K](https://fidelity.github.io/jurity/about.html#recall)
-* [MAP@K: Mean Average Precision](https://fidelity.github.io/jurity/about.html#map-mean-average-precision)
-* [NDCG: Normalized discounted cumulative gain](https://fidelity.github.io/jurity/about.html#ndcg-normalized-discounted-cumulative-gain)
+* [AUC: Area Under the Curve](https://fidelity.github.io/jurity/about_reco.html#auc-area-under-the-curve)
+* [CTR: Click-through rate](https://fidelity.github.io/jurity/about_reco.html#ctr-click-through-rate)
+* [Precision@K](https://fidelity.github.io/jurity/about_reco.html#precision)
+* [Recall@K](https://fidelity.github.io/jurity/about_reco.html#recall)
+* [MAP@K: Mean Average Precision](https://fidelity.github.io/jurity/about_reco.html#map-mean-average-precision)
+* [NDCG: Normalized discounted cumulative gain](https://fidelity.github.io/jurity/about_reco.html#ndcg-normalized-discounted-cumulative-gain)
 
 ## Classification Metrics
 * [Accuracy](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html)
