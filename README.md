@@ -1,3 +1,7 @@
+[![PyPI version fury.io](https://badge.fury.io/py/jurity.svg)](https://pypi.python.org/pypi/jurity/)
+
+
+
 # Jurity: Fairness & Evaluation Library
 
 Jurity is a research library that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.
