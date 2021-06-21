@@ -1,6 +1,4 @@
-[![PyPI version fury.io](https://badge.fury.io/py/jurity.svg)](https://pypi.python.org/pypi/jurity/)
-
-
+[![PyPI version fury.io](https://badge.fury.io/py/jurity.svg)](https://pypi.python.org/pypi/jurity/) [![PyPI license](https://img.shields.io/pypi/l/jurity.svg)](https://pypi.python.org/pypi/jurity/)
 
 # Jurity: Fairness & Evaluation Library
 
