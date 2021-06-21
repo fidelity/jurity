@@ -1,4 +1,5 @@
-[![PyPI version fury.io](https://badge.fury.io/py/jurity.svg)](https://pypi.python.org/pypi/jurity/) [![PyPI license](https://img.shields.io/pypi/l/jurity.svg)](https://pypi.python.org/pypi/jurity/)
+[![PyPI version fury.io](https://badge.fury.io/py/jurity.svg)](https://pypi.python.org/pypi/jurity/) [![PyPI license](https://img.shields.io/pypi/l/jurity.svg)](https://pypi.python.org/pypi/jurity/) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
 
 # Jurity: Fairness & Evaluation Library
 
