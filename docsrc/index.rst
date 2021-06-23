@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Jurity: Fairness & Evaluation Library
-====================================
+======================================
 
 Jurity is a research library that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.
 
