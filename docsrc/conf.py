@@ -24,11 +24,11 @@ sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Jurity'
-copyright = '2020, FMR LLC'
+copyright = '2021, FMR LLC'
 author = 'FMR LLC'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '1.2.1'
 
 # -- General configuration ---------------------------------------------------
 
