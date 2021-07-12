@@ -142,7 +142,10 @@ class AUC(_BaseRecommenders):
     @staticmethod
     def _get_results(results: List[np.ndarray]) -> float:
         results = np.concatenate(results)
-        return roc_auc_score(results[:, 0], results[:, 1])
+        if len(set(results[:, 0])) > 1:
+            return roc_auc_score(results[:, 0], results[:, 1])
+        else:
+            return np.nan
 
     def _get_extended_results(self, results: List[np.ndarray]) -> dict:
         auc = self._get_results(results)

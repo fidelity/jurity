@@ -4,6 +4,7 @@
 
 import unittest
 
+import numpy as np
 import pandas as pd
 
 from jurity.recommenders import BinaryRecoMetrics
@@ -106,3 +107,17 @@ class TestBinaryRecommenders(unittest.TestCase):
 
         self.assertEqual(0.78125, results['auc'])
         self.assertEqual(12, results['support'])
+
+    def test_auc_one_class(self):
+        # Test immediate calculation of AUC
+        metric = BinaryRecoMetrics.AUC(click_column='click')
+        actual = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                               Constants.item_id: [1, 2, 0, 3],
+                               'click': [0, 0, 0, 0]})
+
+        predicted = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                                  Constants.item_id: [1, 2, 2, 3],
+                                  'click': [0.1, 0.9, 0.1, 0.1]})
+
+        auc = metric.get_score(actual, predicted)
+        self.assertTrue(np.isnan(auc))
