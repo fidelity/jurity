@@ -92,8 +92,8 @@ class IPS(_BaseRecommenders):
 
             for actual_responses_batch, recommendations_batch in ..
                 ips_batch, ips_acc = ips.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
-                print(f'IPS for this batch: {ips_batch} Overall CTR: {ips_acc}')
-                >>> IPS for this batch: 0.453 Overall CTR: 0.316
+                print(f'IPS for this batch: {ips_batch} Overall IPS: {ips_acc}')
+                >>> IPS for this batch: 0.453 Overall IPS: 0.316
 
         4) Calculating the extended results across multiple matches:
 

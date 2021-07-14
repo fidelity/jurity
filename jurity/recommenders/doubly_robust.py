@@ -73,7 +73,7 @@ class DoublyRobust(_BaseRecommenders):
         .. highlight:: python
         .. code-block:: python
 
-            print(ips.get_score(actual_responses_batch, recommendations_batch))
+            print(dr.get_score(actual_responses_batch, recommendations_batch))
             >>> 0.316
 
         2) Calculating the extended results for the whole data:
@@ -84,8 +84,8 @@ class DoublyRobust(_BaseRecommenders):
         .. highlight:: python
         .. code-block:: python
 
-            print(ips.get_score(actual_responses_batch, recommendations_batch, return_extended_results=True))
-            >>> {'ips': 0.316, 'support': 122}
+            print(dr.get_score(actual_responses_batch, recommendations_batch, return_extended_results=True))
+            >>> {'dr': 0.316, 'support': 122}
 
         3) Calculating the metric across multiple batches.
 
@@ -96,9 +96,9 @@ class DoublyRobust(_BaseRecommenders):
         .. code-block:: python
 
             for actual_responses_batch, recommendations_batch in ..
-                ips_batch, ips_acc = ips.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
-                print(f'DR for this batch: {ips_batch} Overall CTR: {ips_acc}')
-                >>> DR for this batch: 0.453 Overall CTR: 0.316
+                dr_batch, dr_acc = dr.get_score(actual_responses_batch, recommendations_batch, accumulate=True)
+                print(f'DR for this batch: {dr_batch} Overall DR: {dr_acc}')
+                >>> DR for this batch: 0.453 Overall DR: 0.316
 
         4) Calculating the extended results across multiple matches:
 
@@ -110,8 +110,8 @@ class DoublyRobust(_BaseRecommenders):
         .. code-block:: python
 
             for actual_responses_batch, recommendations_batch in ..
-                ips_batch, ips_acc = ips.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
-                print(f'DR for this batch: {ips_batch} Overall DR: {ips_acc}')
+                dr_batch, dr_acc = dr.get_score(actual_responses_batch, recommendations_batch, accumulate=True, return_extended_results=True)
+                print(f'DR for this batch: {dr_batch} Overall DR: {dr_acc}')
                 >>> DR for this batch: {'dr': 0.453, 'support': 12} Overall DR: {'dr': 0.316, 'support': 122}
 
         Parameters
@@ -139,7 +139,7 @@ class DoublyRobust(_BaseRecommenders):
             results.
         return_extended_results: bool
             Whether the extended results such as the support should also be returned. If specified, the returned results
-            will be of type ``dict``. DR currently returns ``ips`` and the ``support`` used to calculate DR.
+            will be of type ``dict``. DR currently returns ``dr`` and the ``support`` used to calculate DR.
 
         Returns
         -------
