@@ -7,6 +7,7 @@ from typing import List, Union, Tuple
 import numpy as np
 import pandas as pd
 
+from jurity.recommenders.rank_estimation import RankEstimation
 from jurity.utils import Constants, get_sorted_clicks
 from .base import _BaseRecommenders
 
@@ -23,7 +24,7 @@ class MAP(_BaseRecommenders):
     """
 
     def __init__(self, click_column, k: int = None, user_id_column: str = Constants.user_id,
-                 item_id_column: str = Constants.item_id):
+                 item_id_column: str = Constants.item_id, rank_estimation: RankEstimation = None):
         super().__init__(user_id_column=user_id_column, item_id_column=item_id_column)
         self.click_column = click_column
         self.k = k

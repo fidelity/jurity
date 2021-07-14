@@ -8,12 +8,13 @@ from typing import Union, Tuple, List
 import numpy as np
 import pandas as pd
 
+from jurity.recommenders.rank_estimation import RankEstimation
 from jurity.utils import Constants
 
 
 class _BaseRecommenders(abc.ABC):
     def __init__(self, user_id_column: str = Constants.user_id,
-                 item_id_column: str = Constants.item_id):
+                 item_id_column: str = Constants.item_id, rank_estimation: RankEstimation = None):
         self._results = []
         self._user_id_column = user_id_column
         self._item_id_column = item_id_column
