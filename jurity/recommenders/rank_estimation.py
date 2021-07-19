@@ -6,23 +6,8 @@ import pandas as pd
 from jurity.utils import Constants, get_sorted_clicks
 
 
-class RankEstimation(NamedTuple):
-    """ Unbiased Rank Estimation Wrapper
-
-    Parameters
-    ----------
-        n_items: int
-            The total number of items available for recommendation.
-        n_sampled: int
-            The number of items sampled for the response matrix.
-
-    """
-    n_items: int = 1
-    n_sampled: int = 1
-
-
-class UnbiasedRankEstimation:
-    def __init__(self, rank_estimation: RankEstimation):
+class RankEstimation:
+    def __init__(self, n_items: int = 1, n_sampled: int = 1):
         """ Unbiased Rank Estimation
 
         Performs a correction of ranking metrics for use cases where the negative responses were sampled.
@@ -34,12 +19,14 @@ class UnbiasedRankEstimation:
 
         Parameters
         ----------
-        rank_estimation: NamedTuple
-            The RankEstimation named tuple with n_items and n_sampled.
+        n_items: int
+            The total number of items available for recommendation.
+        n_sampled: int
+            The number of items sampled for the response matrix.
         """
 
-        self.n_items = rank_estimation.n_items
-        self.n_sampled = rank_estimation.n_sampled
+        self.n_items = n_items
+        self.n_sampled = n_sampled
 
     def get_correction(self, predicted_results: pd.DataFrame):
         """
