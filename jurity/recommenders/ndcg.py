@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 
 from jurity.recommenders.base import _BaseRecommenders
-from jurity.recommenders.rank_estimation import RankEstimation
 from jurity.utils import Constants, get_sorted_clicks
 
 def idcg(num_clicks: int):
@@ -27,8 +26,10 @@ class NDCG(_BaseRecommenders):
     """
 
     def __init__(self, click_column, k: int = None, user_id_column: str = Constants.user_id,
-                 item_id_column: str = Constants.item_id, rank_estimation: RankEstimation = None):
-        super().__init__(user_id_column=user_id_column, item_id_column=item_id_column)
+                 item_id_column: str = Constants.item_id,  n_items: Union[int, str] = None,
+                 n_sampled: Union[int, str] = None):
+        super().__init__(user_id_column=user_id_column, item_id_column=item_id_column, n_items=n_items,
+                         n_sampled=n_sampled)
         self.click_column = click_column
         self.k = k
 

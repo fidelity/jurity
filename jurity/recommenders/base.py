@@ -8,16 +8,19 @@ from typing import Union, Tuple, List
 import numpy as np
 import pandas as pd
 
-from jurity.recommenders.rank_estimation import RankEstimation
 from jurity.utils import Constants
 
 
 class _BaseRecommenders(abc.ABC):
     def __init__(self, user_id_column: str = Constants.user_id,
-                 item_id_column: str = Constants.item_id, rank_estimation: RankEstimation = None):
+                 item_id_column: str = Constants.item_id,  n_items: Union[int, str] = None,
+                 n_sampled: Union[int, str] = None):
         self._results = []
         self._user_id_column = user_id_column
         self._item_id_column = item_id_column
+        self.n_items = n_items
+        self.n_sampled = n_sampled
+        self.use_rank_estimation = self.n_items is not None and self.n_sampled is not None
 
     @abc.abstractmethod
     def get_score(self, actual_results: pd.DataFrame, predicted_results: pd.DataFrame, batch_accumulate: bool = False,
@@ -101,6 +104,23 @@ class _BaseRecommenders(abc.ABC):
         metric: Union[float, dict, Tuple[float, float], Tuple[dict, dict]]
             The averaged result(s). The return type is determined by the ``batch_accumulate`` and
             ``return_extended_results`` parameters. See the examples above.
+        """
+        pass
+
+    def _get_correction(self, predicted_results: pd.DataFrame):
+        """
+        Calculates the correction value for the given predictions.
+
+        Parameters
+        ----------
+        predicted_results: pd.DataFrame
+            A pandas DataFrame for the recommended user item interaction data, captured from a recommendation algorithm.
+            The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
+            and anything else the metric may need. Each row contains the interaction of one user with one item, and the
+            scores associated with this interaction. There can be multiple interactions per user, and there can be
+            multiple users per DataFrame. However, the interactions for a specific user must be contained within a
+            single DataFrame.
+
         """
         pass
 

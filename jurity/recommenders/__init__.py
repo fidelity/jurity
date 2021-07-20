@@ -8,7 +8,6 @@ from .doubly_robust import DoublyRobust
 from .map import MAP
 from .ndcg import NDCG
 from .precision import Precision
-from .rank_estimation import RankEstimation
 from .recall import Recall
 
 
@@ -24,8 +23,4 @@ class RankingRecoMetrics(NamedTuple):
     NDCG = NDCG
     Precision = Precision
     Recall = Recall
-
-
-class RankingUtils(NamedTuple):
-    RankEstimation = RankEstimation
 

@@ -36,7 +36,8 @@ class DoublyRobust(_BaseRecommenders):
 
     def __init__(self, click_column: str, k: Optional[int] = None, user_id_column: str = Constants.user_id,
                  item_id_column: str = Constants.item_id, value_column: Optional[str] = None,
-                 propensity_column: Optional[str] = None):
+                 propensity_column: Optional[str] = None, n_items: Union[int, str] = None,
+                 n_sampled: Union[int, str] = None):
         """Initializes the DoublyRobust object
 
         Parameters
@@ -56,6 +57,22 @@ class DoublyRobust(_BaseRecommenders):
         propensity_column: Optional [str]
             The column with historic item probabilities in the actual results. Defaults to Constants.propensity_column.
             If column is not provided, a simple random policy with equal likelihood for every item will be assumed.
+        n_items: Union[int, str]
+            The total number of items that can be recommended.
+            Required to use unbiased rank estimation correction for sampled test data.
+            If int, the same value will be used for all user ids.
+            If string, the column name in actual_results to use for the n_items for each user. For use cases where
+            eligibility rules or other filtering mean that not all users can see all items.
+            When None, rank estimation correction is not performed.
+            Default is None.
+        n_sampled: Union[int, str]
+            The number of items sampled to create the actual_results test data.
+            Required to use unbiased rank estimation correction for sampled test data.
+            If int, the same value will be used for all user ids.
+            If string, the column name in actual_results to use for the n_sampled for each user. For use cases where
+            different numbers of items were sampled for different users.
+            When None, rank estimation correction is not performed.
+            Default is None.
         """
         pass
 
