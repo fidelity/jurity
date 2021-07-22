@@ -16,7 +16,7 @@ class CTR(_BaseRecommenders):
 
     Three supported estimation methods:
 
-    1. Estimation
+    1. Matching
     Calculates the CTR using a direct matching method. That is, CTR is only calculated for instances where the
     actual item the user has seen matches the recommendation.
 
@@ -56,7 +56,7 @@ class CTR(_BaseRecommenders):
 
     def __init__(self, click_column: str, k: Optional[int] = None, user_id_column: str = Constants.user_id,
                  item_id_column: str = Constants.item_id, value_column: Optional[str] = None,
-                 estimation: Optional[str] = 'estimation', propensity_column: Optional[str] = Constants.propensity,
+                 estimation: Optional[str] = 'matching', propensity_column: Optional[str] = Constants.propensity,
                  n_items: Optional[Union[int, str]] = None, n_sampled: Optional[Union[int, str]] = None):
         """Initializes the CTR object
 
@@ -76,7 +76,7 @@ class CTR(_BaseRecommenders):
             specified, ``click_column`` will be used.
         estimation: str
             The estimation method to use.
-            Options: 'estimation', 'ips', 'dr'.
+            Options: 'matching', 'ips', 'dr'.
             Estimation gives a direct estimate of the CTR.
             IPS gives the inverse propensity score.
             DR gives the doubly robust estimate.
@@ -104,6 +104,7 @@ class CTR(_BaseRecommenders):
         """
         super().__init__(user_id_column=user_id_column, item_id_column=item_id_column, n_items=n_items,
                          n_sampled=n_sampled)
+        # TODO validate estimation strings
         self.click_column = click_column
         self.value_column = value_column if value_column else click_column
         self.propensity_column = propensity_column
