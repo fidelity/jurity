@@ -14,13 +14,50 @@ from jurity.utils import Constants, get_sorted_clicks
 class CTR(_BaseRecommenders):
     """Click-through rate
 
+    Three supported estimation methods:
+
+    1. Estimation
     Calculates the CTR using a direct matching method. That is, CTR is only calculated for instances where the
     actual item the user has seen matches the recommendation.
+
+    2. Inverse Propensity Score (IPS)
+    Calculates the IPS, an estimate of CTR with a weighted correction based on how likely an item was to be recommended
+    by the historic policy if the user saw the item in the historic data.
+
+    ..math::
+        IPS = \frac{1}{n} \sigma \frac{r_a \times I(\hat{a} = a}{p(a|x,h)}
+
+    In this equation:
+    * n is the total size of the test data
+    * r_a is the observed reward
+    * hat{a} is the recommended item
+    * I(\hat{a} = a} is a boolean of whether the user-item pair has historic data
+    * p(a|x,h) is the probability of the item being recommended for the test context given the historic data
+
+    3. Doubly Robust Estimation (DR)
+    Calculates the DR, an estimate of CTR that combines the directly predicted values with a correction based on how
+    likely an item was to be recommended by the historic policy if the user saw the item in the historic data.
+
+    ..math::
+        DR = \frac{1}{n} \sigma (\hat{r_a} + \frac{(r_a -\hat{r_a}) I(\hat{a} = a}{p(a|x,h)})
+
+    In this equation:
+    * n is the total size of the test data
+    * r_a is the observed reward
+    * \hat{r_a} is the predicted reward
+    * hat{a} is the recommended item
+    * I(\hat{a} = a} is a boolean of whether the user-item pair has historic data
+    * p(a|x,h) is the probability of the item being recommended for the test context given the historic data
+
+    At a high level, doubly robust estimation combines a direct estimate with an IPS-like correction if historic data is
+    available. If historic data is not available, the second term is 0 and only the predicted reward is used for the
+    user-item pair.
     """
 
     def __init__(self, click_column: str, k: Optional[int] = None, user_id_column: str = Constants.user_id,
                  item_id_column: str = Constants.item_id, value_column: Optional[str] = None,
-                 n_items: Union[int, str] = None, n_sampled: Union[int, str] = None):
+                 estimation: Optional[str] = 'estimation', propensity_column: Optional[str] = Constants.propensity,
+                 n_items: Optional[Union[int, str]] = None, n_sampled: Optional[Union[int, str]] = None):
         """Initializes the CTR object
 
         Parameters
@@ -37,6 +74,16 @@ class CTR(_BaseRecommenders):
             The column to calculate the CTR on. If different from ``click_column``, the recommendations will be sorted
             by ``click_column`` and the CTR will be calculated on the matching rows, but on the ``value_column``. If not
             specified, ``click_column`` will be used.
+        estimation: str
+            The estimation method to use.
+            Options: 'estimation', 'ips', 'dr'.
+            Estimation gives a direct estimate of the CTR.
+            IPS gives the inverse propensity score.
+            DR gives the doubly robust estimate.
+        propensity_column: Optional [str]
+            The column with historic item probabilities in the actual results, used in IPS and DR.
+            Defaults to Constants.propensity.
+            If column is not provided, a simple random policy with equal likelihood for every item will be assumed.
         n_items: Union[int, str]
             The total number of items that can be recommended.
             Required to use unbiased rank estimation correction for sampled test data.
@@ -55,10 +102,13 @@ class CTR(_BaseRecommenders):
             Default is None.
 
         """
-        super().__init__(user_id_column=user_id_column, item_id_column=item_id_column)
+        super().__init__(user_id_column=user_id_column, item_id_column=item_id_column, n_items=n_items,
+                         n_sampled=n_sampled)
         self.click_column = click_column
         self.value_column = value_column if value_column else click_column
+        self.propensity_column = propensity_column
         self.k = k
+        self.estimation = estimation
 
     def get_score(self, actual_results: pd.DataFrame, predicted_results: pd.DataFrame, batch_accumulate: bool = False,
                   return_extended_results: bool = False) -> Union[float, dict, Tuple[float, float], Tuple[dict, dict]]:
@@ -163,5 +213,6 @@ class CTR(_BaseRecommenders):
         return {'ctr': np.mean(results), 'support': results.size}
 
     def __str__(self):
+        # TODO update with estimation method
         return 'CTR({})@{}'.format(self.value_column, self.k) if self.k is not None else 'CTR({})'.format(
             self.value_column)
