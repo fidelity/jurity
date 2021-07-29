@@ -66,6 +66,92 @@ class TestBinaryRecommenders(unittest.TestCase):
         self.assertEqual(1. / 2, results['ctr'])
         self.assertEqual(2, results['support'])
 
+    def test_ips_ctr(self):
+        # Test immediate calculation of CTR
+        metric = BinaryRecoMetrics.CTR(click_column='click', estimation='ips')
+        actual = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                               Constants.item_id: [1, 2, 0, 3],
+                               'click': [0, 1, 0, 0]})
+
+        predicted = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                                  Constants.item_id: [1, 2, 2, 3],
+                                  'click': [0.8, 0.7, 0.8, 0.7]})
+
+        ctr = metric.get_score(actual, predicted)
+        self.assertEqual(1, ctr)
+
+        # Test accumulated calculation
+        metric = BinaryRecoMetrics.CTR(click_column='click', estimation='ips')
+        _, results = metric.get_score(actual, predicted, batch_accumulate=True, return_extended_results=True)
+
+        self.assertEqual(1, results['ctr'])
+        self.assertEqual(4, results['support'])
+
+    def test_ips_ctr_propensity(self):
+        # Test immediate calculation of CTR
+        metric = BinaryRecoMetrics.CTR(click_column='click', estimation='ips')
+        actual = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                               Constants.item_id: [1, 2, 0, 3],
+                               'click': [0, 1, 0, 0],
+                               Constants.propensity: [0.1, 0.6, 0.2, 0.1]})
+
+        predicted = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                                  Constants.item_id: [1, 2, 2, 3],
+                                  'click': [0.8, 0.7, 0.8, 0.7]})
+
+        ctr = metric.get_score(actual, predicted)
+        self.assertEqual(0.4166666666666667, ctr)
+
+        # Test accumulated calculation
+        metric = BinaryRecoMetrics.CTR(click_column='click', estimation='ips')
+        _, results = metric.get_score(actual, predicted, batch_accumulate=True, return_extended_results=True)
+
+        self.assertEqual(0.4166666666666667, results['ctr'])
+        self.assertEqual(4, results['support'])
+
+    def test_dr_ctr(self):
+        # Test immediate calculation of CTR
+        metric = BinaryRecoMetrics.CTR(click_column='click', estimation='dr')
+        actual = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                               Constants.item_id: [1, 2, 0, 3],
+                               'click': [0, 1, 0, 0]})
+
+        predicted = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                                  Constants.item_id: [1, 2, 2, 3],
+                                  'click': [0.8, 0.7, 0.8, 0.7]})
+
+        ctr = metric.get_score(actual, predicted)
+        self.assertEqual(-0.44999999999999996, ctr)
+
+        # Test accumulated calculation
+        metric = BinaryRecoMetrics.CTR(click_column='click', estimation='dr')
+        _, results = metric.get_score(actual, predicted, batch_accumulate=True, return_extended_results=True)
+
+        self.assertEqual(-0.44999999999999996, results['ctr'])
+        self.assertEqual(4, results['support'])
+
+    def test_dr_ctr_propensity(self):
+        # Test immediate calculation of CTR
+        metric = BinaryRecoMetrics.CTR(click_column='click', estimation='dr')
+        actual = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                               Constants.item_id: [1, 2, 0, 3],
+                               'click': [0, 1, 0, 0],
+                               Constants.propensity: [0.1, 0.6, 0.2, 0.1]})
+
+        predicted = pd.DataFrame({Constants.user_id: [1, 2, 3, 4],
+                                  Constants.item_id: [1, 2, 2, 3],
+                                  'click': [0.8, 0.7, 0.8, 0.7]})
+
+        ctr = metric.get_score(actual, predicted)
+        self.assertEqual(-2.875, ctr)
+
+        # Test accumulated calculation
+        metric = BinaryRecoMetrics.CTR(click_column='click', estimation='dr')
+        _, results = metric.get_score(actual, predicted, batch_accumulate=True, return_extended_results=True)
+
+        self.assertEqual(-2.875, results['ctr'])
+        self.assertEqual(4, results['support'])
+
     def test_auc(self):
         # Test immediate calculation of AUC
         metric = BinaryRecoMetrics.AUC(click_column='click')

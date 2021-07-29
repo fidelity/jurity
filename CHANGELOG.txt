@@ -3,10 +3,9 @@ CHANGELOG
 =========
 
 -------------------------------------------------------------------------------
-July TBD, 2021 1.3.0
+July 29, 2021 1.3.0
 -------------------------------------------------------------------------------
 
-- Added unbiased rank estimation to Recommenders metrics.
 - Added Inverse Propensity Scoring (IPS) and Doubly Robust Estimation (DR) CTR estimation methods.
 
 -------------------------------------------------------------------------------

@@ -31,7 +31,11 @@ class Constants(NamedTuple):
 
     user_id = 'user_id'
     item_id = 'item_id'
+    estimate = 'estimate'
+    inverse_propensity = 'inverse_propensity'
+    ips_correction = 'ips_correction'
     propensity = 'propensity'
+
 
 
 class Error(Exception):

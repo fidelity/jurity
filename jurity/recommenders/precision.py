@@ -49,10 +49,8 @@ class Precision(_BaseRecommenders):
     """
 
     def __init__(self, click_column, k: int = None, user_id_column: str = Constants.user_id,
-                 item_id_column: str = Constants.item_id,  n_items: Union[int, str] = None,
-                 n_sampled: Union[int, str] = None):
-        super().__init__(user_id_column=user_id_column, item_id_column=item_id_column, n_items=n_items,
-                         n_sampled=n_sampled)
+                 item_id_column: str = Constants.item_id):
+        super().__init__(user_id_column=user_id_column, item_id_column=item_id_column)
         self.click_column = click_column
         self.k = k
 
