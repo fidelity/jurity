@@ -81,7 +81,7 @@ class CTR(_BaseRecommenders):
         estimation: str
             The estimation method to use.
             Options: 'matching', 'ips', 'dr'.
-            Estimation gives a direct estimate of the CTR.
+            Matching gives a direct estimate of the CTR.
             IPS gives the inverse propensity score.
             DR gives the doubly robust estimate.
         propensity_column: Optional [str]
