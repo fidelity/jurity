@@ -216,8 +216,11 @@ class CTR(_BaseRecommenders):
     def _get_ips(self, actual_results, sorted_clicks, n_items, batch_accumulate, return_extended_results):
         matches, actual_results = self._get_probabilities(actual_results, sorted_clicks, n_items)
 
+        # calculate reward / propensity for the matches
         matches[Constants.inverse_propensity] = matches[self.value_column] / matches[self.propensity_column]
 
+        # final calculation requires the full n of the data set
+        # merge with sorted_clicks and impute with 0 to include the non-matches
         sorted_clicks = sorted_clicks.merge(matches[[Constants.inverse_propensity]],
                                             how='left', left_index=True, right_index=True)
         sorted_clicks[Constants.inverse_propensity].fillna(0, inplace=True)
@@ -226,15 +229,20 @@ class CTR(_BaseRecommenders):
 
         return self._accumulate_and_return(ips, batch_accumulate, return_extended_results)
 
-    def _get_doubly_robust_estimate(self, actual_results, sorted_clicks, n_items, batch_accumulate, return_extended_results):
-
+    def _get_doubly_robust_estimate(self, actual_results, sorted_clicks, n_items, batch_accumulate,
+                                    return_extended_results):
         matches, actual_results = self._get_probabilities(actual_results, sorted_clicks, n_items)
+
+        # calculate (actual - predicted) / propensity for the matches
         matches[Constants.ips_correction] = (matches[self.value_column] - matches[self.value_column+'_r']) \
                                            / matches[self.propensity_column]
 
+        # merge with sorted_clicks and impute correction with 0 to include the non-matches for DR calculation
         sorted_clicks = sorted_clicks.merge(matches[[Constants.ips_correction]],
                                             how='left', left_index=True, right_index=True)
         sorted_clicks[Constants.ips_correction].fillna(0, inplace=True)
+
+        # DR = predicted + propensity correction
         sorted_clicks[Constants.estimate] = sorted_clicks[self.value_column] + sorted_clicks[Constants.ips_correction]
 
         dr = sorted_clicks[Constants.estimate].values
