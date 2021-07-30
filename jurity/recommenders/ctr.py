@@ -208,13 +208,13 @@ class CTR(_BaseRecommenders):
         return {'ctr': np.mean(results), 'support': results.size}
 
     def _get_matching_ctr(self, actual_results, sorted_clicks, batch_accumulate, return_extended_results):
-        matches = actual_results.join(sorted_clicks, how='inner', rsuffix='_r')
+        matches = self._get_matches(actual_results, sorted_clicks)
         clicks = matches[self.value_column].values
 
         return self._accumulate_and_return(clicks, batch_accumulate, return_extended_results)
 
     def _get_ips(self, actual_results, sorted_clicks, n_items, batch_accumulate, return_extended_results):
-        matches, actual_results = self._get_probabilities(actual_results, sorted_clicks, n_items)
+        matches, actual_results = self._get_match_probabilities(actual_results, sorted_clicks, n_items)
 
         # calculate reward / propensity for the matches
         matches[Constants.inverse_propensity] = matches[self.value_column] / matches[self.propensity_column]
@@ -231,7 +231,7 @@ class CTR(_BaseRecommenders):
 
     def _get_doubly_robust_estimate(self, actual_results, sorted_clicks, n_items, batch_accumulate,
                                     return_extended_results):
-        matches, actual_results = self._get_probabilities(actual_results, sorted_clicks, n_items)
+        matches, actual_results = self._get_match_probabilities(actual_results, sorted_clicks, n_items)
 
         # calculate (actual - predicted) / propensity for the matches
         matches[Constants.ips_correction] = (matches[self.value_column] - matches[self.value_column+'_r']) \
@@ -249,15 +249,19 @@ class CTR(_BaseRecommenders):
 
         return self._accumulate_and_return(dr, batch_accumulate, return_extended_results)
 
-    def _get_probabilities(self, actual_results, sorted_clicks, n_items):
+    def _get_match_probabilities(self, actual_results, sorted_clicks, n_items):
 
         if self.propensity_column not in actual_results.columns:
 
             actual_results[self.propensity_column] = 1/n_items
 
-        matches = actual_results.join(sorted_clicks, how='inner', rsuffix='_r')
+        matches = self._get_matches(actual_results, sorted_clicks)
 
         return matches, actual_results
+
+    @staticmethod
+    def _get_matches(actual_results, sorted_clicks):
+        return actual_results.join(sorted_clicks, how='inner', rsuffix='_r')
 
     def __str__(self):
 
