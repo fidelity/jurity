@@ -19,3 +19,4 @@ class RankingRecoMetrics(NamedTuple):
     NDCG = NDCG
     Precision = Precision
     Recall = Recall
+

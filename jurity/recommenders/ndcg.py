@@ -10,7 +10,6 @@ import pandas as pd
 from jurity.recommenders.base import _BaseRecommenders
 from jurity.utils import Constants, get_sorted_clicks
 
-
 def idcg(num_clicks: int):
     return np.sum(1 / np.log2(np.arange(2, 2 + num_clicks)))
 

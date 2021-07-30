@@ -184,10 +184,30 @@ Each <span class="math notranslate nohighlight">\(A_i\)</span> and <span class="
 <p>Binary recommender metrics directly measure the click interaction.</p>
 <div class="section" id="ctr-click-through-rate">
 <h3>CTR: Click-through Rate<a class="headerlink" href="#ctr-click-through-rate" title="Permalink to this headline">¶</a></h3>
-<p>CTR measures the accuracy of the recommendations over the subset of user-item pairs that appear in both actual ratings and recommendations.</p>
+<p>CTR offers three reward estimation methods.</p>
+<p>Direct estimation (“matching”) measures the accuracy of the recommendations over the subset of user-item pairs that appear in both actual ratings and recommendations.</p>
 <p>Let <span class="math notranslate nohighlight">\(M\)</span> denote the set of user-item pairs that appear in both actual ratings and recommendations, and <span class="math notranslate nohighlight">\(C(M_i)\)</span> be an indicator function that produces <span class="math notranslate nohighlight">\(1\)</span> if the user clicked on the item, and <span class="math notranslate nohighlight">\(0\)</span> if they didn’t.</p>
 <div class="math notranslate nohighlight">
 \[CTR = \frac{1}{\left | M \right |}\sum_{i=1}^{\left | M \right |} C(M_i)\]</div>
+<p>Inverse propensity scoring (IPS) weights the items by how likely they were to be recommended by the historic policy
+if the user saw the item in the historic data. Due to the probability inversion, less likely items are given more weight.</p>
+<div class="math notranslate nohighlight">
+\[IPS = \frac{1}{n} \sum r_a \times \frac{I(\hat{a} = a)}{P(a|x,h)}\]</div>
+<p>In this calculation: n is the total size of the test data; <span class="math notranslate nohighlight">\(r_a\)</span> is the observed reward;
+<span class="math notranslate nohighlight">\(\hat{a}\)</span> is the recommended item; <span class="math notranslate nohighlight">\(I(\hat{a} = a}\)</span> is a boolean of whether the user-item pair has
+historic data; and <span class="math notranslate nohighlight">\(P(a|x,h)\)</span> is the probability of the item being recommended for the test context given
+the historic data.</p>
+<p>Doubly robust estimation (DR) combines the directly predicted values with a correction based on how
+likely an item was to be recommended by the historic policy if the user saw the item in the historic data.</p>
+<div class="math notranslate nohighlight">
+\[DR = \frac{1}{n} \sum \hat{r}_a + \frac{(r_a -\hat{r}_a) I(\hat{a} = a}{p(a|x,h)}\]</div>
+<p>In this calculation, <span class="math notranslate nohighlight">\(\hat{r}_a\)</span> is the predicted reward.</p>
+<p>At a high level, doubly robust estimation combines a direct estimate with an IPS-like correction if historic data is
+available. If historic data is not available, the second term is 0 and only the predicted reward is used for the
+user-item pair.</p>
+<p>The IPS and DR implementations are based on: Dudík, Miroslav, John Langford, and Lihong Li.
+“Doubly robust policy evaluation and learning.” Proceedings of the 28th International Conference on International
+Conference on Machine Learning. 2011. Available as arXiv preprint arXiv:1103.4601</p>
 </div>
 <div class="section" id="auc-area-under-the-curve">
 <h3>AUC: Area Under the Curve<a class="headerlink" href="#auc-area-under-the-curve" title="Permalink to this headline">¶</a></h3>

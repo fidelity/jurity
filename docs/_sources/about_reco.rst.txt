@@ -17,12 +17,42 @@ Binary recommender metrics directly measure the click interaction.
 CTR: Click-through Rate
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-CTR measures the accuracy of the recommendations over the subset of user-item pairs that appear in both actual ratings and recommendations.
+CTR offers three reward estimation methods.
+
+Direct estimation ("matching") measures the accuracy of the recommendations over the subset of user-item pairs that appear in both actual ratings and recommendations.
 
 Let :math:`M` denote the set of user-item pairs that appear in both actual ratings and recommendations, and :math:`C(M_i)` be an indicator function that produces :math:`1` if the user clicked on the item, and :math:`0` if they didn't.
 
 .. math::
     CTR = \frac{1}{\left | M \right |}\sum_{i=1}^{\left | M \right |} C(M_i)
+
+Inverse propensity scoring (IPS) weights the items by how likely they were to be recommended by the historic policy
+if the user saw the item in the historic data. Due to the probability inversion, less likely items are given more weight.
+
+.. math::
+    IPS = \frac{1}{n} \sum r_a \times \frac{I(\hat{a} = a)}{P(a|x,h)}
+
+In this calculation: n is the total size of the test data; :math:`r_a` is the observed reward;
+:math:`\hat{a}` is the recommended item; :math:`I(\hat{a} = a}` is a boolean of whether the user-item pair has
+historic data; and :math:`P(a|x,h)` is the probability of the item being recommended for the test context given
+the historic data.
+
+Doubly robust estimation (DR) combines the directly predicted values with a correction based on how
+likely an item was to be recommended by the historic policy if the user saw the item in the historic data.
+
+.. math::
+    DR = \frac{1}{n} \sum \hat{r}_a + \frac{(r_a -\hat{r}_a) I(\hat{a} = a}{p(a|x,h)}
+
+In this calculation, :math:`\hat{r}_a` is the predicted reward.
+
+At a high level, doubly robust estimation combines a direct estimate with an IPS-like correction if historic data is
+available. If historic data is not available, the second term is 0 and only the predicted reward is used for the
+user-item pair.
+
+
+The IPS and DR implementations are based on: Dudík, Miroslav, John Langford, and Lihong Li.
+"Doubly robust policy evaluation and learning." Proceedings of the 28th International Conference on International
+Conference on Machine Learning. 2011. Available as arXiv preprint arXiv:1103.4601 
 
 AUC: Area Under the Curve
 ^^^^^^^^^^^^^^^^^^^^^^^^^
