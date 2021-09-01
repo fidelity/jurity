@@ -24,4 +24,5 @@ jobs:
       - name: Check
         shell: bash
         run: |
+          python3 -m pip install --upgrade pip
           python3 setup.py install
