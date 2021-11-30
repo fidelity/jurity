@@ -5,7 +5,7 @@
 
 Jurity is a research library that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.
 
-Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments. Full documentation is available at [fidelity.github.io/jurity](https://fidelity.github.io/jurity).
+Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments. Documentation is available at [fidelity.github.io/jurity](https://fidelity.github.io/jurity).
 
 ## Fairness Metrics
 * [Average Odds](https://fidelity.github.io/jurity/about_fairness.html#average-odds)
