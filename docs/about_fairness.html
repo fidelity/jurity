@@ -1,72 +1,35 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>About Algorithmic Fairness &mdash; Jurity 1.2.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="About Recommenders Metrics" href="about_reco.html" />
     <link rel="prev" title="Installation" href="install.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> Jurity
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -74,18 +37,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
@@ -105,101 +57,60 @@
 <li class="toctree-l1"><a class="reference internal" href="api.html">Jurity Public API</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Jurity</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>About Algorithmic Fairness</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/about_fairness.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="about-algorithmic-fairness">
-<span id="about-fairness"></span><h1>About Algorithmic Fairness<a class="headerlink" href="#about-algorithmic-fairness" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="about-algorithmic-fairness">
+<span id="about-fairness"></span><h1>About Algorithmic Fairness<a class="headerlink" href="#about-algorithmic-fairness" title="Permalink to this headline"></a></h1>
 <p>Below, see the mathematical definition for each of the fairness metrics in the library.</p>
-<div class="section" id="average-odds">
-<h2>Average Odds<a class="headerlink" href="#average-odds" title="Permalink to this headline">¶</a></h2>
+<section id="average-odds">
+<h2>Average Odds<a class="headerlink" href="#average-odds" title="Permalink to this headline"></a></h2>
 <p>Average Odds denotes the average of difference in FPR and TPR for group 1 and group 2.</p>
 <div class="math notranslate nohighlight">
 \[\frac{1}{2} [(FPR_{D = \text{group 1}} - FPR_{D =
 \text{group 2}}) + (TPR_{D = \text{group 2}} - TPR_{D
 = \text{group 1}}))]\]</div>
-</div>
-<div class="section" id="disparate-impact">
-<h2>Disparate Impact<a class="headerlink" href="#disparate-impact" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="disparate-impact">
+<h2>Disparate Impact<a class="headerlink" href="#disparate-impact" title="Permalink to this headline"></a></h2>
 <p>Disparate Impact is the ratio of predictions for a “positive” outcome in a binary classification task between members of group 1 and group 2, respectively.</p>
 <div class="math notranslate nohighlight">
 \[\frac{P(\hat{Y} = 1 | D = \text{group 1})}
     {P(\hat{Y} = 1 | D = \text{group 2})}\]</div>
-</div>
-<div class="section" id="equal-opportunity">
-<h2>Equal Opportunity<a class="headerlink" href="#equal-opportunity" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="equal-opportunity">
+<h2>Equal Opportunity<a class="headerlink" href="#equal-opportunity" title="Permalink to this headline"></a></h2>
 <p>Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, <span class="math notranslate nohighlight">\(TPR = TP/P\)</span>, conditioned on a protected attribute.</p>
-</div>
-<div class="section" id="fnr-difference">
-<h2>FNR Difference<a class="headerlink" href="#fnr-difference" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="fnr-difference">
+<h2>FNR Difference<a class="headerlink" href="#fnr-difference" title="Permalink to this headline"></a></h2>
 <p>FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.</p>
 <div class="math notranslate nohighlight">
 \[E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]\]</div>
-</div>
-<div class="section" id="generalized-entropy-index">
-<h2>Generalized Entropy Index<a class="headerlink" href="#generalized-entropy-index" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="generalized-entropy-index">
+<h2>Generalized Entropy Index<a class="headerlink" href="#generalized-entropy-index" title="Permalink to this headline"></a></h2>
 <p>Generalized Entropy Index is proposed as a unified individual and group fairness measure in <a class="footnote-reference brackets" href="#id2" id="id1">1</a>. With <span class="math notranslate nohighlight">\(b_i = \hat{y}_i - y_i + 1\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\mathcal{E}(\alpha) = \begin{cases}
@@ -218,25 +129,25 @@ Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery a
 </dl>
 </dd>
 </dl>
-</div>
-<div class="section" id="predictive-equality">
-<h2>Predictive Equality<a class="headerlink" href="#predictive-equality" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="predictive-equality">
+<h2>Predictive Equality<a class="headerlink" href="#predictive-equality" title="Permalink to this headline"></a></h2>
 <p>Predictive Equality is defined as the situation when accuracy of decisions is equal across two groups, as measured by false positive rate (FPR).</p>
 <div class="math notranslate nohighlight">
 \[E[d(X)|Y=0, g(X)] = E[d(X), Y=0]\]</div>
-</div>
-<div class="section" id="statistical-parity">
-<h2>Statistical Parity<a class="headerlink" href="#statistical-parity" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="statistical-parity">
+<h2>Statistical Parity<a class="headerlink" href="#statistical-parity" title="Permalink to this headline"></a></h2>
 <p>Statistical Parity measures the difference in probabilities of a positive outcome across two groups.</p>
 <div class="math notranslate nohighlight">
 \[P(\hat{Y} = 1 | D = \text{group 1}) - P(\hat{Y} = 1 | D = \text{group 2})\]</div>
-</div>
-<div class="section" id="theil-index">
-<h2>Theil Index<a class="headerlink" href="#theil-index" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="theil-index">
+<h2>Theil Index<a class="headerlink" href="#theil-index" title="Permalink to this headline"></a></h2>
 <p>Theil Index is the generalized entropy index with <span class="math notranslate nohighlight">\(\alpha = 1\)</span>. See Generalized Entropy Index.</p>
-</div>
-<div class="section" id="equalized-odds">
-<h2>Equalized Odds<a class="headerlink" href="#equalized-odds" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="equalized-odds">
+<h2>Equalized Odds<a class="headerlink" href="#equalized-odds" title="Permalink to this headline"></a></h2>
 <p>Equalized odds is a bias mitigation technique where subset of decisions of a binary classifier is flipped at uniform random in each of two groups to achieve equality of TPR and FPR across the two groups as proposed in <a class="footnote-reference brackets" href="#id4" id="id3">2</a>. This subset rate in each group is learned via constrained optimization.</p>
 <dl>
 <dt>References:</dt><dd><dl class="footnote brackets">
@@ -246,55 +157,38 @@ Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery a
 </dl>
 </dd>
 </dl>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="about_reco.html" class="btn btn-neutral float-right" title="About Recommenders Metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="about_reco.html" class="btn btn-neutral float-right" title="About Recommenders Metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, FMR LLC.
-
-    </p>
+    <p>&#169; Copyright 2021, FMR LLC.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

@@ -1,72 +1,35 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>About Recommenders Metrics &mdash; Jurity 1.2.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Jurity Public API" href="api.html" />
     <link rel="prev" title="About Algorithmic Fairness" href="about_fairness.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> Jurity
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -74,18 +37,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
@@ -108,82 +60,41 @@
 <li class="toctree-l1"><a class="reference internal" href="api.html">Jurity Public API</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Jurity</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>About Recommenders Metrics</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/about_reco.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="about-recommenders-metrics">
-<span id="about-reco"></span><h1>About Recommenders Metrics<a class="headerlink" href="#about-recommenders-metrics" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="about-recommenders-metrics">
+<span id="about-reco"></span><h1>About Recommenders Metrics<a class="headerlink" href="#about-recommenders-metrics" title="Permalink to this headline"></a></h1>
 <p>Jurity offers various standardized metrics for measuring the recommendation performance.
 While the recommendation systems community agrees on these metrics, the implementations can be different, especially when it comes to edge-cases.</p>
 <p>For the definitions below, <span class="math notranslate nohighlight">\(A\)</span> is the set of actual ratings for users and <span class="math notranslate nohighlight">\(P\)</span> is the set of predictions / recommendations.
 Each <span class="math notranslate nohighlight">\(A_i\)</span> and <span class="math notranslate nohighlight">\(P_i\)</span> represents the list of actual items and list of recommended items, respectively, for a user <span class="math notranslate nohighlight">\(i\)</span>.</p>
-<div class="section" id="binary-recommender-metrics">
-<h2>Binary Recommender Metrics<a class="headerlink" href="#binary-recommender-metrics" title="Permalink to this headline">¶</a></h2>
+<section id="binary-recommender-metrics">
+<h2>Binary Recommender Metrics<a class="headerlink" href="#binary-recommender-metrics" title="Permalink to this headline"></a></h2>
 <p>Binary recommender metrics directly measure the click interaction.</p>
-<div class="section" id="ctr-click-through-rate">
-<h3>CTR: Click-through Rate<a class="headerlink" href="#ctr-click-through-rate" title="Permalink to this headline">¶</a></h3>
+<section id="ctr-click-through-rate">
+<h3>CTR: Click-through Rate<a class="headerlink" href="#ctr-click-through-rate" title="Permalink to this headline"></a></h3>
 <p>CTR offers three reward estimation methods.</p>
 <p>Direct estimation (“matching”) measures the accuracy of the recommendations over the subset of user-item pairs that appear in both actual ratings and recommendations.</p>
 <p>Let <span class="math notranslate nohighlight">\(M\)</span> denote the set of user-item pairs that appear in both actual ratings and recommendations, and <span class="math notranslate nohighlight">\(C(M_i)\)</span> be an indicator function that produces <span class="math notranslate nohighlight">\(1\)</span> if the user clicked on the item, and <span class="math notranslate nohighlight">\(0\)</span> if they didn’t.</p>
@@ -194,13 +105,13 @@ if the user saw the item in the historic data. Due to the probability inversion,
 <div class="math notranslate nohighlight">
 \[IPS = \frac{1}{n} \sum r_a \times \frac{I(\hat{a} = a)}{P(a|x,h)}\]</div>
 <p>In this calculation: n is the total size of the test data; <span class="math notranslate nohighlight">\(r_a\)</span> is the observed reward;
-<span class="math notranslate nohighlight">\(\hat{a}\)</span> is the recommended item; <span class="math notranslate nohighlight">\(I(\hat{a} = a}\)</span> is a boolean of whether the user-item pair has
+<span class="math notranslate nohighlight">\(\hat{a}\)</span> is the recommended item; <span class="math notranslate nohighlight">\(I(\hat{a} = a)\)</span> is a boolean of whether the user-item pair has
 historic data; and <span class="math notranslate nohighlight">\(P(a|x,h)\)</span> is the probability of the item being recommended for the test context given
 the historic data.</p>
 <p>Doubly robust estimation (DR) combines the directly predicted values with a correction based on how
 likely an item was to be recommended by the historic policy if the user saw the item in the historic data.</p>
 <div class="math notranslate nohighlight">
-\[DR = \frac{1}{n} \sum \hat{r}_a + \frac{(r_a -\hat{r}_a) I(\hat{a} = a}{p(a|x,h)}\]</div>
+\[DR = \frac{1}{n} \sum \hat{r}_a + \frac{(r_a -\hat{r}_a) I(\hat{a} = a)}{p(a|x,h)}\]</div>
 <p>In this calculation, <span class="math notranslate nohighlight">\(\hat{r}_a\)</span> is the predicted reward.</p>
 <p>At a high level, doubly robust estimation combines a direct estimate with an IPS-like correction if historic data is
 available. If historic data is not available, the second term is 0 and only the predicted reward is used for the
@@ -208,102 +119,85 @@ user-item pair.</p>
 <p>The IPS and DR implementations are based on: Dudík, Miroslav, John Langford, and Lihong Li.
 “Doubly robust policy evaluation and learning.” Proceedings of the 28th International Conference on International
 Conference on Machine Learning. 2011. Available as arXiv preprint arXiv:1103.4601</p>
-</div>
-<div class="section" id="auc-area-under-the-curve">
-<h3>AUC: Area Under the Curve<a class="headerlink" href="#auc-area-under-the-curve" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="auc-area-under-the-curve">
+<h3>AUC: Area Under the Curve<a class="headerlink" href="#auc-area-under-the-curve" title="Permalink to this headline"></a></h3>
 <p>AUC is the probability that the recommender will rank a randomly chosen relevant/clicked instance higher than a randomly chosen non-relevant/not-clicked one over the subset of user-item pairs that appear in both actual ratings and recommendations.</p>
 <p>Let <span class="math notranslate nohighlight">\(M\)</span> denote the set of user-item pairs that appear in both actual ratings and recommendations with <span class="math notranslate nohighlight">\(M^1\)</span> the set of relevant/clicked instances and <span class="math notranslate nohighlight">\(M^0\)</span> the non-clicked instances.
 If <span class="math notranslate nohighlight">\(f(t)\)</span> is the score returned by the recommender for the <span class="math notranslate nohighlight">\(t\)</span>-th instance then:</p>
 <div class="math notranslate nohighlight">
 \[AUC = \frac{\sum_{t_0 \in M^0}\sum_{t_1 \in M^1}I[(f(t_0) &lt; f(t_1)]}{\left | M^0 \right | \left | M^1 \right |}\]</div>
-</div>
-</div>
-<div class="section" id="ranking-recommender-metrics">
-<h2>Ranking Recommender Metrics<a class="headerlink" href="#ranking-recommender-metrics" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="ranking-recommender-metrics">
+<h2>Ranking Recommender Metrics<a class="headerlink" href="#ranking-recommender-metrics" title="Permalink to this headline"></a></h2>
 <p>Ranking metrics reward putting the clicked items on a higher position/rank than the others.
 Some metrics use the relevance function <span class="math notranslate nohighlight">\(rel(P_{i,n})\)</span>, which is an indicator function that produces <span class="math notranslate nohighlight">\(1\)</span> if the predicted item at position <span class="math notranslate nohighlight">\(n\)</span> for user <span class="math notranslate nohighlight">\(i\)</span> is in the user’s relevant set of items.</p>
 <p>All the ranking metrics operate on a filtered set of users such that only the users with relevant/clicked items are taken into account.
 This is in line with industry practices.
 There is a further filtering for precision related metrics (Precision&#64;k and MAP&#64;k) where each user also has to have a recommendation.
 This is done to avoid divide by 0 errors.</p>
-<div class="section" id="precision">
-<h3>Precision<a class="headerlink" href="#precision" title="Permalink to this headline">¶</a></h3>
+<section id="precision">
+<h3>Precision<a class="headerlink" href="#precision" title="Permalink to this headline"></a></h3>
 <p>Precision&#64;k measures how consistently a model is able to pinpoint the items a user would interact with.
 A recommender system that only provides recommendations for 5% of the users will have a high precision if the users receiving the recommendations always interact with them.</p>
 <div class="math notranslate nohighlight">
 \[Precision&#64;k = \frac{1}{\left | A \cap P \right |}\sum_{i=1}^{\left | A \cap P \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | P_i[1:k] \right |}\]</div>
-</div>
-<div class="section" id="recall">
-<h3>Recall<a class="headerlink" href="#recall" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="recall">
+<h3>Recall<a class="headerlink" href="#recall" title="Permalink to this headline"></a></h3>
 <p>Recall&#64;k measures whether a model can capture all the items the user has interacted with.
 If __k__ is high enough, a recommender system can get a high recall even if it has a large amount of irrelevant recommendations, if it has also identified the relevant recommendations.</p>
 <div class="math notranslate nohighlight">
 \[Recall&#64;k = \frac{1}{\left | A \right |}\sum_{i=1}^{\left | A \right |} \frac{\left | A_i \cap P_i[1:k] \right |}{\left | A_i \right |}\]</div>
-</div>
-<div class="section" id="map-mean-average-precision">
-<h3>MAP: Mean Average Precision<a class="headerlink" href="#map-mean-average-precision" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="map-mean-average-precision">
+<h3>MAP: Mean Average Precision<a class="headerlink" href="#map-mean-average-precision" title="Permalink to this headline"></a></h3>
 <p>MAP&#64;k measures a position-sensitive version of Precision&#64;k, where getting the top-most recommendations more precise has a more important effect than getting the last recommendations correct.
 When <span class="math notranslate nohighlight">\(k=1\)</span>, Precision&#64;k and MAP&#64;k are the same.</p>
 <div class="math notranslate nohighlight">
 \[MAP&#64;k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac{1}{min(k,\left | A_i \right |))}\sum_{n=1}^k Precision_i(n) \times rel(P_{i,n})\]</div>
-</div>
-<div class="section" id="ndcg-normalized-discounted-cumulative-gain">
-<h3>NDCG: Normalized Discounted Cumulative Gain<a class="headerlink" href="#ndcg-normalized-discounted-cumulative-gain" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="ndcg-normalized-discounted-cumulative-gain">
+<h3>NDCG: Normalized Discounted Cumulative Gain<a class="headerlink" href="#ndcg-normalized-discounted-cumulative-gain" title="Permalink to this headline"></a></h3>
 <p>NDCG&#64;k measures the relevance of the ranked recommendations discounted by the rank at which they appear.
 It is normalized to be between 0 and 1.
 Improving the highest-ranked recommendations has a more important effect than improving the lowest-ranked recommendations.</p>
 <div class="math notranslate nohighlight">
 \[NDCG&#64;k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac {\sum_{r=1}^{\left | P_i \right |} \frac{rel(P_{i,r})}{log_2(r+1)}}{\sum_{r=1}^{\left | A_i \right |} \frac{1}{log_2(r+1)}}\]</div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="api.html" class="btn btn-neutral float-right" title="Jurity Public API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="about_fairness.html" class="btn btn-neutral float-left" title="About Algorithmic Fairness" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="Jurity Public API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, FMR LLC.
-
-    </p>
+    <p>&#169; Copyright 2021, FMR LLC.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
