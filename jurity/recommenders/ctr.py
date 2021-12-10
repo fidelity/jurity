@@ -25,29 +25,31 @@ class CTR(_BaseRecommenders):
     by the historic policy if the user saw the item in the historic data.
 
     .. math::
-        IPS = \frac{1}{n} \sum r_a \times \frac{I(\hat{a} = a)}{p(a|x,h)}
+        IPS = \\frac{1}{n} \\sum r_a \\times \\frac{I(\\hat{a} = a)}{p(a|x,h)}
 
     In this equation:
-    * n is the total size of the test data
-    * r_a is the observed reward
-    * hat{a} is the recommended item
-    * I(\hat{a} = a} is a boolean of whether the user-item pair has historic data
-    * p(a|x,h) is the probability of the item being recommended for the test context given the historic data
+
+    * :math:`n` is the total size of the test data
+    * :math:`r_a` is the observed reward
+    * :math:`\\hat{a}` is the recommended item
+    * :math:`I(\\hat{a} = a)` is a boolean of whether the user-item pair has historic data
+    * :math:`p(a|x,h)` is the probability of the item being recommended for the test context given the historic data
 
     3. Doubly Robust Estimation (DR)
     Calculates the DR, an estimate of CTR that combines the directly predicted values with a correction based on how
     likely an item was to be recommended by the historic policy if the user saw the item in the historic data.
 
-    ..math::
-        DR = \frac{1}{n} \sigma (\hat{r_a} + \frac{(r_a -\hat{r_a}) I(\hat{a} = a}{p(a|x,h)})
+    .. math::
+        DR = \\frac{1}{n} \\sigma (\\hat{r_a} + \\frac{(r_a -\\hat{r_a}) I(\\hat{a} = a)}{p(a|x,h)})
 
     In this equation:
-    * n is the total size of the test data
-    * r_a is the observed reward
-    * \hat{r_a} is the predicted reward
-    * hat{a} is the recommended item
-    * I(\hat{a} = a} is a boolean of whether the user-item pair has historic data
-    * p(a|x,h) is the probability of the item being recommended for the test context given the historic data
+
+    * :math:`n` is the total size of the test data
+    * :math:`r_a` is the observed reward
+    * :math:`\\hat{r_a}` is the predicted reward
+    * :math:`\\hat{a}` is the recommended item
+    * :math:`I(\\hat{a} = a)` is a boolean of whether the user-item pair has historic data
+    * :math:`p(a|x,h)` is the probability of the item being recommended for the test context given the historic data
 
     At a high level, doubly robust estimation combines a direct estimate with an IPS-like correction if historic data is
     available. If historic data is not available, the second term is 0 and only the predicted reward is used for the

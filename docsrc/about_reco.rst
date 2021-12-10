@@ -33,7 +33,7 @@ if the user saw the item in the historic data. Due to the probability inversion,
     IPS = \frac{1}{n} \sum r_a \times \frac{I(\hat{a} = a)}{P(a|x,h)}
 
 In this calculation: n is the total size of the test data; :math:`r_a` is the observed reward;
-:math:`\hat{a}` is the recommended item; :math:`I(\hat{a} = a}` is a boolean of whether the user-item pair has
+:math:`\hat{a}` is the recommended item; :math:`I(\hat{a} = a)` is a boolean of whether the user-item pair has
 historic data; and :math:`P(a|x,h)` is the probability of the item being recommended for the test context given
 the historic data.
 
@@ -41,7 +41,7 @@ Doubly robust estimation (DR) combines the directly predicted values with a corr
 likely an item was to be recommended by the historic policy if the user saw the item in the historic data.
 
 .. math::
-    DR = \frac{1}{n} \sum \hat{r}_a + \frac{(r_a -\hat{r}_a) I(\hat{a} = a}{p(a|x,h)}
+    DR = \frac{1}{n} \sum \hat{r}_a + \frac{(r_a -\hat{r}_a) I(\hat{a} = a)}{p(a|x,h)}
 
 In this calculation, :math:`\hat{r}_a` is the predicted reward.
 
