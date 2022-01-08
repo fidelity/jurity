@@ -6,7 +6,7 @@ import unittest
 
 import pandas as pd
 
-from jurity.recommenders import BinaryRecoMetrics, CombinedMetrics, RankingRecoMetrics
+from jurity.recommenders import BinaryRecoMetrics, CombinedMetrics, RankingRecoMetrics, DiversityRecoMetrics
 from jurity.utils import Constants
 
 
@@ -50,3 +50,29 @@ class TestCombinedRecommenders(unittest.TestCase):
         batch_res, acc_res = metrics.get_score(actual, predicted, batch_accumulate=True, return_extended_results=True)
         self.assertEqual(2, len(batch_res))
         self.assertEqual(2, len(acc_res))
+
+    def test_inter_list_diversity_in_use(self):
+        actual = pd.DataFrame({Constants.user_id: [0, 0, 1, 2],
+                               Constants.item_id: [4, 5, 1, 4],
+                               'score': [True, True, True, True]})
+        predicted = pd.DataFrame({Constants.user_id: [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2],
+                                  Constants.item_id: [0, 1, 2, 3,
+                                                      0, 1, 2, 4,
+                                                      0, 1, 2, 5
+                                                      ],
+                                  'score': [0.9, 0.7, 0.6, 0.3,
+                                            0.9, 0.7, 0.4, 0.1,
+                                            0.9, 0.8, 0.6, 0.6
+                                            ]
+                                  })
+        metrics = CombinedMetrics(RankingRecoMetrics.Recall(click_column='score', k=4),
+                                  BinaryRecoMetrics.CTR(click_column='score', k=4),
+                                  DiversityRecoMetrics.InterListDiversity(click_column='score', k=4))
+
+        acc_res = metrics.get_score(actual, predicted, batch_accumulate=False, return_extended_results=True)
+
+        self.assertEqual(3, len(acc_res))
+        self.assertEqual(0.25, acc_res['Inter-List Diversity@4']['inter-list diversity'])
+        with self.assertRaises(ValueError):
+            batch_res, acc_res = metrics.get_score(actual, predicted,
+                                                   batch_accumulate=True, return_extended_results=True)

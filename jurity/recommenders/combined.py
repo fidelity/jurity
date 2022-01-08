@@ -106,8 +106,18 @@ class CombinedMetrics(_BaseRecommenders):
         """
         batch_vals = dict()
         acc_vals = dict()
+
         for metric in self.metrics:
-            return_val = metric.get_score(actual_results, predicted_results, batch_accumulate, return_extended_results)
+            if "Inter-List Diversity" in str(metric) and batch_accumulate:
+                raise ValueError("Batch_accumulate can not be set as True when Inter-List Diversity is used in "
+                                 "combined metrics.")
+
+        for metric in self.metrics:
+            if "Inter-List Diversity" in str(metric):
+                return_val = metric.get_score(predicted_results, return_extended_results)
+            else:
+                return_val = metric.get_score(actual_results, predicted_results, batch_accumulate,
+                                              return_extended_results)
             if return_val is not None:
                 if batch_accumulate:
                     batch_val, acc_val = return_val

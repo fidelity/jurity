@@ -29,6 +29,7 @@ Jurity is developed by the Artificial Intelligence Center of Excellence at Fidel
 * [NDCG: Normalized discounted cumulative gain](https://fidelity.github.io/jurity/about_reco.html#ndcg-normalized-discounted-cumulative-gain)
 * [Precision@K](https://fidelity.github.io/jurity/about_reco.html#precision)
 * [Recall@K](https://fidelity.github.io/jurity/about_reco.html#recall)
+* [Inter-List Diversity@K](https://fidelity.github.io/jurity/about_reco.html#inter-list-diversity)
 
 ## Classification Metrics
 * [Accuracy](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html)
