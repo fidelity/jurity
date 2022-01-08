@@ -18,7 +18,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
 
 # -- Project information -----------------------------------------------------
@@ -28,7 +28,7 @@ copyright = '2021, FMR LLC'
 author = 'FMR LLC'
 
 # The full version, including alpha/beta/rc tags
-release = '1.2.1'
+release = '1.3.1'
 
 # -- General configuration ---------------------------------------------------
 

@@ -55,3 +55,11 @@ Ranking Recommenders Metrics
     :members:
     :undoc-members:
     :show-inheritance:
+
+Diversity Recommenders Metrics
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: jurity.recommenders.DiversityRecoMetrics
+    :members:
+    :undoc-members:
+    :show-inheritance:

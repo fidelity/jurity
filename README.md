@@ -97,7 +97,7 @@ print("Fairness Metrics After:", BinaryFairnessMetrics().get_all_scores(labels, 
 
 ```python
 # Import recommenders metrics
-from jurity.recommenders import BinaryRecoMetrics, RankingRecoMetrics
+from jurity.recommenders import BinaryRecoMetrics, RankingRecoMetrics, DiversityRecoMetrics
 import pandas as pd
 
 # Data
@@ -113,6 +113,7 @@ map_k = RankingRecoMetrics.MAP(click_column="clicks", k=2)
 ncdg_k = RankingRecoMetrics.NDCG(click_column="clicks", k=3)
 precision_k = RankingRecoMetrics.Precision(click_column="clicks", k=2)
 recall_k = RankingRecoMetrics.Recall(click_column="clicks", k=2)
+interlist_diversity_k = DiversityRecoMetrics.InterListDiversity(click_column="clicks", k=2)
 
 # Scores
 print("AUC:", auc.get_score(actual, predicted))
@@ -123,6 +124,7 @@ print("MAP@K:", map_k.get_score(actual, predicted))
 print("NCDG:", ncdg_k.get_score(actual, predicted))
 print("Precision@K:", precision_k.get_score(actual, predicted))
 print("Recall@K:", recall_k.get_score(actual, predicted))
+print("Inter-List Diversity@K:", interlist_diversity_k.get_score(predicted))
 ```
 
 ## Quick Start: Classification Evaluation

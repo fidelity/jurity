@@ -158,8 +158,10 @@ class InterListDiversity:
     made to the user. It measures how user's lists of recommendations are different from each other.
 
     .. math::
-            Inter-list-diversity = 1 - average(cosine_similarity(R_{u_i}, R_{u_j})),
-            where R_{u_i} is the binary indicator vector representing provided recommendations for user u_i, i != j.
+            Inter-list diversity = 1 - average(cosine_similarity(R_{u_i}, R_{u_j}))
+
+    where :math:`R_{u_i}` is the binary indicator vector representing provided recommendations for user :math:`u_i` and
+    :math:`i<j`.
 
     Sources: https://towardsdatascience.com/evaluation-metrics-for-recommender-systems-df56c6611093
     """

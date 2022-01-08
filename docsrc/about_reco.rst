@@ -107,3 +107,18 @@ Improving the highest-ranked recommendations has a more important effect than im
 
 .. math::
     NDCG@k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac {\sum_{r=1}^{\left | P_i \right |} \frac{rel(P_{i,r})}{log_2(r+1)}}{\sum_{r=1}^{\left | A_i \right |} \frac{1}{log_2(r+1)}}
+
+Diversity Recommender Metrics
+-----------------------------
+Diversity recommender metrics evaluate the quality of recommendations in terms of the diversity of recommended items.
+
+Inter-List Diversity
+^^^^^^^^^^^^^^^^^^^^
+Inter-List Diversity@k measures the inter-list diversity of the recommendations when only k recommendations are
+made to the user. It measures how user's lists of recommendations are different from each other.
+
+.. math::
+        Interlist~diversity = 1 - average(cosine\_similarity(R_{u_i}, R_{u_j}))
+
+where :math:`R_{u_i}` is the binary indicator vector representing provided recommendations for user :math:`u_i` and :math:`i < j`.
+
