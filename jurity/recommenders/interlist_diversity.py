@@ -158,7 +158,7 @@ class InterListDiversity:
     made to the user. It measures how user's lists of recommendations are different from each other.
 
     .. math::
-            Inter-list diversity = 1 - average(cosine_similarity(R_{u_i}, R_{u_j}))
+            Inter \mbox{-} list~diversity = 1 - average(cosine\_similarity(R_{u_i}, R_{u_j}))
 
     where :math:`R_{u_i}` is the binary indicator vector representing provided recommendations for user :math:`u_i` and
     :math:`i<j`.
@@ -177,11 +177,15 @@ class InterListDiversity:
         self.seed = seed
         self.chunk_size = chunk_size
 
-    def get_score(self, predicted_results: pd.DataFrame, return_extended_results: bool = False) -> Union[float, dict]:
+    def get_score(self, actual_results: pd.DataFrame, predicted_results: pd.DataFrame, batch_accumulate: bool = False,
+                  return_extended_results: bool = False) -> Union[float, dict]:
         """Evaluates the current metric on the given data.
 
         Parameters
         ---------
+        actual_results: Ignored.
+            Ignored for calculating Inter-List Diversity while it is kept for making the API design consistent across
+            different recommender metrics.
         predicted_results: pd.DataFrame
             A pandas DataFrame for the recommended user item interaction data, captured from a recommendation algorithm.
             The DataFrame should contain a minimum of two columns, including self._user_id_column, self._item_id_column,
@@ -189,6 +193,9 @@ class InterListDiversity:
             scores associated with this interaction. There can be multiple interactions per user, and there can be
             multiple users per DataFrame. However, the interactions for a specific user must be contained within a
             single DataFrame.
+        batch_accumulate: Ignored
+            Ignored for calculating Inter-List Diversity while it is kept for making the API design consistent across
+            different recommender metrics.
         return_extended_results: bool
             Whether the extended results such as the support should also be returned. If specified, the returned results
             will be of type ``dict``. Inter-list diversity currently returns ``Inter-List Diversity`` and
@@ -199,6 +206,10 @@ class InterListDiversity:
         metric: Union[float, dict]
             The averaged result(s). The return type is determined by ``return_extended_results`` parameters.
         """
+
+        if batch_accumulate:
+            raise ValueError("Batch_accumulate can not be set as True for Inter-List Diversity.")
+
         results, support = interlist_diversity(predicted_results, self.click_column, self.k,
                                                user_id_column=self.user_id_column,
                                                item_id_column=self.item_id_column,
