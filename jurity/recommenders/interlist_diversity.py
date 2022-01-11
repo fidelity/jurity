@@ -2,7 +2,7 @@
 # Copyright FMR LLC <opensource@fidelity.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Union, Tuple
+from typing import Union, Tuple
 
 import numpy as np
 import pandas as pd
@@ -10,104 +10,41 @@ import scipy.sparse as sp
 from sklearn.metrics.pairwise import cosine_similarity
 import warnings
 
-from jurity.utils import Constants
-
-
-def sample_users(df: pd.DataFrame, user_id_column: str = Constants.user_id,
-                 sample_size: float = None, seed: int = Constants.default_seed) -> pd.DataFrame:
-    """
-    Samples input data frame by selecting a random sample of users.
-
-    Parameters
-    ----------
-    df: pd.DataFrame
-        Data frame with a user_id_col column.
-    user_id_column: str
-        User id column name.
-    sample_size: float
-        Proportion of users to randomly sample for evaluation.
-    seed : int, default=Constants.default_seed
-        The seed used to create random state.
-
-    Returns
-    -------
-    Sampled data frame
-    """
-    rng = np.random.RandomState(seed)
-    users = df[user_id_column].unique()
-    users = rng.choice(users, size=int(len(users) * sample_size), replace=False)
-    return df[df[user_id_column].isin(users)]
-
-
-def tocsr(df: pd.DataFrame, user_id_column: str = Constants.user_id, item_id_column: str = Constants.item_id):
-    """
-    Transform data frame with user_id and item_id columns to sparse csr matrix.
-
-    Parameters
-    ----------
-    df: pd.DataFrame
-        Data frame with (user_id, item_id) in each row.
-    user_id_column: str
-        User id column name.
-    item_id_column: str
-        Item id column name.
-
-    Returns
-    -------
-    Sparse matrix with user-item interactions/recommendations.
-    """
-
-    # Map each user_id to (0, n_users)
-    users = list(df[user_id_column].unique())
-    user_map = dict(zip(users, range(len(users))))
-
-    # Map each user_id to (0, n_items)
-    items = list(df[item_id_column].unique())
-    item_map = dict(zip(items, range(len(items))))
-
-    # Update user_id, item_id values
-    user_ids = df[user_id_column].map(user_map).values
-    item_ids = df[item_id_column].map(item_map).values
-
-    # Convert to csr matrix
-    csr_matrix = sp.coo_matrix((np.ones(len(user_ids)), (user_ids, item_ids))).tocsr()
-
-    return csr_matrix
-
+from jurity.utils import Constants, tocsr
 
 def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: int,
                         user_id_column: str = Constants.user_id, item_id_column: str = Constants.item_id,
                         sample_size: float = None, seed: int = Constants.default_seed,
                         chunk_size: int = 1000) -> Tuple[float, int]:
     """
-        Calculate inter-list diversity metric:
+    Calculate inter-list diversity metric:
 
-            Inter-list-diversity = 1 - average(cosine_similarity(R_{u_i}, R_{u_j})),
-            where R_{u_i} is the binary indicator vector representing provided recommendations for user u_i, i \ne j.
+        Inter-list-diversity = 1 - average(cosine_similarity(R_{u_i}, R_{u_j})),
+        where R_{u_i} is the binary indicator vector representing provided recommendations for user u_i, i < j.
 
-        Parameters
-        ----------
-        predicted_results: pd.DataFrame
-            Recommendations data frame with (user_id, item_id, score) in each row.
-        k: int
-            Top-k recommendations to consider.
-        user_id_column: str
-            User id column name.
-        item_id_column: str
-            Item id column name.
-        click_column: str
-            Recommendation score column name.
-        sample_size: float
-            Proportion of users to randomly sample for evaluation.
-        seed : int
-            The seed used to create random state.
-        chunk_size: int
-            Chunk size to limit memory usage.
+    Parameters
+    ----------
+    predicted_results: pd.DataFrame
+        Recommendations data frame with (user_id, item_id, score) in each row.
+    k: int
+        Top-k recommendations to consider.
+    user_id_column: str
+        User id column name.
+    item_id_column: str
+        Item id column name.
+    click_column: str
+        Recommendation score column name.
+    sample_size: float
+        Proportion of users to randomly sample for evaluation.
+    seed : int
+        The seed used to create random state.
+    chunk_size: int
+        Chunk size to limit memory usage.
 
-        Returns
-        -------
-        Inter-list diversity metric, number of unique users as the support to get the metric
-        """
+    Returns
+    -------
+    Inter-list diversity metric, number of unique users as the support to get the metric
+    """
 
     # Sample users
     if sample_size is not None:
@@ -115,10 +52,10 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
     else:
         df = predicted_results
 
-    # Sort by user and score
+    # Sort by user and score, and take the top K scores.
     df = df.sort_values(click_column, ascending=False).groupby(user_id_column).head(k)
 
-    # Given user/item id maps, create sparse matrix.
+    # Given user/item id column names, create sparse matrix.
     sparse_matrix = tocsr(df, user_id_column, item_id_column)
 
     # Get pairwise cosine similarities
@@ -162,8 +99,6 @@ class InterListDiversity:
 
     where :math:`R_{u_i}` is the binary indicator vector representing provided recommendations for user :math:`u_i` and
     :math:`i<j`.
-
-    Sources: https://towardsdatascience.com/evaluation-metrics-for-recommender-systems-df56c6611093
     """
 
     def __init__(self, click_column, k: int = None, user_id_column: str = Constants.user_id,

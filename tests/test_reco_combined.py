@@ -73,6 +73,8 @@ class TestCombinedRecommenders(unittest.TestCase):
 
         self.assertEqual(3, len(acc_res))
         self.assertEqual(0.25, acc_res['Inter-List Diversity@4']['inter-list diversity'])
+
         with self.assertRaises(ValueError):
+            # This should fail when `batch_accumulate=True`, and `InterListDiversity` gets applied in combined metrics.
             batch_res, acc_res = metrics.get_score(actual, predicted,
                                                    batch_accumulate=True, return_extended_results=True)

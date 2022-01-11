@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from jurity.recommenders.base import _BaseRecommenders
+from jurity.recommenders.interlist_diversity import InterListDiversity
 
 
 class CombinedMetrics(_BaseRecommenders):
@@ -108,9 +109,9 @@ class CombinedMetrics(_BaseRecommenders):
         acc_vals = dict()
 
         for metric in self.metrics:
-            if ~isinstance(metric, _BaseRecommenders) and batch_accumulate:
-                raise ValueError("Batch_accumulate can not be set as True when a metric not in _BaseRecommender class "
-                                 "is applied in combined metrics.")
+            if isinstance(metric, InterListDiversity) and batch_accumulate:
+                raise ValueError("Batch_accumulate can not be set as True when Inter-List Diversity is used in "
+                                 "combined metrics.")
 
         for metric in self.metrics:
             return_val = metric.get_score(actual_results, predicted_results, batch_accumulate,
