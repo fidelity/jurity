@@ -6,16 +6,17 @@ from typing import Union, Tuple
 
 import numpy as np
 import pandas as pd
-import scipy.sparse as sp
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics import pairwise_distances_chunked
+
 import warnings
 
-from jurity.utils import Constants, tocsr
+from jurity.utils import Constants, tocsr, sample_users, get_sorted_clicks, check_true
+
 
 def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: int,
                         user_id_column: str = Constants.user_id, item_id_column: str = Constants.item_id,
-                        sample_size: float = None, seed: int = Constants.default_seed,
-                        chunk_size: int = 1000) -> Tuple[float, int]:
+                        user_sample_size: Union[int, float, None] = 100000, seed: int = Constants.default_seed,
+                        num_runs: int = 10, n_jobs: int = 1, working_memory: int = None) -> Tuple[float, int]:
     """
     Calculate inter-list diversity metric:
 
@@ -34,12 +35,21 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
         Item id column name.
     click_column: str
         Recommendation score column name.
-    sample_size: float
-        Proportion of users to randomly sample for evaluation.
-    seed : int
+    user_sample_size: Union[int, float, None]
+        When input is an integer, it defines the number of randomly sampled users. When input is float, it defines the
+        proportion of users to randomly sample for evaluation. If it is None, all users are included. Default=100000.
+    seed: int
         The seed used to create random state.
-    chunk_size: int
-        Chunk size to limit memory usage.
+    num_runs: int
+        num_runs is used to report the approximation of Inter-List Diversity over multiple runs on smaller
+        samples of users, default=10, with a speed-up on evaluations. The sampling size is defined by
+        user_sample_size. The final result is averaged over the multiple runs.
+    n_jobs: int
+        Number of jobs to use for computation in parallel, leveraged by sklearn.metrics.pairwise_distances_chunked.
+        -1 means using all processors. Default=1.
+    working_memory: Union[int, None]
+        Maximum memory for temporary distance matrix chunks, leveraged by sklearn.metrics.pairwise_distances_chunked.
+        When None (default), the value of sklearn.get_config()['working_memory'] is used.
 
     Returns
     -------
@@ -47,28 +57,43 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
     """
 
     # Sample users
-    if sample_size is not None:
-        df = sample_users(predicted_results, user_id_column, sample_size, seed)
-    else:
-        df = predicted_results
+    if user_sample_size is not None:
+        results_over_runs = []
+        supports_over_runs = []
 
-    # Sort by user and score, and take the top K scores.
-    df = df.sort_values(click_column, ascending=False).groupby(user_id_column).head(k)
+        rng = np.random.default_rng(seed)
+        seeds = rng.integers(0, 100000, num_runs)
 
-    # Given user/item id column names, create sparse matrix.
+        for i in range(num_runs):
+
+            df = sample_users(predicted_results, user_id_column, user_sample_size, seed=seeds[i])
+
+            res, support = interlist_diversity(df, click_column, k, user_id_column=user_id_column,
+                                               item_id_column=item_id_column, user_sample_size=None,
+                                               n_jobs=n_jobs, working_memory=working_memory)
+            results_over_runs.append(res)
+            supports_over_runs.append(support)
+
+        inter_list_diversity = np.mean(results_over_runs)
+        support = int(np.mean(supports_over_runs))
+
+        return inter_list_diversity, support
+
+    df = predicted_results
+
+    # Sort by user and score, and take the top k scores.
+    df = get_sorted_clicks(df, user_id_column, click_column, k)
+
+    # Given user/item id column names, create sparse matrix as the new representation of user-item interactions.
     sparse_matrix = tocsr(df, user_id_column, item_id_column)
 
-    # Get pairwise cosine similarities
-    similarities_sum = 0
-    if chunk_size == 1:
-        num_chunks = sparse_matrix.shape[0]
-    else:
-        num_chunks = sparse_matrix.shape[0] // chunk_size + 1
-    for i in range(num_chunks):
-        similarities = cosine_similarity(sparse_matrix[i * chunk_size:(i + 1) * chunk_size], sparse_matrix,
-                                         dense_output=False)
-        similarities_sum += similarities.sum()
-    similarities_sum = (similarities_sum - sparse_matrix.shape[0]) / 2.0
+    # Get pairwise cosine distances
+    chunked_sum_cosine_distances = map(sum, pairwise_distances_chunked(sparse_matrix, reduce_func=reduce_func,
+                                                                       metric='cosine', n_jobs=n_jobs,
+                                                                       working_memory=working_memory))
+
+    # Sum of all cosine distances of unique pairs
+    sum_cosine_distances = sum(list(chunked_sum_cosine_distances)) / 2.0
 
     # Get number of pairs
     num_pairs = np.sum(range(sparse_matrix.shape[0]))
@@ -78,7 +103,7 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
         inter_list_diversity = np.nan
         warnings.warn('Inter-List Diversity will be nan when there is only one single user.')
     else:
-        inter_list_diversity = 1.0 - similarities_sum / num_pairs
+        inter_list_diversity = sum_cosine_distances / num_pairs
         if np.abs(inter_list_diversity) <= 1e-06:
             inter_list_diversity = 0.0
 
@@ -86,6 +111,10 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
     support = len(df[user_id_column].unique())
 
     return inter_list_diversity, support
+
+
+def reduce_func(D_chunk, start):
+    return np.sum(D_chunk, axis=1)
 
 
 class InterListDiversity:
@@ -102,15 +131,20 @@ class InterListDiversity:
     """
 
     def __init__(self, click_column, k: int = None, user_id_column: str = Constants.user_id,
-                 item_id_column: str = Constants.item_id, sample_size: float = None,
-                 seed: int = Constants.default_seed, chunk_size: int = 1000):
+                 item_id_column: str = Constants.item_id, user_sample_size: Union[int, float] = 100000,
+                 seed: int = Constants.default_seed, num_runs: int = 10,
+                 n_jobs: int = 1, working_memory: int = None):
         self.user_id_column = user_id_column
         self.item_id_column = item_id_column
         self.click_column = click_column
         self.k = k
-        self.sample_size = sample_size
+        self.user_sample_size = user_sample_size
         self.seed = seed
-        self.chunk_size = chunk_size
+        self.num_runs = num_runs
+        self.n_jobs = n_jobs
+        self.working_memory = working_memory
+
+        self._validate_arguments()
 
     def get_score(self, actual_results: pd.DataFrame, predicted_results: pd.DataFrame, batch_accumulate: bool = False,
                   return_extended_results: bool = False) -> Union[float, dict]:
@@ -148,13 +182,32 @@ class InterListDiversity:
         results, support = interlist_diversity(predicted_results, self.click_column, self.k,
                                                user_id_column=self.user_id_column,
                                                item_id_column=self.item_id_column,
-                                               sample_size=self.sample_size, seed=self.seed,
-                                               chunk_size=self.chunk_size)
+                                               user_sample_size=self.user_sample_size, seed=self.seed,
+                                               n_jobs=self.n_jobs, num_runs=self.num_runs,
+                                               working_memory=self.working_memory
+                                               )
 
         if return_extended_results:
             return {'inter-list diversity': results, 'support': support}
         else:
             return results
+
+    def _validate_arguments(self):
+        check_true(isinstance(self.num_runs, int), ValueError("num_runs should be an integer."))
+        if self.user_sample_size:
+            check_true(isinstance(self.user_sample_size, int) or isinstance(self.user_sample_size, float),
+                       ValueError("user_sample_size should be an integer or a float number."))
+            check_true(self.num_runs >= 1, ValueError("num_runs should be no less than 1."))
+        check_true(isinstance(self.click_column, str), ValueError("click_column should be a string."))
+        if self.k:
+            check_true(isinstance(self.k, int), ValueError("k should be an integer."))
+        if isinstance(self.user_sample_size, int):
+            check_true(self.user_sample_size >= 1, ValueError("user_sample_size should be no less than 1."))
+        elif isinstance(self.user_sample_size, float):
+            check_true(self.user_sample_size > 0.0, ValueError("user_sample_size should be greater than 0.0."))
+        check_true(isinstance(self.n_jobs, int), ValueError("n_jobs should be an integer."))
+        if self.working_memory:
+            check_true(isinstance(self.working_memory, int), ValueError("working_memory should be an integer."))
 
     def __str__(self):
         return 'Inter-List Diversity@{}'.format(self.k)

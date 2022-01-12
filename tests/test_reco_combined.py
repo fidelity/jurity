@@ -67,7 +67,8 @@ class TestCombinedRecommenders(unittest.TestCase):
                                   })
         metrics = CombinedMetrics(RankingRecoMetrics.Recall(click_column='score', k=4),
                                   BinaryRecoMetrics.CTR(click_column='score', k=4),
-                                  DiversityRecoMetrics.InterListDiversity(click_column='score', k=4))
+                                  DiversityRecoMetrics.InterListDiversity(click_column='score', k=4,
+                                                                          user_sample_size=2, num_runs=5))
 
         acc_res = metrics.get_score(actual, predicted, batch_accumulate=False, return_extended_results=True)
 
