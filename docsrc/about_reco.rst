@@ -110,15 +110,17 @@ Improving the highest-ranked recommendations has a more important effect than im
 
 Diversity Recommender Metrics
 -----------------------------
-Diversity recommender metrics evaluate the quality of recommendations in terms of the diversity of recommended items.
+Diversity recommender metrics evaluate the quality of recommendations for different notions of diversity.
 
 Inter-List Diversity
 ^^^^^^^^^^^^^^^^^^^^
 Inter-List Diversity@k measures the inter-list diversity of the recommendations when only k recommendations are
-made to the user. It measures how user's lists of recommendations are different from each other.
+made to the user. It measures how user's lists of recommendations are different from each other. This metric has a range
+in :math:`[0, 1]`. The higher this metric is, the more diversified lists of items are recommended to different users.
+Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i`,:math:`u_j \in U` denote the i-th and j-th user in the
+user set, :math:`i, j \in \{0,1,\cdots,N\}`. :math:`R_{u_i}` is the binary indicator vector representing provided
+recommendations for :math:`u_i`. :math:`I` is the set of all unique user pairs, :math:`\forall~i<j, \{u_i, u_j\} \in I`.
 
 .. math::
-        Interlist~diversity = 1 - average(cosine\_similarity(R_{u_i}, R_{u_j}))
-
-where :math:`R_{u_i}` is the binary indicator vector representing provided recommendations for user :math:`u_i` and :math:`i < j`.
+        Inter\mbox{-}list~diversity = \frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}
 

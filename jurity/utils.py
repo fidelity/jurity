@@ -473,19 +473,3 @@ def sample_users(df: pd.DataFrame, user_id_column: str = Constants.user_id,
         users = rng.choice(users, size=user_sample_size, replace=False)
 
     return df[df[user_id_column].isin(users)]
-
-
-def check_true(expression: bool, exception: Exception) -> NoReturn:
-    """
-    Checks that given expression is true, otherwise raises the given exception.
-    """
-    if not expression:
-        raise exception
-
-
-def check_false(expression: bool, exception: Exception) -> NoReturn:
-    """
-        Checks that given expression is false, otherwise raises the given exception.
-        """
-    if expression:
-        raise exception

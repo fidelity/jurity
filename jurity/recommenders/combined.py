@@ -110,6 +110,8 @@ class CombinedMetrics(_BaseRecommenders):
 
         for metric in self.metrics:
             if isinstance(metric, InterListDiversity) and batch_accumulate:
+                # Inter-List Diversity requires to know all unique user pairs, thus batch accumulation of the data
+                # required for calculating this metric does not fit in this situation.
                 raise ValueError("Batch_accumulate can not be set as True when Inter-List Diversity is used in "
                                  "combined metrics.")
 

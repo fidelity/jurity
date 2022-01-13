@@ -173,14 +173,17 @@ Improving the highest-ranked recommendations has a more important effect than im
 </section>
 <section id="diversity-recommender-metrics">
 <h2>Diversity Recommender Metrics<a class="headerlink" href="#diversity-recommender-metrics" title="Permalink to this headline"></a></h2>
-<p>Diversity recommender metrics evaluate the quality of recommendations in terms of the diversity of recommended items.</p>
+<p>Diversity recommender metrics evaluate the quality of recommendations for different notions of diversity.</p>
 <section id="inter-list-diversity">
 <h3>Inter-List Diversity<a class="headerlink" href="#inter-list-diversity" title="Permalink to this headline"></a></h3>
 <p>Inter-List Diversity&#64;k measures the inter-list diversity of the recommendations when only k recommendations are
-made to the user. It measures how user’s lists of recommendations are different from each other.</p>
+made to the user. It measures how user’s lists of recommendations are different from each other. This metric has a range
+in <span class="math notranslate nohighlight">\([0, 1]\)</span>. The higher this metric is, the more diversified lists of items are recommended to different users.
+Let <span class="math notranslate nohighlight">\(U\)</span> denote the set of <span class="math notranslate nohighlight">\(N\)</span> unique users, <span class="math notranslate nohighlight">\(u_i\)</span>,:math:<cite>u_j in U</cite> denote the i-th and j-th user in the
+user set, <span class="math notranslate nohighlight">\(i, j \in \{0,1,\cdots,N\}\)</span>. <span class="math notranslate nohighlight">\(R_{u_i}\)</span> is the binary indicator vector representing provided
+recommendations for <span class="math notranslate nohighlight">\(u_i\)</span>. <span class="math notranslate nohighlight">\(I\)</span> is the set of all unique user pairs, <span class="math notranslate nohighlight">\(\forall~i&lt;j, \{u_i, u_j\} \in I\)</span>.</p>
 <div class="math notranslate nohighlight">
-\[Interlist~diversity = 1 - average(cosine\_similarity(R_{u_i}, R_{u_j}))\]</div>
-<p>where <span class="math notranslate nohighlight">\(R_{u_i}\)</span> is the binary indicator vector representing provided recommendations for user <span class="math notranslate nohighlight">\(u_i\)</span> and <span class="math notranslate nohighlight">\(i &lt; j\)</span>.</p>
+\[Inter\mbox{-}list~diversity = \frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}\]</div>
 </section>
 </section>
 </section>

@@ -15,13 +15,19 @@ from jurity.utils import Constants, tocsr, sample_users, get_sorted_clicks, chec
 
 def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: int,
                         user_id_column: str = Constants.user_id, item_id_column: str = Constants.item_id,
-                        user_sample_size: Union[int, float, None] = 100000, seed: int = Constants.default_seed,
+                        user_sample_size: Union[int, float, None] = 10000, seed: int = Constants.default_seed,
                         num_runs: int = 10, n_jobs: int = 1, working_memory: int = None) -> Tuple[float, int]:
     """
-    Calculate inter-list diversity metric:
+    Inter-List Diversity@k measures the inter-list diversity of the recommendations when only k recommendations are
+    made to the user. It measures how user's lists of recommendations are different from each other. This metric has a
+    range in :math:`[0, 1]`. The higher this metric is, the more diversified lists of items are recommended to different
+    users. Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i`, :math:`u_j \in U` denote the i-th and
+    j-th user in the user set, :math:`i, j \in \{0,1,\cdots,N\}`. :math:`R_{u_i}` is the binary indicator vector
+    representing provided recommendations for :math:`u_i`. :math:`I` is the set of all unique user pairs,
+    :math:`\\forall~i<j, \{u_i, u_j\} \in I`.
 
-        Inter-list-diversity = 1 - average(cosine_similarity(R_{u_i}, R_{u_j})),
-        where R_{u_i} is the binary indicator vector representing provided recommendations for user u_i, i < j.
+    .. math::
+            Inter \mbox{-} list~diversity = \\frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}
 
     Parameters
     ----------
@@ -37,19 +43,19 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
         Recommendation score column name.
     user_sample_size: Union[int, float, None]
         When input is an integer, it defines the number of randomly sampled users. When input is float, it defines the
-        proportion of users to randomly sample for evaluation. If it is None, all users are included. Default=100000.
+        proportion of users to randomly sample for evaluation. If it is None, all users are included. Default=10,000.
     seed: int
         The seed used to create random state.
     num_runs: int
         num_runs is used to report the approximation of Inter-List Diversity over multiple runs on smaller
-        samples of users, default=10, with a speed-up on evaluations. The sampling size is defined by
+        samples of users, default=10, for a speed-up on evaluations. The sampling size is defined by
         user_sample_size. The final result is averaged over the multiple runs.
     n_jobs: int
         Number of jobs to use for computation in parallel, leveraged by sklearn.metrics.pairwise_distances_chunked.
         -1 means using all processors. Default=1.
     working_memory: Union[int, None]
         Maximum memory for temporary distance matrix chunks, leveraged by sklearn.metrics.pairwise_distances_chunked.
-        When None (default), the value of sklearn.get_config()['working_memory'] is used.
+        When None (default), the value of sklearn.get_config()['working_memory'], i.e. 1024M, is used.
 
     Returns
     -------
@@ -61,8 +67,9 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
         results_over_runs = []
         supports_over_runs = []
 
+        # Create a different seed for each run
         rng = np.random.default_rng(seed)
-        seeds = rng.integers(0, 100000, num_runs)
+        seeds = rng.integers(0, num_runs*10, num_runs)
 
         for i in range(num_runs):
 
@@ -121,19 +128,51 @@ class InterListDiversity:
     """Inter-List Diversity@k
 
     Inter-List Diversity@k measures the inter-list diversity of the recommendations when only k recommendations are
-    made to the user. It measures how user's lists of recommendations are different from each other.
+    made to the user. It measures how user's lists of recommendations are different from each other. This metric has a
+    range in :math:`[0, 1]`. The higher this metric is, the more diversified lists of items are recommended to different
+    users. Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i`, :math:`u_j \in U` denote the i-th and
+    j-th user in the user set, :math:`i, j \in \{0,1,\cdots,N\}`. :math:`R_{u_i}` is the binary indicator vector
+    representing provided recommendations for :math:`u_i`. :math:`I` is the set of all unique user pairs,
+    :math:`\\forall~i<j, \{u_i, u_j\} \in I`.
 
     .. math::
-            Inter \mbox{-} list~diversity = 1 - average(cosine\_similarity(R_{u_i}, R_{u_j}))
-
-    where :math:`R_{u_i}` is the binary indicator vector representing provided recommendations for user :math:`u_i` and
-    :math:`i<j`.
+            Inter \mbox{-} list~diversity = \\frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}
     """
 
     def __init__(self, click_column, k: int = None, user_id_column: str = Constants.user_id,
-                 item_id_column: str = Constants.item_id, user_sample_size: Union[int, float] = 100000,
+                 item_id_column: str = Constants.item_id, user_sample_size: Union[int, float] = 10000,
                  seed: int = Constants.default_seed, num_runs: int = 10,
                  n_jobs: int = 1, working_memory: int = None):
+        """Initialize the parameters for Inter-List Diversity metric.
+
+        Parameters
+        ----------
+        click_column: str
+            Recommendation score column name.
+        k: int
+            Top-k recommendations to consider.
+        user_id_column: str
+            User id column name.
+        item_id_column: str
+            Item id column name.
+        user_sample_size: Union[int, float, None]
+            When input is an integer, it defines the number of randomly sampled users. When input is float, it defines
+            the proportion of users to randomly sample for evaluation. If it is None, all users are included.
+            Default=10,000.
+        seed: int
+            The seed used to create random state.
+        num_runs: int
+            num_runs is used to report the approximation of Inter-List Diversity over multiple runs on smaller
+            samples of users, default=10, for a speed-up on evaluations. The sampling size is defined by
+            user_sample_size. The final result is averaged over the multiple runs.
+        n_jobs: int
+            Number of jobs to use for computation in parallel, leveraged by sklearn.metrics.pairwise_distances_chunked.
+            -1 means using all processors. Default=1.
+        working_memory: Union[int, None]
+            Maximum memory for temporary distance matrix chunks, leveraged by sklearn.metrics.pairwise_distances_chunked.
+            When None (default), the value of sklearn.get_config()['working_memory'], i.e. 1024M, is used.
+        """
+
         self.user_id_column = user_id_column
         self.item_id_column = item_id_column
         self.click_column = click_column
@@ -162,9 +201,9 @@ class InterListDiversity:
             scores associated with this interaction. There can be multiple interactions per user, and there can be
             multiple users per DataFrame. However, the interactions for a specific user must be contained within a
             single DataFrame.
-        batch_accumulate: Ignored
-            Ignored for calculating Inter-List Diversity while it is kept for making the API design consistent across
-            different recommender metrics.
+        batch_accumulate: bool
+            Should not be True for calculating Inter-List Diversity while it is kept for making the API design
+            consistent across different recommender metrics.
         return_extended_results: bool
             Whether the extended results such as the support should also be returned. If specified, the returned results
             will be of type ``dict``. Inter-list diversity currently returns ``Inter-List Diversity`` and
@@ -193,11 +232,14 @@ class InterListDiversity:
             return results
 
     def _validate_arguments(self):
+        """Validate arguments for Inter-List Diversity"""
+
         check_true(isinstance(self.num_runs, int), ValueError("num_runs should be an integer."))
         if self.user_sample_size:
             check_true(isinstance(self.user_sample_size, int) or isinstance(self.user_sample_size, float),
                        ValueError("user_sample_size should be an integer or a float number."))
             check_true(self.num_runs >= 1, ValueError("num_runs should be no less than 1."))
+            check_true(isinstance(self.num_runs, int), ValueError("num_runs should be an integer."))
         check_true(isinstance(self.click_column, str), ValueError("click_column should be a string."))
         if self.k:
             check_true(isinstance(self.k, int), ValueError("k should be an integer."))

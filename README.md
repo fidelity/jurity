@@ -124,7 +124,7 @@ print("MAP@K:", map_k.get_score(actual, predicted))
 print("NCDG:", ncdg_k.get_score(actual, predicted))
 print("Precision@K:", precision_k.get_score(actual, predicted))
 print("Recall@K:", recall_k.get_score(actual, predicted))
-print("Inter-List Diversity@K:", interlist_diversity_k.get_score(predicted))
+print("Inter-List Diversity@K:", interlist_diversity_k.get_score(actual, predicted))
 ```
 
 ## Quick Start: Classification Evaluation
