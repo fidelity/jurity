@@ -394,6 +394,35 @@ def unique_multiclass_multilabel(input_: Union[List, List[List], np.ndarray, pd.
         raise TypeError(f"(numpy arr, pandas series, list, list of lists) supported. You supplied {type(input_)}")
 
 
+def get_integer_id_map(df: pd.DataFrame, row_id_column: str, col_id_column: str):
+    """
+    Create two mappings from original row and col ids used in the DataFrame to integer ids respectively.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Data frame with (row_id, col_id) in each row.
+    row_id_column: str
+        Row_id column name.
+    col_id_column: str
+        Col_id column name.
+
+    Return
+    -------
+    A mapping from original row_id to integer id, and a mapping from original col_id to integer id.
+    """
+
+    # Map each row_id to (0, n_rows)
+    unique_row_ids = list(df[row_id_column].unique())
+    row_id_map = dict(zip(unique_row_ids, range(len(unique_row_ids))))
+
+    # Map each col_id to (0, n_cols)
+    unique_col_ids = list(df[col_id_column].unique())
+    col_id_map = dict(zip(unique_col_ids, range(len(unique_col_ids))))
+
+    return row_id_map, col_id_map
+
+
 def tocsr(df: pd.DataFrame, row_id_column: str, col_id_column: str):
     """
     Transform data frame with row_id and col_id columns to sparse csr matrix.
@@ -412,13 +441,7 @@ def tocsr(df: pd.DataFrame, row_id_column: str, col_id_column: str):
     Sparse matrix capturing the interactions between row_id and col_id in the given data frame.
     """
 
-    # Map each row_id to (0, n_rows)
-    unique_row_ids = list(df[row_id_column].unique())
-    row_id_map = dict(zip(unique_row_ids, range(len(unique_row_ids))))
-
-    # Map each col_id to (0, n_cols)
-    unique_col_ids = list(df[col_id_column].unique())
-    col_id_map = dict(zip(unique_col_ids, range(len(unique_col_ids))))
+    row_id_map, col_id_map = get_integer_id_map(df, row_id_column, col_id_column)
 
     # Update row_id, col_id values
     integer_row_ids = df[row_id_column].map(row_id_map).values
