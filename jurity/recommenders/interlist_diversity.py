@@ -2,7 +2,7 @@
 # Copyright FMR LLC <opensource@fidelity.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Union, Tuple
+from typing import Union, Tuple, Callable
 
 import numpy as np
 import pandas as pd
@@ -16,7 +16,8 @@ from jurity.utils import Constants, tocsr, sample_users, get_sorted_clicks, chec
 def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: int,
                         user_id_column: str = Constants.user_id, item_id_column: str = Constants.item_id,
                         user_sample_size: Union[int, float, None] = 10000, seed: int = Constants.default_seed,
-                        num_runs: int = 10, n_jobs: int = 1, working_memory: int = None) -> Tuple[float, int]:
+                        metric: Union[str, Callable] = 'cosine', num_runs: int = 10, n_jobs: int = 1,
+                        working_memory: int = None) -> Tuple[float, int]:
     """
     Inter-List Diversity@k measures the inter-list diversity of the recommendations when only k recommendations are
     made to the user. It measures how user's lists of recommendations are different from each other. This metric has a
@@ -46,6 +47,13 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
         proportion of users to randomly sample for evaluation. If it is None, all users are included. Default=10,000.
     seed: int
         The seed used to create random state.
+    metric: Union[str, Callable]
+        Default = 'cosine'. The distance metric leveraged by sklearn.metrics.pairwise_distances_chunked.
+        The metric to use when calculating distance between instances in a feature array.
+        If metric is a string, it must be one of the options allowed by scipy.spatial.distance.pdist for its metric
+        parameter, or a metric listed in pairwise.PAIRWISE_DISTANCE_FUNCTIONS. If metric is a callable function,
+        it is called on each pair of instances (rows) and the resulting value recorded.
+        The callable should take two arrays from X as input and return a value indicating the distance between them.
     num_runs: int
         num_runs is used to report the approximation of Inter-List Diversity over multiple runs on smaller
         samples of users, default=10, for a speed-up on evaluations. The sampling size is defined by
@@ -77,7 +85,7 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
 
             res, support = interlist_diversity(df, click_column, k, user_id_column=user_id_column,
                                                item_id_column=item_id_column, user_sample_size=None,
-                                               n_jobs=n_jobs, working_memory=working_memory)
+                                               metric=metric, n_jobs=n_jobs, working_memory=working_memory)
             results_over_runs.append(res)
             supports_over_runs.append(support)
 
@@ -96,7 +104,7 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
 
     # Get pairwise cosine distances
     chunked_sum_cosine_distances = map(sum, pairwise_distances_chunked(sparse_matrix, reduce_func=reduce_func,
-                                                                       metric='cosine', n_jobs=n_jobs,
+                                                                       metric=metric, n_jobs=n_jobs,
                                                                        working_memory=working_memory))
 
     # Sum of all cosine distances of unique pairs
@@ -121,6 +129,13 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
 
 
 def reduce_func(D_chunk, start):
+    """
+    The function which is applied on each chunk of the distance matrix, reducing it to needed values.
+    reduce_func(D_chunk, start) is called repeatedly, where D_chunk is a contiguous vertical slice of the pairwise
+    distance matrix, starting at row start. It should return one of: None; an array, a list, or a sparse matrix of
+    length D_chunk.shape[0]; or a tuple of such objects. Returning None is useful for in-place operations,
+    rather than reductions.
+    """
     return np.sum(D_chunk, axis=1)
 
 
@@ -141,7 +156,7 @@ class InterListDiversity:
 
     def __init__(self, click_column, k: int = None, user_id_column: str = Constants.user_id,
                  item_id_column: str = Constants.item_id, user_sample_size: Union[int, float] = 10000,
-                 seed: int = Constants.default_seed, num_runs: int = 10,
+                 seed: int = Constants.default_seed, metric: Union[str, Callable] = 'cosine', num_runs: int = 10,
                  n_jobs: int = 1, working_memory: int = None):
         """Initialize the parameters for Inter-List Diversity metric.
 
@@ -161,6 +176,13 @@ class InterListDiversity:
             Default=10,000.
         seed: int
             The seed used to create random state.
+        metric: Union[str, Callable]
+            Default = 'cosine'. The distance metric leveraged by sklearn.metrics.pairwise_distances_chunked.
+            The metric to use when calculating distance between instances in a feature array.
+            If metric is a string, it must be one of the options allowed by scipy.spatial.distance.pdist for its metric
+            parameter, or a metric listed in pairwise.PAIRWISE_DISTANCE_FUNCTIONS. If metric is a callable function,
+            it is called on each pair of instances (rows) and the resulting value recorded.
+            The callable should take two arrays from X as input and return a value indicating the distance between them.
         num_runs: int
             num_runs is used to report the approximation of Inter-List Diversity over multiple runs on smaller
             samples of users, default=10, for a speed-up on evaluations. The sampling size is defined by
@@ -179,6 +201,7 @@ class InterListDiversity:
         self.k = k
         self.user_sample_size = user_sample_size
         self.seed = seed
+        self.metric = metric
         self.num_runs = num_runs
         self.n_jobs = n_jobs
         self.working_memory = working_memory
@@ -222,7 +245,7 @@ class InterListDiversity:
                                                user_id_column=self.user_id_column,
                                                item_id_column=self.item_id_column,
                                                user_sample_size=self.user_sample_size, seed=self.seed,
-                                               n_jobs=self.n_jobs, num_runs=self.num_runs,
+                                               metric=self.metric, n_jobs=self.n_jobs, num_runs=self.num_runs,
                                                working_memory=self.working_memory
                                                )
 

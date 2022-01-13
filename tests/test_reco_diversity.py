@@ -174,3 +174,11 @@ class TestDiversityRecommenders(unittest.TestCase):
         with self.assertRaises(ValueError):
             # This should fail when `batch_accumulate=True`.
             results = metric.get_score(self.actual, self.predicted, batch_accumulate=True, return_extended_results=True)
+
+    def test_inter_list_diversity_metric_euclidean(self):
+        metric = DiversityRecoMetrics.InterListDiversity(click_column='score', k=4, user_sample_size=0.8,
+                                                         num_runs=10, n_jobs=-1, metric='euclidean')
+        results = metric.get_score(self.actual, self.predicted, batch_accumulate=False, return_extended_results=True)
+
+        self.assertEqual(round(results['inter-list diversity'], 4), 1.4142)
+        self.assertEqual(results['support'], 2)
