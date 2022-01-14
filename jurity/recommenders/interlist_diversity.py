@@ -63,7 +63,8 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
         -1 means using all processors. Default=1.
     working_memory: Union[int, None]
         Maximum memory for temporary distance matrix chunks, leveraged by sklearn.metrics.pairwise_distances_chunked.
-        When None (default), the value of sklearn.get_config()['working_memory'], i.e. 1024M, is used.
+        Example input: working_memory = 1024. When None (default), the value of sklearn.get_config()['working_memory'],
+        i.e. 1024M, is used.
 
     Returns
     -------
