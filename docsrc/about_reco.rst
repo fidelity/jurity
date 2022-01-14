@@ -117,7 +117,7 @@ Inter-List Diversity
 Inter-List Diversity@k measures the inter-list diversity of the recommendations when only k recommendations are
 made to the user. It measures how user's lists of recommendations are different from each other. This metric has a range
 in :math:`[0, 1]`. The higher this metric is, the more diversified lists of items are recommended to different users.
-Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i`,:math:`u_j \in U` denote the i-th and j-th user in the
+Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i`, :math:`u_j \in U` denote the i-th and j-th user in the
 user set, :math:`i, j \in \{0,1,\cdots,N\}`. :math:`R_{u_i}` is the binary indicator vector representing provided
 recommendations for :math:`u_i`. :math:`I` is the set of all unique user pairs, :math:`\forall~i<j, \{u_i, u_j\} \in I`.
 
