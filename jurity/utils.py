@@ -7,6 +7,7 @@ from typing import List, NamedTuple, NoReturn, Optional, Union
 
 import numpy as np
 import pandas as pd
+import scipy.sparse as sp
 from sklearn.metrics import confusion_matrix
 
 from .hash_utils import lru_cache_df
@@ -35,7 +36,6 @@ class Constants(NamedTuple):
     inverse_propensity = 'inverse_propensity'
     ips_correction = 'ips_correction'
     propensity = 'propensity'
-
 
 
 class Error(Exception):
@@ -391,3 +391,107 @@ def unique_multiclass_multilabel(input_: Union[List, List[List], np.ndarray, pd.
         return np.unique(np.hstack(input_))
     else:
         raise TypeError(f"(numpy arr, pandas series, list, list of lists) supported. You supplied {type(input_)}")
+
+
+def get_integer_id_map(df: pd.DataFrame, row_id_column: str, col_id_column: str):
+    """
+    Create two mappings from original row and col ids used in the DataFrame to integer ids respectively.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Data frame with (row_id, col_id) in each row.
+    row_id_column: str
+        Row_id column name.
+    col_id_column: str
+        Col_id column name.
+
+    Return
+    -------
+    A mapping from original row_id to integer id, and a mapping from original col_id to integer id.
+    """
+
+    # Map each row_id to (0, n_rows)
+    unique_row_ids = list(df[row_id_column].unique())
+    row_id_map = dict(zip(unique_row_ids, range(len(unique_row_ids))))
+
+    # Map each col_id to (0, n_cols)
+    unique_col_ids = list(df[col_id_column].unique())
+    col_id_map = dict(zip(unique_col_ids, range(len(unique_col_ids))))
+
+    return row_id_map, col_id_map
+
+
+def tocsr(df: pd.DataFrame, row_id_column: str, col_id_column: str):
+    """
+    Transform data frame with row_id and col_id columns to sparse csr matrix.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Data frame with (row_id, col_id) in each row.
+    row_id_column: str
+        Row_id column name.
+    col_id_column: str
+        Col_id column name.
+
+    Return
+    -------
+    Sparse matrix capturing the interactions between row_id and col_id in the given data frame.
+    """
+
+    row_id_map, col_id_map = get_integer_id_map(df, row_id_column, col_id_column)
+
+    # Update row_id, col_id values
+    integer_row_ids = df[row_id_column].map(row_id_map).values
+    integer_col_ids = df[col_id_column].map(col_id_map).values
+
+    # Convert to csr matrix
+    csr_matrix = sp.coo_matrix((np.ones(len(integer_row_ids)), (integer_row_ids, integer_col_ids))).tocsr()
+
+    return csr_matrix
+
+
+def sample_users(df: pd.DataFrame, user_id_column: str = Constants.user_id,
+                 user_sample_size: Union[int, float] = 10000, seed: int = Constants.default_seed) -> pd.DataFrame:
+    """
+    Samples input data frame by selecting a random sample of users.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Data frame with a user_id_col column.
+    user_id_column: str
+        User id column name.
+    user_sample_size: Union[int, float]
+        When input is an integer, it defines the number of randomly sampled users. When input is float, it defines the
+        proportion of users to randomly sample for evaluation.
+    seed : int, default=Constants.default_seed
+        The seed used to create random state.
+
+    Returns
+    -------
+    Sampled data frame
+    """
+    rng = np.random.default_rng(seed)
+    users = df[user_id_column].unique()
+
+    if isinstance(user_sample_size, float):
+        check_true(0.0 < user_sample_size, ValueError("User_sample_size should be greater than 0.0", user_sample_size))
+        if user_sample_size > 1.0:
+            warnings.warn('User_sample_size can not be larger than total number of users. '
+                          'User_sample_size is set to be 1.0 instead.')
+            user_sample_size = 1.0
+
+        users = rng.choice(users, size=int(len(users) * user_sample_size), replace=False)
+
+    elif isinstance(user_sample_size, int):
+        check_true(0 < user_sample_size, ValueError("User_sample_size should be greater than 0", user_sample_size))
+        if user_sample_size > len(users):
+            warnings.warn('User_sample_size can not be larger than total number of users. '
+                          'User_sample_size is set to be the total number of users.')
+            user_sample_size = len(users)
+
+        users = rng.choice(users, size=user_sample_size, replace=False)
+
+    return df[df[user_id_column].isin(users)]

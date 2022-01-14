@@ -37,6 +37,7 @@ Available Recommenders Metrics
 * `Recall@K <https://fidelity.github.io/jurity/about_reco.html#recall>`_
 * `MAP@K: Mean Average Precision <https://fidelity.github.io/jurity/about_reco.html#map-mean-average-precision>`_
 * `NDCG: Normalized discounted cumulative gain <https://fidelity.github.io/jurity/about_reco.html#ndcg-normalized-discounted-cumulative-gain>`_
+* `Inter-List Diversity <https://fidelity.github.io/jurity/about_reco.html#inter-list-diversity>`_
 
 Available Classification Metrics
 ---------------------------------

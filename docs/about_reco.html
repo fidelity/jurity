@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Recommenders Metrics &mdash; Jurity 1.2.1 documentation</title>
+  <title>About Recommenders Metrics &mdash; Jurity 1.3.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -15,7 +15,7 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -53,6 +53,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#recall">Recall</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#map-mean-average-precision">MAP: Mean Average Precision</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ndcg-normalized-discounted-cumulative-gain">NDCG: Normalized Discounted Cumulative Gain</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#diversity-recommender-metrics">Diversity Recommender Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inter-list-diversity">Inter-List Diversity</a></li>
 </ul>
 </li>
 </ul>
@@ -165,6 +169,21 @@ It is normalized to be between 0 and 1.
 Improving the highest-ranked recommendations has a more important effect than improving the lowest-ranked recommendations.</p>
 <div class="math notranslate nohighlight">
 \[NDCG&#64;k = \frac{1}{\left | A \right |} \sum_{i=1}^{\left | A \right |} \frac {\sum_{r=1}^{\left | P_i \right |} \frac{rel(P_{i,r})}{log_2(r+1)}}{\sum_{r=1}^{\left | A_i \right |} \frac{1}{log_2(r+1)}}\]</div>
+</section>
+</section>
+<section id="diversity-recommender-metrics">
+<h2>Diversity Recommender Metrics<a class="headerlink" href="#diversity-recommender-metrics" title="Permalink to this headline"></a></h2>
+<p>Diversity recommender metrics evaluate the quality of recommendations for different notions of diversity.</p>
+<section id="inter-list-diversity">
+<h3>Inter-List Diversity<a class="headerlink" href="#inter-list-diversity" title="Permalink to this headline"></a></h3>
+<p>Inter-List Diversity&#64;k measures the inter-list diversity of the recommendations when only k recommendations are
+made to the user. It measures how user’s lists of recommendations are different from each other. This metric has a range
+in <span class="math notranslate nohighlight">\([0, 1]\)</span>. The higher this metric is, the more diversified lists of items are recommended to different users.
+Let <span class="math notranslate nohighlight">\(U\)</span> denote the set of <span class="math notranslate nohighlight">\(N\)</span> unique users, <span class="math notranslate nohighlight">\(u_i\)</span>, <span class="math notranslate nohighlight">\(u_j \in U\)</span> denote the i-th and j-th user in the
+user set, <span class="math notranslate nohighlight">\(i, j \in \{0,1,\cdots,N\}\)</span>. <span class="math notranslate nohighlight">\(R_{u_i}\)</span> is the binary indicator vector representing provided
+recommendations for <span class="math notranslate nohighlight">\(u_i\)</span>. <span class="math notranslate nohighlight">\(I\)</span> is the set of all unique user pairs, <span class="math notranslate nohighlight">\(\forall~i&lt;j, \{u_i, u_j\} \in I\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[Inter\mbox{-}list~diversity = \frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}\]</div>
 </section>
 </section>
 </section>

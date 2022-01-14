@@ -19,7 +19,6 @@ class MAP(_BaseRecommenders):
 
     Intuitively, MAP measures how precise the recommendations are while taking the ranking of the recommendations
     into account.
-    Sources: https://medium.com/@judaikawa/building-and-evaluating-a-recommender-system-for-implicit-feedback-59495d2077d4
     """
 
     def __init__(self, click_column, k: int = None, user_id_column: str = Constants.user_id,

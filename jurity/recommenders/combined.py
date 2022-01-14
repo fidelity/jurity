@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from jurity.recommenders.base import _BaseRecommenders
+from jurity.recommenders.interlist_diversity import InterListDiversity
 
 
 class CombinedMetrics(_BaseRecommenders):
@@ -106,8 +107,17 @@ class CombinedMetrics(_BaseRecommenders):
         """
         batch_vals = dict()
         acc_vals = dict()
+
         for metric in self.metrics:
-            return_val = metric.get_score(actual_results, predicted_results, batch_accumulate, return_extended_results)
+            if isinstance(metric, InterListDiversity) and batch_accumulate:
+                # Inter-List Diversity requires to know all unique user pairs, thus batch accumulation of the data
+                # required for calculating this metric does not fit in this situation.
+                raise ValueError("Batch_accumulate can not be set as True when Inter-List Diversity is used in "
+                                 "combined metrics.")
+
+        for metric in self.metrics:
+            return_val = metric.get_score(actual_results, predicted_results, batch_accumulate,
+                                          return_extended_results)
             if return_val is not None:
                 if batch_accumulate:
                     batch_val, acc_val = return_val
