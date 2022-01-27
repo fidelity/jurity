@@ -2,7 +2,7 @@
 # Copyright FMR LLC <opensource@fidelity.com>
 # SPDX-License-Identifier: Apache-2.0
 
-import unittest
+import unittest, random
 
 import pandas as pd
 import numpy as np
@@ -30,6 +30,11 @@ class TestDiversityRecommenders(unittest.TestCase):
                                         0.9, 0.8, 0.6, 0.6
                                         ]
                               })
+
+    random.seed(1)
+    items = predicted[Constants.item_id].unique()
+    item_features = pd.DataFrame([[random.random() for i in range(10)] for j in items])
+    item_features['item_id'] = items
 
     def test_inter_list_diversity_usage(self):
         metric = DiversityRecoMetrics.InterListDiversity(click_column='score', k=4)
