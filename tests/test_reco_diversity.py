@@ -183,7 +183,7 @@ class TestDiversityRecommenders(unittest.TestCase):
         self.assertEqual(round(results['inter-list diversity'], 4), 1.4142)
         self.assertEqual(results['support'], 2)
 
-        def test_intra_list_diversity_usage(self):
+    def test_intra_list_diversity_usage(self):
         metric = DiversityRecoMetrics.IntraListDiversity(self.item_features, click_column='score', k=4)
         results = metric.get_score(self.predicted, batch_accumulate=False, return_extended_results=True)
 
