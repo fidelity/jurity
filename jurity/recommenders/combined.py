@@ -8,7 +8,8 @@ import numpy as np
 import pandas as pd
 
 from jurity.recommenders.base import _BaseRecommenders
-from jurity.recommenders.interlist_diversity import InterListDiversity
+from jurity.recommenders.diversity import InterListDiversity
+
 
 
 class CombinedMetrics(_BaseRecommenders):
