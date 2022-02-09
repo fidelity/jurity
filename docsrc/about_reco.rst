@@ -124,3 +124,7 @@ recommendations for :math:`u_i`. :math:`I` is the set of all unique user pairs, 
 .. math::
         Inter\mbox{-}list~diversity = \frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}
 
+By default, the reported metric is averaged over a number of `num_runs` (default=10) evaluations with each run
+using `user_sample_size` (default=10000) users, to ease the computing process and meanwhile get close
+approximation of this metric. When `user_sample_size=None`, all users will be used in evaluation.
+

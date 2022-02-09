@@ -26,6 +26,10 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
     .. math::
             Inter \mbox{-} list~diversity = \\frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}
 
+    By default, the reported metric is averaged over a number of ``num_runs`` (default=10) evaluations with each run
+    using ``user_sample_size`` (default=10000) users, to ease the computing process and meanwhile get close
+    approximation of this metric. When ``user_sample_size=None``, all users will be used in evaluation.
+
     Parameters
     ----------
     predicted_results: pd.DataFrame
@@ -148,6 +152,9 @@ class InterListDiversity:
     .. math::
             Inter \mbox{-} list~diversity = \\frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}
 
+    By default, the reported metric is averaged over a number of ``num_runs`` (default=10) evaluations with each run
+    using ``user_sample_size`` (default=10000) users, to ease the computing process and meanwhile get close
+    approximation of this metric. When ``user_sample_size=None``, all users will be used in evaluation.
     """
 
     def __init__(self, click_column, k: int = None, user_id_column: str = Constants.user_id,

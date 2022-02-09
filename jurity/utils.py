@@ -453,7 +453,7 @@ def tocsr(df: pd.DataFrame, row_id_column: str, col_id_column: str):
 
 
 def sample_users(df: pd.DataFrame, user_id_column: str = Constants.user_id,
-                 user_sample_size: Union[int, float] = 10000, seed: int = Constants.default_seed) -> pd.DataFrame:
+                 user_sample_size: Union[int, float, None] = 10000, seed: int = Constants.default_seed) -> pd.DataFrame:
     """
     Samples input data frame by selecting a random sample of users.
 
@@ -463,9 +463,9 @@ def sample_users(df: pd.DataFrame, user_id_column: str = Constants.user_id,
         Data frame with a user_id_col column.
     user_id_column: str
         User id column name.
-    user_sample_size: Union[int, float]
+    user_sample_size: Union[int, float, None]
         When input is an integer, it defines the number of randomly sampled users. When input is float, it defines the
-        proportion of users to randomly sample for evaluation.
+        proportion of users to randomly sample for evaluation. If it is None, all users are used for evaluation.
     seed : int, default=Constants.default_seed
         The seed used to create random state.
 
