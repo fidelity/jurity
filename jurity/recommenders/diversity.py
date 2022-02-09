@@ -274,7 +274,6 @@ class InterListDiversity:
         return 'Inter-List Diversity@{}'.format(self.k)
 
 
-
 def intralist_diversity(predicted_results: pd.DataFrame, item_features: pd.DataFrame, click_column: str, k: int,
                         user_id_column: str = Constants.user_id, item_id_column: str = Constants.item_id,
                         user_sample_size: Union[int, float, None] = 10000, seed: int = Constants.default_seed,
@@ -382,7 +381,6 @@ def intralist_diversity(predicted_results: pd.DataFrame, item_features: pd.DataF
     df_merged['cosine_distance'] = cosine_distance[df_merged['item_index_x'], df_merged['item_index_y']]
     results = df_merged[[user_id_column, 'cosine_distance']].groupby(user_id_column).mean()
 
-
     intra_list_diversity = results.values.flatten()
 
     return intra_list_diversity
@@ -482,15 +480,12 @@ class IntraListDiversity(_BaseRecommenders):
             The averaged result(s). The return type is determined by ``return_extended_results`` parameters.
         """
 
-
         results = intralist_diversity(predicted_results, self.item_features, self.click_column, self.k,
-                                               user_id_column=self._user_id_column,
-                                               item_id_column=self._item_id_column,
-                                               user_sample_size=self.user_sample_size, seed=self.seed,
-                                               metric=self.metric, num_runs=self.num_runs, n_jobs=self.n_jobs, 
-                                               
-                                               )
-
+                                      user_id_column=self._user_id_column,
+                                      item_id_column=self._item_id_column,
+                                      user_sample_size=self.user_sample_size, seed=self.seed,
+                                      metric=self.metric, num_runs=self.num_runs, n_jobs=self.n_jobs,
+                                      )
 
         return self._accumulate_and_return(results, batch_accumulate, return_extended_results)
 
@@ -500,21 +495,25 @@ class IntraListDiversity(_BaseRecommenders):
 
     def _validate_arguments(self):
         """Validate arguments for Intra-List Diversity"""
+
         if len(self.item_features) > 0:
-            check_true(isinstance(self.item_features, pd.DataFrame), ValueError("item_features should be a valid dataframe."))
+            check_true(isinstance(self.item_features, pd.DataFrame),
+                       ValueError("item_features should be a valid dataframe."))
             check_true((self._item_id_column in self.item_features.columns),
-                   ValueError("item features matrix should have an item id column."))
+                       ValueError("item features matrix should have an item id column."))
         else:
             ValueError("please provide item_features in the input.")
+
         check_true(isinstance(self.num_runs, int), ValueError("num_runs should be an integer."))
         check_true(isinstance(self.n_jobs, int), ValueError("n_jobs should be an integer."))
+
         if self.user_sample_size:
             check_true(isinstance(self.user_sample_size, int) or isinstance(self.user_sample_size, float),
                        ValueError("user_sample_size should be an integer or a float number."))
             check_true(self.num_runs >= 1, ValueError("num_runs should be no less than 1."))
             check_true(isinstance(self.num_runs, int), ValueError("num_runs should be an integer."))
+
         check_true(isinstance(self.click_column, str), ValueError("click_column should be a string."))
-        
 
         if self.k:
             check_true(isinstance(self.k, int), ValueError("k should be an integer."))
