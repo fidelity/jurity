@@ -7,7 +7,7 @@ from .map import MAP
 from .ndcg import NDCG
 from .precision import Precision
 from .recall import Recall
-from .interlist_diversity import InterListDiversity
+from .diversity import InterListDiversity, IntraListDiversity
 
 
 class BinaryRecoMetrics(NamedTuple):
@@ -24,3 +24,4 @@ class RankingRecoMetrics(NamedTuple):
 
 class DiversityRecoMetrics(NamedTuple):
     InterListDiversity = InterListDiversity
+    IntraListDiversity = IntraListDiversity
