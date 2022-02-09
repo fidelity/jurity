@@ -103,7 +103,6 @@ import pandas as pd
 # Data
 actual = pd.DataFrame({"user_id": [1, 2, 3, 4], "item_id": [1, 2, 0, 3], "clicks": [0, 1, 0, 0]})
 predicted = pd.DataFrame({"user_id": [1, 2, 3, 4], "item_id": [1, 2, 2, 3], "clicks": [0.8, 0.7, 0.8, 0.7]})
-item_features = pd.DataFrame({"item_id": [0, 1, 2, 3], "feature1": [1, 2, 2, 1], "feature2": [0.8, 0.7, 0.8, 0.7]})
 
 # Metrics
 auc = BinaryRecoMetrics.AUC(click_column="clicks")
@@ -115,7 +114,6 @@ ncdg_k = RankingRecoMetrics.NDCG(click_column="clicks", k=3)
 precision_k = RankingRecoMetrics.Precision(click_column="clicks", k=2)
 recall_k = RankingRecoMetrics.Recall(click_column="clicks", k=2)
 interlist_diversity_k = DiversityRecoMetrics.InterListDiversity(click_column="clicks", k=2)
-intralist_diversity_k = DiversityRecoMetrics.IntraListDiversity(item_features, click_column="clicks", k=2)
 
 # Scores
 print("AUC:", auc.get_score(actual, predicted))
@@ -127,8 +125,6 @@ print("NCDG:", ncdg_k.get_score(actual, predicted))
 print("Precision@K:", precision_k.get_score(actual, predicted))
 print("Recall@K:", recall_k.get_score(actual, predicted))
 print("Inter-List Diversity@K:", interlist_diversity_k.get_score(actual, predicted))
-print("Intra-List Diversity@K:", intralist_diversity_k.get_score(actual, predicted))
-
 ```
 
 ## Quick Start: Classification Evaluation

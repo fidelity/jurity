@@ -124,16 +124,3 @@ recommendations for :math:`u_i`. :math:`I` is the set of all unique user pairs, 
 .. math::
         Inter\mbox{-}list~diversity = \frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}
 
-Intra-List Diversity
-^^^^^^^^^^^^^^^^^^^^
-Intra-List Diversity@k measures the intra-list diversity of the recommendations when only k recommendations are
-made to the user. It measures how the items in the item list for each user are different from each other. This metric has a
-range in :math:`[0, 1]`. The higher this metric is, the more diversified items are recommended to
-users. Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i` denotes the i-th user in the user set, 
-:math:`v_p^{u_i}` are the item features of the p-th recommended item for user :math:`u_i` and p < q.
-
-.. math::
-        Intra \mbox{-} list~diversity = 1 - \frac{1}{U}\sum_{i=1}^U average(consine\_similarity(v_p^{u_i}, v_q^{u_i}))
-
-
-

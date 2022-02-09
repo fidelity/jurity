@@ -850,7 +850,7 @@ class TestBinaryFairness(unittest.TestCase):
 
     @staticmethod
     def extract_metric_from_df(metric_name, df, attribute='Value'):
-        return float(df.loc[df.index == metric_name, attribute].values.squeeze())
+        return df.loc[df.index == metric_name, attribute].values.squeeze()
 
     def test_all_scores_valid(self):
 

@@ -28,7 +28,7 @@ copyright = '2021, FMR LLC'
 author = 'FMR LLC'
 
 # The full version, including alpha/beta/rc tags
-release = '1.3.2'
+release = '1.3.1'
 
 # -- General configuration ---------------------------------------------------
 
