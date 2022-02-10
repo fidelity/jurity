@@ -21,7 +21,9 @@ def interlist_diversity(predicted_results: pd.DataFrame, click_column: str, k: i
     made to the user. It measures how user's lists of recommendations are different from each other. This metric has a
     range in :math:`[0, 1]`. The higher this metric is, the more diversified lists of items are recommended to different
     users. Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i`, :math:`u_j \in U` denote the i-th and
-    j-th user in the user set, :math:`v_p^{u_i}` are the item features of the p-th recommended item for user :math:`u_i` and p < q..
+    j-th user in the user set, :math:`i, j \in \{1,2,\cdots,N\}`. :math:`R_{u_i}` is the binary indicator vector
+    representing provided recommendations for :math:`u_i`. :math:`I` is the set of all unique user pairs,
+    :math:`\\forall~i<j, \{u_i, u_j\} \in I`.
 
     .. math::
             Inter \mbox{-} list~diversity = \\frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}
@@ -147,7 +149,9 @@ class InterListDiversity:
     made to the user. It measures how user's lists of recommendations are different from each other. This metric has a
     range in :math:`[0, 1]`. The higher this metric is, the more diversified lists of items are recommended to different
     users. Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i`, :math:`u_j \in U` denote the i-th and
-    j-th user in the user set, :math:`v_p^{u_i}` are the item features of the p-th recommended item for user :math:`u_i` and p < q..
+    j-th user in the user set, :math:`i, j \in \{1,2,\cdots,N\}`. :math:`R_{u_i}` is the binary indicator vector
+    representing provided recommendations for :math:`u_i`. :math:`I` is the set of all unique user pairs,
+    :math:`\\forall~i<j, \{u_i, u_j\} \in I`.
 
     .. math::
             Inter \mbox{-} list~diversity = \\frac{\sum_{i,j, \{u_i, u_j\} \in I}(cosine\_distance(R_{u_i}, R_{u_j}))}{|I|}
@@ -287,14 +291,22 @@ def intralist_diversity(predicted_results: pd.DataFrame, item_features: pd.DataF
                         metric: Union[str, Callable] = 'cosine', n_jobs: int = 1, num_runs: int = 10):
     """
     Intra-List Diversity@k measures the intra-list diversity of the recommendations when only k recommendations are
-    made to the user. It measures how the items in the item list for each user are different from each other. This metric has a
-    range in :math:`[0, 1]`. The higher this metric is, the more diversified items are recommended to
-    users. Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i` denotes the i-th user in the user set, 
-    :math:`v_p^{u_i}` are the item features of the p-th recommended item for user :math:`u_i` and p < q.
+    made to the user. Given a list of items recommended to one user and the item features, the averaged pairwise cosine
+    distances of items is calculated. Then the results from all users are averaged as the metric Intra-List Diversity@k.
+    This metric has a range in :math:`[0, 1]`. The higher this metric is, the more diversified
+    items are recommended to each user. Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i` denote
+    the i-th user in the user set, :math:`i \in \{1,2,\cdots,N\}`. :math:`v_p^{u_i}`, :math:`v_q^{u_i}` are the
+    item features of the p-th and q-th item in the list of items recommended to :math:`u_i`,
+    :math:`p, q \in \{0,1,\cdots,k-1\}`. :math:`I^{u_i}` is the set of all unique pairs of item indices for :math:`u_i`,
+    :math:`\\forall~p<q, \{p, q\} \in I^{u_i}`.
 
     .. math::
-            Intra \mbox{-} list~diversity = 1 - \frac{1}{U}\sum_{i=1}^U average(consine\_similarity(v_p^{u_i}, v_q^{u_i}))
-    
+            Intra\mbox{-} list~diversity = \\frac{1}{N}\sum_{i=1}^N \\frac{\sum_{p, q, \{p, q\} \in I^{u_i}}(cosine\_distance(v_p^{u_i}, v_q^{u_i}))}{|I^{u_i}|}
+
+    By default, the reported metric is averaged over a number of ``num_runs`` (default=10) evaluations with each run
+    using ``user_sample_size`` (default=10000) users, to ease the computing process and meanwhile get close
+    approximation of this metric. When ``user_sample_size=None``, all users will be used in evaluation.
+
     Parameters
     ----------
     predicted_results: pd.DataFrame
@@ -395,13 +407,21 @@ class IntraListDiversity(_BaseRecommenders):
     """Intra-List Diversity@k
 
     Intra-List Diversity@k measures the intra-list diversity of the recommendations when only k recommendations are
-    made to the user. It measures how the items in the item list for each user are different from each other. This metric has a
-    range in :math:`[0, 1]`. The higher this metric is, the more diversified items are recommended to
-    users. Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i` denotes the i-th user in the user set, 
-    :math:`v_p^{u_i}` are the item features of the p-th recommended item for user :math:`u_i` and p < q.
+    made to the user. Given a list of items recommended to one user and the item features, the averaged pairwise cosine
+    distances of items is calculated. Then the results from all users are averaged as the metric Intra-List Diversity@k.
+    This metric has a range in :math:`[0, 1]`. The higher this metric is, the more diversified
+    items are recommended to each user. Let :math:`U` denote the set of :math:`N` unique users, :math:`u_i` denote
+    the i-th user in the user set, :math:`i \in \{1,2,\cdots,N\}`. :math:`v_p^{u_i}`, :math:`v_q^{u_i}` are the
+    item features of the p-th and q-th item in the list of items recommended to :math:`u_i`,
+    :math:`p, q \in \{0,1,\cdots,k-1\}`. :math:`I^{u_i}` is the set of all unique pairs of item indices for :math:`u_i`,
+    :math:`\\forall~p<q, \{p, q\} \in I^{u_i}`.
 
     .. math::
-            Intra \mbox{-} list~diversity = 1 - \frac{1}{U}\sum_{i=1}^U average(consine\_similarity(v_p^{u_i}, v_q^{u_i}))
+            Intra\mbox{-} list~diversity = \\frac{1}{N}\sum_{i=1}^N \\frac{\sum_{p, q, \{p, q\} \in I^{u_i}}(cosine\_distance(v_p^{u_i}, v_q^{u_i}))}{|I^{u_i}|}
+
+    By default, the reported metric is averaged over a number of ``num_runs`` (default=10) evaluations with each run
+    using ``user_sample_size`` (default=10000) users, to ease the computing process and meanwhile get close
+    approximation of this metric. When ``user_sample_size=None``, all users will be used in evaluation.
     """
 
     def __init__(self, item_features: pd.DataFrame, click_column, k: int = None,
