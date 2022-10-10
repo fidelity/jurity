@@ -1,0 +1,6 @@
+.reclist/
+*.pyc
+upload.env
+du.cheng*.json
+.idea
+.ipynb_checkpoints/
