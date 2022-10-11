@@ -36,7 +36,7 @@ class MyModel(RecModel):
         self.reverse_item_map = {}
         self.impl = {}
         self.cat_key = 'user_activity'
-        self.n_sum = 300
+        self.n_sum = 500
         self.train_data = {}
         self.user_summary = None
         self.user_activity_summary = None
@@ -206,7 +206,7 @@ class MyModel(RecModel):
         test_ids = user_ids['user_id'].map(self.user_id_map[cat]).values
         recommendation_ids, scores = self.impl[cat].recommend(test_ids, self.train_data[cat][test_ids, :],
                                                               N=self.n_sum,
-                                                              filter_already_liked_items=True)
+                                                              filter_already_liked_items=False)
 
         recs_df = pd.DataFrame(recommendation_ids).apply(lambda x: x.map(self.reverse_item_map[cat]), axis=1)
         recs_df.insert(0, 'user_id', user_ids['user_id'].values)
@@ -334,7 +334,7 @@ class MyModel(RecModel):
             for bin in self.bins[self.cat_key]:
                 cat = self.cat_key + '_' + str(bin)
                 user_ids_cat = user_ids.loc[user_ids['user_id'].isin(self.user_id_map[cat].keys())]
-                res_df_cat, scores_df_cat = self.predict_cat(user_ids_cat, cat)
+                res_df_cat, scores_df_cat = self._predict_cat(user_ids_cat, cat)
                 res_dfs.append(res_df_cat)
                 scores_dfs.append(scores_df_cat)
 
@@ -367,7 +367,7 @@ class MyModel(RecModel):
         # print('all scores', all_scores.shape, all_scores)
 
         if self.use_average:
-            recommendation_ids, scores = self.recommend(user_ids)
+            recommendation_ids, scores = self._recommend(user_ids)
         else:
             test_ids = user_ids['user_id'].map(self.user_id_map[ALL_USERS_CAT]).values
             recommendation_ids, scores = self._postprocess(user_ids, test_ids)
