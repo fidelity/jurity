@@ -82,11 +82,9 @@ class BinaryFairnessMetrics(NamedTuple):
             if score is None:
                 score = np.nan
             score = np.round(score, 3)
-            df = df.append({"Metric": instance.name,
-                            "Value": score,
-                            "Lower Bound": instance.lower_bound,
-                            "Ideal Value": instance.ideal_value,
-                            "Upper Bound": instance.upper_bound}, ignore_index=True)
+            df = pd.concat([df, pd.DataFrame(
+                [[instance.name, score, instance.ideal_value, instance.lower_bound, instance.upper_bound]],
+                columns=df.columns)], axis=0, ignore_index=True)
 
         df = df.set_index("Metric")
 
@@ -158,7 +156,7 @@ class MultiClassFairnessMetrics(NamedTuple):
             append_dict["Ideal Value"] = multi_instance.ideal_value
             append_dict["Upper Bound"] = multi_instance.upper_bound
 
-            df = df.append(append_dict, ignore_index=True)
+            df = pd.concat([df, pd.DataFrame([append_dict])], ignore_index=True)
 
         df = df.set_index("Metric")
         return df
