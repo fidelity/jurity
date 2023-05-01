@@ -10,7 +10,7 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.utils import check_and_convert_list_types
-from jurity.utils import check_inputs_validity
+from jurity.utils import check_inputs
 from jurity.utils import performance_measures
 from jurity.utils import split_array_based_on_membership_label
 
@@ -54,7 +54,7 @@ class FNRDifference(_BaseBinaryFairness):
         False Negative Rate difference between groups.
         """
         # Logic to check input types.
-        check_inputs_validity(labels=labels, predictions=predictions, is_member=is_member, optional_labels=False)
+        check_inputs(predictions, is_member, membership_label, must_have_labels=True, labels=labels)
 
         # List needs to be converted to np for indexing
         is_member = check_and_convert_list_types(is_member)

@@ -10,7 +10,7 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.utils import check_and_convert_list_types
-from jurity.utils import check_inputs_validity
+from jurity.utils import check_inputs
 from jurity.utils import performance_measures
 from jurity.utils import split_array_based_on_membership_label
 
@@ -61,7 +61,7 @@ class PredictiveEquality(_BaseBinaryFairness):
         """
 
         # Check input types
-        check_inputs_validity(labels=labels, predictions=predictions, is_member=is_member, optional_labels=False)
+        check_inputs(predictions, is_member, membership_label, must_have_labels=True, labels=labels)
 
         # Convert to numpy arrays
         is_member = check_and_convert_list_types(is_member)
@@ -73,8 +73,8 @@ class PredictiveEquality(_BaseBinaryFairness):
             split_array_based_on_membership_label(labels, is_member, membership_label)
 
         if np.unique(group_2_truth).shape[0] == 1 or np.unique(group_1_truth).shape[0] == 1:
-            return warnings.warn("Encountered homogeneous unary ground truth either in group 2/group 1 group. \
-                                 Predictive Equality cannot be calculated.")
+            return warnings.warn("Encountered homogeneous unary ground truth either in group 2/group 1 group. "
+                                 "Predictive Equality cannot be calculated.")
 
         fpr_group_1 = performance_measures(labels, predictions, group_1_group_idx, group_membership=True)["FPR"]
         fpr_group_2 = performance_measures(labels, predictions, group_2_group_idx, group_membership=True)["FPR"]

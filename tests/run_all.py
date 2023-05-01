@@ -4,7 +4,6 @@
 
 import unittest
 
-
 # Test Directory
 start_dir = '.'
 

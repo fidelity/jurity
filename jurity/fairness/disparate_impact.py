@@ -10,7 +10,7 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness, _BaseMultiClassMetric
 from jurity.utils import check_and_convert_list_types
-from jurity.utils import check_inputs_validity
+from jurity.utils import check_inputs
 from jurity.utils import split_array_based_on_membership_label
 
 
@@ -53,7 +53,7 @@ class BinaryDisparateImpact(_BaseBinaryFairness):
         """
 
         # Logic to check input types
-        check_inputs_validity(predictions=predictions, is_member=is_member)
+        check_inputs(predictions, is_member, membership_label)
 
         # List needs to be converted to numpy for indexing
         is_member = check_and_convert_list_types(is_member)
@@ -91,6 +91,6 @@ class MultiDisparateImpact(_BaseMultiClassMetric):
                          ideal_value=1,
                          list_of_classes=list_of_classes)
 
-    def _binary_score(self, predictions, is_member):
+    def _binary_score(self, predictions, is_member, membership_label=1):
         from jurity.fairness import BinaryFairnessMetrics
-        return BinaryFairnessMetrics().DisparateImpact().get_score(predictions, is_member)
+        return BinaryFairnessMetrics().DisparateImpact().get_score(predictions, is_member, membership_label)

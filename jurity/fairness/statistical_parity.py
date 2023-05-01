@@ -2,15 +2,15 @@
 # Copyright FMR LLC <opensource@fidelity.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Union
+from typing import List, Union, Optional
 
 import numpy as np
 import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness, _BaseMultiClassMetric
-from jurity.utils import check_and_convert_list_types
-from jurity.utils import check_inputs_validity
-from jurity.utils import split_array_based_on_membership_label
+from jurity.utils import check_inputs, check_inputs_argmax, check_inputs_proba, check_and_convert_list_types
+from jurity.utils import split_array_based_on_membership_label, is_deterministic, get_argmax_membership
+from jurity.utils_proba import get_bootstrap_results
 
 
 class BinaryStatisticalParity(_BaseBinaryFairness):
@@ -24,8 +24,10 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
 
     @staticmethod
     def get_score(predictions: Union[List, np.ndarray, pd.Series],
-                  is_member: Union[List, np.ndarray, pd.Series],
-                  membership_label: Union[str, float, int] = 1) -> float:
+                  memberships: Union[List, np.ndarray, pd.Series, List[List], pd.DataFrame],
+                  surrogates: Union[List, np.ndarray, pd.Series, None] = None,
+                  membership_labels: Union[str, int, List[str], List[int]] = 1,
+                  bootstrap_results: Optional[pd.DataFrame] = None) -> float:
         """
         Difference in statistical parity between two groups.
 
@@ -37,30 +39,77 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
         ----------
         predictions: Union[List, np.ndarray, pd.Series]
             Binary predictions from some black-box classifier (0/1).
-        is_member: Union[List, np.ndarray, pd.Series]
-            Binary membership labels (0/1).
-        membership_label: Union[str, float, int]
-            Value indicating group membership.
-            Default value is 1.
+            Binary prediction for each sample from a binary (0/1) lack-box classifier.
+        memberships: Union[List, np.ndarray, pd.Series, List[List], pd.DataFrame],
+            Membership attribute for each sample.
+                If deterministic, it is a binary label for each sample [0, 1, 0, .., 1]
+                If probabilistic, it is the likelihoods array of membership labels for each sample. [[0.6, 0.2, 0.2], .., [..]]
+        surrogates: Union[List, np.ndarray, pd.Series]
+            Surrogate class attribute for each sample.
+                If the membership is deterministic, surrogates are not needed.
+                If the membership is probabilistic,
+                    - if surrogates are given, inferred metrics are used to calculate the fairness metric as proposed in [1]_.
+                    - when surrogates are not given, the arg max likelihood is considered as the membership for each sample.
+            Default is None.
+        membership_labels: Union[int, float, str, List[int]]
+            Labels indicating group membership.
+                If the membership is deterministic, a single str/int is expected, e.g., 1. Default is 1.
+                If the membership is probabilistic, a list of str/int is expected, e.g, [1, 2, 3]
+                Default value is 1.
+        bootstrap_results: Optional[pd.DataFrame]
+            #TODO add description, what columns should data frame has
+            Default value is None.
 
         Returns
         ----------
         Statistical parity difference between groups.
+
+        References
+        ----------
+            .. [1] M. Thielbar et. al., Surrogate Membership for Inferred Metrics in Fairness Evaluation, LION 2023
         """
 
-        # Check input types
-        check_inputs_validity(predictions=predictions, is_member=is_member)
+        # Standard deterministic calculation
+        if is_deterministic(memberships):
 
-        # Convert lists to numpy arrays
-        is_member = check_and_convert_list_types(is_member)
-        predictions = check_and_convert_list_types(predictions)
+            # Check input types
+            check_inputs(predictions, memberships, membership_labels)
 
-        # Identify the group 2 and group 1 group based on specified group label
-        group_2_predictions, group_1_predictions, group_2_group, group_1_group = \
-            split_array_based_on_membership_label(predictions, is_member, membership_label)
+            # Convert lists to numpy arrays
+            is_member = check_and_convert_list_types(memberships)
+            predictions = check_and_convert_list_types(predictions)
 
-        group_1_predictions_pct = np.sum(group_1_predictions == 1) / len(group_1_group)
-        group_2_predictions_pct = np.sum(group_2_predictions == 1) / len(group_2_group)
+            # Identify the group 2 and group 1 group based on specified group label
+            group_2_predictions, group_1_predictions, group_2_group, group_1_group = \
+                split_array_based_on_membership_label(predictions, is_member, membership_labels)
+
+            group_1_predictions_pct = np.sum(group_1_predictions == 1) / len(group_1_group)
+            group_2_predictions_pct = np.sum(group_2_predictions == 1) / len(group_2_group)
+
+        # Probabilistic calculation with arg max of membership likelihoods
+        elif surrogates is None:
+            check_inputs_argmax(predictions, memberships, membership_labels)
+
+            # TODO implement get_argmax
+            is_member = get_argmax_membership(memberships, membership_labels)
+
+            # Same as standard calculation
+            group_2_predictions, group_1_predictions, group_2_group, group_1_group = \
+                split_array_based_on_membership_label(predictions, is_member, membership_labels)
+
+            group_1_predictions_pct = np.sum(group_1_predictions == 1) / len(group_1_group)
+            group_2_predictions_pct = np.sum(group_2_predictions == 1) / len(group_2_group)
+
+        # Probabilistic calculation with inferred metrics from bootstrap
+        else:
+            check_inputs_proba(predictions, memberships, surrogates, membership_labels)
+
+            if bootstrap_results is None:
+                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels)
+
+            prediction_ratio = bootstrap_results[["prediction_ratio"]]
+            group_1_predictions_pct = prediction_ratio.loc[membership_labels]
+            group_2_predictions_pct = prediction_ratio.loc[~(prediction_ratio.index == membership_labels)]
 
         return group_1_predictions_pct - group_2_predictions_pct
 
@@ -75,6 +124,6 @@ class MultiStatisticalParity(_BaseMultiClassMetric):
                          ideal_value=0,
                          list_of_classes=list_of_classes)
 
-    def _binary_score(self, predictions, is_member):
+    def _binary_score(self, predictions, is_member, membership_label=1):
         from jurity.fairness import BinaryFairnessMetrics
-        return BinaryFairnessMetrics().StatisticalParity().get_score(predictions, is_member)
+        return BinaryFairnessMetrics().StatisticalParity().get_score(predictions, is_member, membership_label)

@@ -11,7 +11,7 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.fairness.base import _BaseMultiClassMetric
-from jurity.utils import check_inputs_validity
+from jurity.utils import check_inputs
 from .average_odds import AverageOdds
 from .disparate_impact import BinaryDisparateImpact, MultiDisparateImpact
 from .equal_opportunity import EqualOpportunity
@@ -61,7 +61,7 @@ class BinaryFairnessMetrics(NamedTuple):
         Pandas data frame with all implemented binary fairness metrics.
         """
         # Logic to check input types
-        check_inputs_validity(labels=labels, predictions=predictions, is_member=is_member, optional_labels=False)
+        check_inputs(predictions, is_member, membership_label, must_have_labels=True, labels=labels)
 
         fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
 

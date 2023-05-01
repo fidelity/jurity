@@ -11,7 +11,7 @@ import pandas as pd
 from jurity.utils import Constants
 from jurity.utils import InputShapeError
 from jurity.utils import check_and_convert_list_types, split_array_based_on_membership_label
-from jurity.utils import check_binary, check_inputs_validity, check_or_convert_numpy_array
+from jurity.utils import check_binary, check_inputs, check_or_convert_numpy_array
 from jurity.utils import check_elementwise_input_type, check_input_type, check_input_shape
 from jurity.utils import performance_measures
 from jurity.utils import convert_one_vs_rest
@@ -75,7 +75,7 @@ class TestUtils(unittest.TestCase):
         y_pred = np.array([1, 1, 0])
         is_member = np.array([0, 0, 1])
 
-        check_inputs_validity(y_pred, is_member, False, labels)
+        check_inputs(y_pred, is_member, membership_labels=1, must_have_labels=True, labels=labels)
 
     def test_check_inputs_validity_invalid(self):
         labels = np.array([1, 0, 2])
@@ -83,7 +83,7 @@ class TestUtils(unittest.TestCase):
         is_member = np.array([0, 0, 1])
 
         with self.assertRaises(ValueError):
-            check_inputs_validity(y_pred, is_member, False, labels)
+            check_inputs(y_pred, is_member, membership_labels=1, must_have_labels=True, labels=labels)
 
     def test_check_elementwise_input_type_valid(self):
         arr = [1, 1, 0]
@@ -119,26 +119,26 @@ class TestUtils(unittest.TestCase):
 
     def test_check_inputs_validity_missing_all(self):
         with self.assertRaises(ValueError):
-            check_inputs_validity(None, None, None)
+            check_inputs(None, None, None)
 
     def test_check_inputs_validity_missing_predictions(self):
         labels = [0, 1, 1]
         is_member = pd.DataFrame.from_dict({'a': [1, 2, 2]})['a']
 
         with self.assertRaises(ValueError):
-            check_inputs_validity(labels=labels, predictions=None, is_member=is_member)
+            check_inputs(labels=labels, predictions=None, memberships=is_member, membership_labels=1)
 
     def test_check_inputs_validity_missing_is_member(self):
         labels = [0, 1, 1]
         predictions = [3, 4, 3]
 
         with self.assertRaises(ValueError):
-            check_inputs_validity(labels=labels, predictions=predictions, is_member=None)
+            check_inputs(labels=labels, predictions=predictions, memberships=None, membership_labels=1)
 
     def test_check_inputs_validity_missing_label(self):
         predictions = [3, 4, 3]
         is_member = pd.DataFrame.from_dict({'a': [1, 2, 2]})['a']
-        check_inputs_validity(labels=None, predictions=predictions, is_member=is_member)
+        check_inputs(labels=None, predictions=predictions, memberships=is_member, membership_labels=1)
 
     def test_performance_measures_no_group(self):
         ground_truth = np.array([0, 0, 1, 1, 1])
