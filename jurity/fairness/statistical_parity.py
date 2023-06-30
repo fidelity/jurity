@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness, _BaseMultiClassMetric
-from jurity.utils import check_inputs, check_inputs_argmax, check_inputs_proba, check_and_convert_list_types
+from jurity.utils import calc_is_member, check_inputs_proba, check_and_convert_list_types
 from jurity.utils import split_array_based_on_membership_label, is_deterministic, get_argmax_membership
 from jurity.utils_proba import get_bootstrap_results
 
@@ -57,7 +57,7 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
                 If the membership is probabilistic, a list of str/int is expected, e.g, [1, 2, 3]
                 Default value is 1.
         bootstrap_results: Optional[pd.DataFrame]
-            #TODO add description, what columns should data frame has
+            A Pandas dataframe with inferred scores based surrogate class memberships.
             Default value is None.
 
         Returns
@@ -70,30 +70,12 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
         """
 
         # Standard deterministic calculation
-        if is_deterministic(memberships):
+        if is_deterministic(memberships) or surrogates is None:
+            # Check input types and determine protected class membership
+            is_member=calc_is_member(memberships,membership_labels,predictions)
 
-            # Check input types
-            check_inputs(predictions, memberships, membership_labels)
-
-            # Convert lists to numpy arrays
-            is_member = check_and_convert_list_types(memberships)
             predictions = check_and_convert_list_types(predictions)
-
             # Identify the group 2 and group 1 group based on specified group label
-            group_2_predictions, group_1_predictions, group_2_group, group_1_group = \
-                split_array_based_on_membership_label(predictions, is_member, membership_labels)
-
-            group_1_predictions_pct = np.sum(group_1_predictions == 1) / len(group_1_group)
-            group_2_predictions_pct = np.sum(group_2_predictions == 1) / len(group_2_group)
-
-        # Probabilistic calculation with arg max of membership likelihoods
-        elif surrogates is None:
-            check_inputs_argmax(predictions, memberships, membership_labels)
-
-            # TODO implement get_argmax
-            is_member = get_argmax_membership(memberships, membership_labels)
-
-            # Same as standard calculation
             group_2_predictions, group_1_predictions, group_2_group, group_1_group = \
                 split_array_based_on_membership_label(predictions, is_member, membership_labels)
 
@@ -102,9 +84,8 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
 
         # Probabilistic calculation with inferred metrics from bootstrap
         else:
-            check_inputs_proba(predictions, memberships, surrogates, membership_labels)
-
             if bootstrap_results is None:
+                check_inputs_proba(predictions, memberships, surrogates, membership_labels)
                 bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels)
 
             prediction_ratio = bootstrap_results[["prediction_ratio"]]
@@ -112,7 +93,6 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
             group_2_predictions_pct = prediction_ratio.loc[~(prediction_ratio.index == membership_labels)]
 
         return group_1_predictions_pct - group_2_predictions_pct
-
 
 class MultiStatisticalParity(_BaseMultiClassMetric):
 

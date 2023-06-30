@@ -675,3 +675,12 @@ def get_argmax_membership(memberships, membership_labels):
     is_member = np.arange(10)
 
     return is_member
+
+def calc_is_member(memberships, membership_labels,predictions):
+    if is_deterministic(memberships):
+        check_inputs(predictions, memberships, membership_labels)
+        is_member = check_and_convert_list_types(memberships)
+    else:
+        check_inputs_argmax(predictions,memberships,membership_labels)
+        is_member = get_argmax_membership(memberships, membership_labels)
+    return is_member

@@ -11,7 +11,8 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.fairness.base import _BaseMultiClassMetric
-from jurity.utils import check_inputs
+from jurity.utils import check_inputs, check_inputs_argmax,is_deterministic, check_inputs_proba
+from jurity.utils_proba import get_bootstrap_results
 from .average_odds import AverageOdds
 from .disparate_impact import BinaryDisparateImpact, MultiDisparateImpact
 from .equal_opportunity import EqualOpportunity
@@ -39,8 +40,9 @@ class BinaryFairnessMetrics(NamedTuple):
     @staticmethod
     def get_all_scores(labels: Union[List, np.ndarray, pd.Series],
                        predictions: Union[List, np.ndarray, pd.Series],
-                       is_member: Union[List, np.ndarray, pd.Series],
-                       membership_label: Union[str, float, int] = 1) -> pd.DataFrame:
+                       memberships: Union[List, np.ndarray, pd.Series],
+                       surrogates: Union[List, np.ndarray, pd.Series]=None,
+                       membership_labels: Union[str, float, int, List, np.ndarray,pd.Series] = 1) -> pd.DataFrame:
         """
         Calculates and tabulates all of the fairness metric scores.
 
@@ -50,10 +52,13 @@ class BinaryFairnessMetrics(NamedTuple):
             Binary ground truth labels for the provided dataset (0/1).
         predictions: Union[List, np.ndarray, pd.Series]
             Binary predictions from some black-box classifier (0/1).
-        is_member: Union[List, np.ndarray, pd.Series]
-            Binary membership labels (0/1).
-        membership_label: Union[str, float, int]
-            Value indicating group membership.
+        memberships: Union[List, np.ndarray, pd.Series]
+            Binary membership labels (0/1) if using deterministic membership.
+            List of lists/array of arrays of predictions that sum to 1 if using probabilistic membership
+        surrogates: Union[List, np.ndarray, pd.Series]
+            Values of surrogate class if using probabilistic membership.
+        membership_labels: Union[str, float, int, List, np.ndarray,pd.Series]
+            Value indicating group membership if using deterministic membership.
             Default value is 1.
 
         Returns
@@ -61,23 +66,40 @@ class BinaryFairnessMetrics(NamedTuple):
         Pandas data frame with all implemented binary fairness metrics.
         """
         # Logic to check input types
-        check_inputs(predictions, is_member, membership_label, must_have_labels=True, labels=labels)
+        if is_deterministic(memberships):
+            check_inputs(predictions, memberships, membership_labels, must_have_labels=True, labels=labels)
+        elif surrogates is not None:
+            check_inputs_argmax(predictions,memberships, membership_labels, labels)
+        else:
+            check_inputs_proba(predictions,memberships,surrogates,membership_labels,must_have_labels=True,labels=labels)
 
         fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
 
         df = pd.DataFrame(columns=["Metric", "Value", "Ideal Value", "Lower Bound", "Upper Bound"])
+
+        if not is_deterministic(memberships) and surrogates is not None:
+            bootstrap_results=get_bootstrap_results(predictions,memberships,surrogates,
+                          membership_labels, labels)
+        else:
+            bootstrap_results=None
+
         for fairness_func in fairness_funcs:
 
             name = fairness_func[0]
             class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
             instance = class_()  # dynamically instantiate such class
 
-            if name in ["DisparateImpact", "StatisticalParity"]:
-                score = instance.get_score(predictions, is_member, membership_label)
+            if bootstrap_results is not None:
+                if name in ["StatisticalParity"]:
+                    score=instance.get_score(predictions,memberships,membership_labels,bootstrap_results)
+                else:
+                    score=None
+            elif name in ["DisparateImpact", "StatisticalParity"]:
+                score = instance.get_score(predictions, memberships, membership_labels)
             elif name in ["GeneralizedEntropyIndex", "TheilIndex"]:
                 score = instance.get_score(labels, predictions)
             else:
-                score = instance.get_score(labels, predictions, is_member, membership_label)
+                score = instance.get_score(labels, predictions, memberships, membership_labels)
 
             if score is None:
                 score = np.nan
