@@ -96,7 +96,7 @@ class BinaryFairnessMetrics(NamedTuple):
             instance = class_()  # dynamically instantiate such class
 
             if bootstrap_results is not None:
-                if name in ["StatisticalParity"]:
+                if name in ["StatisticalParity","PredictiveEquality","AverageOdds","FNRDifference"]:
                     score=instance.get_score(predictions,memberships,membership_labels,bootstrap_results)
                 else:
                     score=None

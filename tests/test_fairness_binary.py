@@ -133,7 +133,7 @@ class TestBinaryFairness(unittest.TestCase):
 
         # Score
         with self.assertWarns(UserWarning):
-            assert metric.get_score(y_true, y_pred, is_member) is None
+            assert metric.get_score(y_true, y_pred, is_member) ==np.nan
 
     def test_avg_odds_diff_edge_2(self):
 
