@@ -323,10 +323,10 @@ class TestUtilsProba(unittest.TestCase):
         """
         Test to make certain make_bias_calculator has the correct race labels and omitted category
         """
-        self.assertTrue("Black" in self.bc.race_labels()[1])
-        self.assertTrue("Other" in self.bc.race_labels()[1])
-        self.assertFalse("White" in self.bc.race_labels()[1])
-        self.assertEqual("White", self.bc.race_labels()[0][0])
+        self.assertTrue("Black" in self.bc.surrogate_labels()[1])
+        self.assertTrue("Other" in self.bc.surrogate_labels()[1])
+        self.assertFalse("White" in self.bc.surrogate_labels()[1])
+        self.assertEqual("White", self.bc.surrogate_labels()[0][0])
 
     def test_bias_maker_bad_data(self):
         # duplicates
@@ -410,16 +410,16 @@ class TestUtilsProba(unittest.TestCase):
         df = SummaryData.summarize(predictions, memberships, surrogates, labels)
 
         bc = BiasCalculator.from_df(df,
-                                    membership_labels="non-white", # TODO: SK not sure what this param should be
+                                    membership_labels=1, # TODO: SK not sure what this param should be
                                     test_names=["true_positive_ratio",
                                                 "true_negative_ratio",
                                                 "false_positive_ratio",
                                                 "false_negative_ratio"])
 
-        self.assertTrue(np.all(np.isclose(bc.X().ravel(), df["non-white"].values)),
+        self.assertTrue(np.all(np.isclose(bc.X().ravel(), df["B"].values)),
                         "X matrix in bias calculator does not match race probabilities."
                         "\nBias calc has:{0},original df has: {1}.\nCompare result is: {2}".format(bc.X().ravel(), df[
-                            "non-white"].values, bc.X().ravel() == (df["non-white"].values)))
+                            "B"].values, bc.X().ravel() == (df["B"].values)))
 
         self.assertEqual(bc.Y().shape[0], len(np.unique(surrogates)),
                          "Y matrix in BiasCalculator has wrong length. Length is {0}. Should be {1}.".format(

@@ -46,7 +46,7 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     bootstrap_df = bc.run_bootstrap(bootstrap_trials)
 
     # Calculate the means of all statistics across the 100 bootstrapped samples
-    # Calculate disparate impact, average odds, equal opportunity, predictive equality, false negative test, statistical parity
+    # Calculate average odds, equal opportunity, predictive equality, false negative difference, statistical parity
     transformed_bootstrap=bc.transform_bootstrap_results(bootstrap_df)
     return transformed_bootstrap
 
@@ -56,7 +56,7 @@ class BiasCalculator:
     _y: measurements to be calculated
     _x: Input race percentages
     _w: Weights for weighted regression
-    _race_labels: Labels for race columns
+    _surrogate_labels: Labels for race columns
     _test_labels: Labels for test columns
     """
 
@@ -86,12 +86,12 @@ class BiasCalculator:
                 bc = bcfd.get_bias_calculator(df, 1)
         return bc
 
-    def __init__(self, Y, X, W, race_labels, test_labels, verbose=True):
+    def __init__(self, Y, X, W, surrogate_labels, test_labels, verbose=True):
         self.Y(Y)
         self.X(X)
         self.W(W)
-        if race_labels:
-            self.race_labels(race_labels)
+        if surrogate_labels:
+            self.surrogate_labels(surrogate_labels)
         if test_labels:
             self.test_labels(test_labels)
         self.check_dimensions()
@@ -158,11 +158,11 @@ class BiasCalculator:
         return self._w
 
     # TODO REMOVE race
-    def race_labels(self, value=None):
+    def surrogate_labels(self, value=None):
         """
         Set and get labels for race statistics. Input value must be a 2D list
         """
-        r_form = "Race list must be of form [[omitted category],[race_1, race_2,...]]"
+        r_form = "Surrogate labels list must be of form [[omitted category],[race_1, race_2,...]]"
         input_form = f"Input was of form {value}"
         if value:
             if not isinstance(value, list):
@@ -181,15 +181,14 @@ class BiasCalculator:
                     raise ValueError("Race labels does not match dimension of X. Update X first, or check dimensions of input labels.")
                 else:
                     self._compare_label = value[0][0]
-                    self.all_race_labels(value[1])
-        return [[self._compare_label], self.all_race_labels()]
+                    self.all_surrogate_labels(value[1])
+        return [[self._compare_label], self.all_surrogate_labels()]
 
-    # TODO REMOVE race
-    def all_race_labels(self, value=None):
+    def all_surrogate_labels(self, value=None):
         if value is not None:
             # TODO: sanitize
-            self._all_race_labels = value
-        return self._all_race_labels
+            self._all_surrogate_labels = value
+        return self._all_surrogate_labels
 
     def test_labels(self, value=None):
         if value is not None:
@@ -210,7 +209,7 @@ class BiasCalculator:
 
     def calc_one_bag(self, in_X, in_Y, in_W):
         """
-        Calculate the regression of all race-based tests
+        Calculate the regression of all surrogate-based tests
         in_X: The sampled X for this bootstrap
         in_Y: The sampled Y for this bootstrap
         in_W: The sampled weights for this bootstrap
@@ -243,11 +242,11 @@ class BiasCalculator:
             models = self.calc_one_bag(in_X, in_Y, in_W)
             for k in list(models.keys()):
                 m = models[k]
-                model_result_dict = {"run_id": [i], "stat_name": [k], self.race_labels()[0][0]: m.intercept_}
+                model_result_dict = {"run_id": [i], "stat_name": [k], self.surrogate_labels()[0][0]: m.intercept_}
                 # This depends on sklearn returning a coefficient array that is in the same
                 # order as the input X's. This is a reasonable assumption--scoring doesn't work without it.
                 n_xs = in_X.shape[1]
-                coefs_with_names = {self.race_labels()[1][j]: m.coef_[j] for j in range(n_xs)}
+                coefs_with_names = {self.surrogate_labels()[1][j]: m.coef_[j] for j in range(n_xs)}
                 model_result_dict.update(coefs_with_names)
                 df = pd.DataFrame(model_result_dict)
                 all_model_results.append(df)
@@ -264,11 +263,11 @@ class BiasCalculator:
 
         results_by_race = means.T
         temp = np.squeeze(np.stack(
-            [results_by_race[results_by_race.index == self.race_labels()[0][0]].to_numpy()] * results_by_race.shape[0]))
+            [results_by_race[results_by_race.index == self.surrogate_labels()[0][0]].to_numpy()] * results_by_race.shape[0]))
         if len(self.test_labels()) == 1:
             temp = pd.DataFrame(temp, columns=self.test_labels(), index=results_by_race.index)
         results_by_race += temp
-        results_by_race[results_by_race.index == self.race_labels()[0][0]] /= 2
+        results_by_race[results_by_race.index == self.surrogate_labels()[0][0]] /= 2
         tests_we_have = results_by_race.columns
         # For binary classifiers, if we know the true labels, we will probably want these tests.
         common_tests = ["false_positive_ratio", "false_negative_ratio", "true_positive_ratio", "true_negative_ratio"]
@@ -357,7 +356,7 @@ class BiasCalculator:
         return pd.concat([means, lower_ci, upper_ci], axis=1).T.sort_index(), pass_test
 
     def __str__(self):
-        return "BiasCalculator(race_labels=" + str(self.race_labels()) + ", test_labels=" + str(
+        return "BiasCalculator(surrogate_labels=" + str(self.surrogate_labels()) + ", test_labels=" + str(
             self.test_labels()) + ")"
 
 
@@ -365,7 +364,7 @@ class BiasCalcFromDataFrame:
     """
     Class that creates a bias calculator from a dataframe.
     Class Variables:
-    _race_names: Names of race percentages
+    _surrogate_names: Names of race percentages
     _weight_name: Name of column with weights
     _compare_label: label of group that's comparison group from the regression
     _test_names: Names of tests to be calculated
@@ -376,30 +375,35 @@ class BiasCalcFromDataFrame:
         Initialize names to be read and name of comparison category for regression.
         """
 
-        # TODO drop race terminology
-        self.compare_label(membership_labels)
-        self.race_names(membership_names)
+        # TODO edit so we can get the not-protected group from membership_names
+        for idx,name in membership_names:
+            if idx not in membership_labels:
+                omitted_string=name
+                break;
+
+        self.compare_label(omitted_string)
+        self.surrogate_names(membership_names)
         if self._compare_label in membership_names:
-            self._race_names.remove(self._compare_label)
+            self._surrogate_names.remove(self._compare_label)
         self.test_names(test_names)
         self.weight_name(weight_name)
 
     # TODO REMOVE race terminology
-    def race_names(self, value=None):
+    def surrogate_names(self, value=None):
         """
         Get or set race names. Make sure it is a list of strings
         """
         if value:
             if type(value) != list:
-                raise ValueError("Race names must be a list of strings")
+                raise ValueError("Surrogate class names must be a list of strings")
             v = list(set(value))
             for l in v:
                 if not isinstance(l, str):
-                    raise ValueError(f"Race name {l} is not a string.")
-            self._race_names = value
-            if not len(self._race_names) == len(v):
-                raise ValueError("List of race names contains duplicates.")
-        return self._race_names
+                    raise ValueError(f"Surrogate class name {l} is not a string.")
+            self._surrogate_names = value
+            if not len(self._surrogate_names) == len(v):
+                raise ValueError("Surrogate class name contains duplicates.")
+        return self._surrogate_names
 
     def test_names(self, value=None):
         """
@@ -464,8 +468,6 @@ class BiasCalcFromDataFrame:
         """
         if not isinstance(value, str):
             raise ValueError(error_msg.format(value))
-            # TODO sth off here? cannot reach False after Exception anyways
-            return False
         else:
             return True
 
@@ -474,9 +476,9 @@ class BiasCalcFromDataFrame:
         """
         Make X matrix for bias calculator.
         """
-        if not set(self.race_names()).issubset(set(df.columns)):
-            raise ValueError("Race names: {0} are not in dataframe.".format(set(self._race_names) - (set(df.columns))))
-        return df[self.race_names()].to_numpy(dtype='f')
+        if not set(self.surrogate_names()).issubset(set(df.columns)):
+            raise ValueError("Surrogate names: {0} are not in dataframe.".format(set(self._surrogate_names) - (set(df.columns))))
+        return df[self.surrogate_names()].to_numpy(dtype='f')
 
     def get_Y_matrix(self, df):
         """
@@ -506,7 +508,7 @@ class BiasCalcFromDataFrame:
             subset = df[df[self._weight_name] >= min_weight]
             print("{0} rows removed from datafame for insufficient weight values" \
                   .format(df.shape[0] - subset.shape[0]))
-            if subset.shape[0] < len(self.race_names()):
+            if subset.shape[0] < len(self.surrogate_names()):
                 raise WeightTooLarge("Input dataframe does not have enough rows to estimate surrogate classes "
                                      "reduce minimum weight.")
         else:
@@ -516,13 +518,13 @@ class BiasCalcFromDataFrame:
         X = self.get_X_matrix(subset)
         Y = self.get_Y_matrix(subset)
         W = self.get_W_array(subset)
-        bc = BiasCalculator(Y, X, W, [[self.compare_label()], self.race_names()], self.test_names())
+        bc = BiasCalculator(Y, X, W, [[self.compare_label()], self.surrogate_names()], self.test_names())
 
         return bc
 
     # TODO REMOVE race
     def __str__(self):
-        return "BiasCalculatorFromDataFrame(race_names=" + str(self.race_names()) + ", test_names=" + str(self.test_names()) + ")"
+        return "BiasCalculatorFromDataFrame(surrogate_names=" + str(self.surrogate_names()) + ", test_names=" + str(self.test_names()) + ")"
 
 
 class SummaryData:
