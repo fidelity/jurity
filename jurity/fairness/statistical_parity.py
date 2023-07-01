@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness, _BaseMultiClassMetric
-from jurity.utils import calc_is_member, check_inputs_proba, check_and_convert_list_types
+from jurity.utils import calc_is_member, check_inputs_proba, check_and_convert_list_types,Union
 from jurity.utils import split_array_based_on_membership_label, is_deterministic, get_argmax_membership
 from jurity.utils_proba import get_bootstrap_results
 
@@ -26,7 +26,7 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
     def get_score(predictions: Union[List, np.ndarray, pd.Series],
                   memberships: Union[List, np.ndarray, pd.Series, List[List], pd.DataFrame],
                   surrogates: Union[List, np.ndarray, pd.Series, None] = None,
-                  membership_labels: Union[str, int, List[str], List[int]] = 1,
+                  membership_labels: Union[str, int, List, np.array] = 1,
                   bootstrap_results: Optional[pd.DataFrame] = None) -> float:
         """
         Difference in statistical parity between two groups.
@@ -51,10 +51,11 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
                     - if surrogates are given, inferred metrics are used to calculate the fairness metric as proposed in [1]_.
                     - when surrogates are not given, the arg max likelihood is considered as the membership for each sample.
             Default is None.
-        membership_labels: Union[int, float, str, List[int]]
+        membership_labels: Union[int, float, str, List[int] np.array[int]]
             Labels indicating group membership.
                 If the membership is deterministic, a single str/int is expected, e.g., 1. Default is 1.
-                If the membership is probabilistic, a list of str/int is expected, e.g, [1, 2, 3]
+                If the membership is probabilistic, a list of int or np.array of int is expected,
+                    with the positions of the protected groups in the memberships vectors (e.g, [1, 2, 3])
                 Default value is 1.
         bootstrap_results: Optional[pd.DataFrame]
             A Pandas dataframe with inferred scores based surrogate class memberships.

@@ -4,7 +4,7 @@ import pandas as pd
 import scipy.stats
 import os
 from sklearn.linear_model import LinearRegression
-from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants
+from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants,check_inputs_proba
 
 
 def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
@@ -27,6 +27,7 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     # X [Z by p]: Likelihoods at surrogate variable level, p>=2 with the probabilities of protected and unprotected status
     # W [Z by 1]: The number of individuals for each level of Z
     # Right now, these are returned as a single dataframe
+    check_inputs_proba(predictions, memberships, surrogates, membership_labels, labels)
     summary_df = SummaryData.summarize(predictions, memberships, surrogates, labels)
 
     # Add X, Y, and W matricies to the BiasCalculator

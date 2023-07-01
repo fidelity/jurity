@@ -42,25 +42,31 @@ class BinaryFairnessMetrics(NamedTuple):
                        predictions: Union[List, np.ndarray, pd.Series],
                        memberships: Union[List, np.ndarray, pd.Series],
                        surrogates: Union[List, np.ndarray, pd.Series]=None,
-                       membership_labels: Union[str, float, int, List, np.ndarray,pd.Series] = 1) -> pd.DataFrame:
+                       membership_labels: Union[str, float, int, List, np.array] = 1) -> pd.DataFrame:
         """
         Calculates and tabulates all of the fairness metric scores.
-
         Parameters
         ----------
-        labels: Union[List, np.ndarray, pd.Series]
-            Binary ground truth labels for the provided dataset (0/1).
         predictions: Union[List, np.ndarray, pd.Series]
             Binary predictions from some black-box classifier (0/1).
-        memberships: Union[List, np.ndarray, pd.Series]
-            Binary membership labels (0/1) if using deterministic membership.
-            List of lists/array of arrays of predictions that sum to 1 if using probabilistic membership
+            Binary prediction for each sample from a binary (0/1) lack-box classifier.
+        memberships: Union[List, np.ndarray, pd.Series, List[List], pd.DataFrame],
+            Membership attribute for each sample.
+                If deterministic, it is a binary label for each sample [0, 1, 0, .., 1]
+                If probabilistic, it is the likelihoods array of membership labels for each sample. [[0.6, 0.2, 0.2], .., [..]]
         surrogates: Union[List, np.ndarray, pd.Series]
-            Values of surrogate class if using probabilistic membership.
-        membership_labels: Union[str, float, int, List, np.ndarray,pd.Series]
-            Value indicating group membership if using deterministic membership.
-            Default value is 1.
-
+            Surrogate class attribute for each sample.
+                If the membership is deterministic, surrogates are not needed.
+                If the membership is probabilistic,
+                    - if surrogates are given, inferred metrics are used to calculate the fairness metric as proposed in [1]_.
+                    - when surrogates are not given, the arg max likelihood is considered as the membership for each sample.
+            Default is None.
+        membership_labels: Union[int, float, str, List[int],np.array[int]]
+            Labels indicating group membership.
+                If the membership is deterministic, a single str/int is expected, e.g., 1. Default is 1.
+                If the membership is probabilistic, a list or np.array of int is expected,
+                    with the positions of the protected groups in the memberships vectors (e.g, [1, 2, 3]
+                Default value is 1.
         Returns
         ----------
         Pandas data frame with all implemented binary fairness metrics.
