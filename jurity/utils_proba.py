@@ -375,8 +375,8 @@ class BiasCalcFromDataFrame:
         Initialize names to be read and name of comparison category for regression.
         """
 
-        # TODO edit so we can get the not-protected group from membership_names
-        for idx,name in membership_names:
+        # Get the first non-protected group listed.
+        for idx,name in enumerate(membership_names):
             if idx not in membership_labels:
                 omitted_string=name
                 break;
@@ -695,7 +695,7 @@ class SummaryData:
                 print("Input Zip data has duplicates. Zip data must be de-duplicated by zip.")
         return all_good
 
-    def check_merged_data(self, merged_df, zip_df, performance_df):
+    def check_merged_data(self, merged_df, zip_df, performance_df,print_warnings=True):
         """
         Make sure merged data hasn't lost too many rows due to inner join
         And make sure it hasn't increased in rows due to zip code duplicates
@@ -710,18 +710,18 @@ class SummaryData:
         p_rows = float(performance_df.shape[0])
         shrinkage = 1 - m_rows / p_rows
 
-        # TODO This keeps printing during tests, can we turn off?
-        if shrinkage < 0:
-            raise Warning(
-                f"Merged data has {m_rows}. Input performance data has {p_rows}. There may be duplicate zip codes in zip code data.")
-        elif shrinkage > self.max_shrinkage():
-            print(f"Merged data has {m_rows}, but performance data only has {p_rows}.")
-            raise ValueError(
-                "Merge between zip code data and performance data rows results in loss of {0:.0}% of performance data.".format(
-                    shrinkage))
-        elif shrinkage > 0.2:
-            print(f"Merged data has {m_rows}, but performance data has {p_rows}.")
-            # raise Warning("Merge between zip code data and performance data rows results in loss of {0:.0}% of performance data.".format(shrinkage))
+        if print_warnings:
+            if shrinkage < 0:
+                raise Warning(
+                    f"Merged data has {m_rows}. Input performance data has {p_rows}. There may be duplicate zip codes in zip code data.")
+            elif shrinkage > self.max_shrinkage():
+                print(f"Merged data has {m_rows}, but performance data only has {p_rows}.")
+                raise ValueError(
+                    "Merge between zip code data and performance data rows results in loss of {0:.0}% of performance data.".format(
+                        shrinkage))
+            elif shrinkage > 0.2:
+                print(f"Merged data has {m_rows}, but performance data has {p_rows}.")
+                # raise Warning("Merge between zip code data and performance data rows results in loss of {0:.0}% of performance data.".format(shrinkage))
 
     def check_zip_confusion_matrix(self, confusion_df, merged_df):
         """

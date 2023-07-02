@@ -28,7 +28,7 @@ class TestUtilsProba(unittest.TestCase):
                                        "false_negative_ratio": [0.2, 0.4, 0.3, 0.2, 0.1],
                                        "true_negative_ratio": [0.8, 0.6, 0.7, 0.8, 0.9]})
 
-        cls.bcfd = BiasCalcFromDataFrame(["White", "Black", "Other"], "N", "White",
+        cls.bcfd = BiasCalcFromDataFrame(["White", "Black", "Other"], "N", [1,2],
                                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                                           "true_negative_ratio"])
 
@@ -330,35 +330,35 @@ class TestUtilsProba(unittest.TestCase):
 
     def test_bias_maker_bad_data(self):
         # duplicates
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "White", "Black", "Other"], "N", "White",
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "White", "Black", "Other"], "N", [3,4],
                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                            "true_negative_ratio"])
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other"], "N", "White",
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other"], "N", [1,2],
                           ["false_positive_ratio", "false_positive_ratio", "true_positive_ratio",
                            "false_negative_ratio", "true_negative_ratio"])
         # not list
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, "Black", "N", "White",
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, "Black", "N", [1],
                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                            "true_negative_ratio"])
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other"], "N", "White",
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other"], "N", [1,2],
                           "false_positive_ratio")
         # not string
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other", 0], "N", "White",
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other", 0], "N", [1,2],
                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                            "true_negative_ratio"])
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other"], "N", "White",
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other"], "N", [1,2],
                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio", "true_negative_ratio",
                            0])
         # column missing
-        fac = BiasCalcFromDataFrame(["White", "Black", "Other", "hello world"], "N", "White",
+        fac = BiasCalcFromDataFrame(["White", "Black", "Other", "hello world"], "N", [1,2],
                                     ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                                      "true_negative_ratio"])
         self.assertRaises(ValueError, fac.get_bias_calculator, self.test_data, 1)
-        fac = BiasCalcFromDataFrame(["White", "Black", "Other"], "N", "White",
+        fac = BiasCalcFromDataFrame(["White", "Black", "Other"], "N", [1,2],
                                     ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                                      "true_negative_ratio", "hello world"])
         self.assertRaises(ValueError, fac.get_bias_calculator, self.test_data, 1)
-        fac = BiasCalcFromDataFrame(["White", "Black", "Other"], "hello world", "White",
+        fac = BiasCalcFromDataFrame(["White", "Black", "Other"], "hello world", [1,2],
                                     ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                                      "true_negative_ratio"])
         self.assertRaises(ValueError, fac.get_bias_calculator, self.test_data, 1)
@@ -410,7 +410,7 @@ class TestUtilsProba(unittest.TestCase):
         df = SummaryData.summarize(predictions, memberships, surrogates, labels)
 
         bc = BiasCalculator.from_df(df,
-                                    membership_labels=1, # TODO: SK not sure what this param should be
+                                    membership_labels=[1], # TODO: SK not sure what this param should be
                                     test_names=["true_positive_ratio",
                                                 "true_negative_ratio",
                                                 "false_positive_ratio",

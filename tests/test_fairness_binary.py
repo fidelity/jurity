@@ -6,6 +6,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
+from math import isnan
 
 from jurity.fairness import BinaryFairnessMetrics
 from jurity.utils import InputShapeError
@@ -133,7 +134,8 @@ class TestBinaryFairness(unittest.TestCase):
 
         # Score
         with self.assertWarns(UserWarning):
-            assert metric.get_score(y_true, y_pred, is_member) ==np.nan
+            value=metric.get_score(y_true, y_pred, is_member)
+            self.assertTrue(isnan(value),f"Homogenous groups should return np.nan. returned {value} instead")
 
     def test_avg_odds_diff_edge_2(self):
 

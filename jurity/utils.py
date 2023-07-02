@@ -660,10 +660,16 @@ def sample_users(df: pd.DataFrame, user_id_column: str = Constants.user_id,
 
 def is_deterministic(memberships):
     # If pd series, or 1d np array, or 1d list, than it is deterministic membership
-    if isinstance(memberships, pd.Series) and memberships.dtype != 'object' or \
-            (isinstance(memberships, np.ndarray) and memberships.ndim == 1) or \
-            (isinstance(memberships, list) and type(memberships[0]) != list):
+    if isinstance(memberships, pd.Series) and memberships.dtype != 'object':
         return True
+    elif type(memberships)==list:
+        if type(memberships[0]) != list and (not isinstance(memberships[0],np.ndarray)):
+            return True
+    elif isinstance(memberships, np.ndarray):
+        if not type(memberships[0])==list and memberships.ndim==1:
+            return True
+    else:
+        return False
 
 
 def get_argmax_membership(memberships, membership_labels):
