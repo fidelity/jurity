@@ -10,7 +10,7 @@ import pandas as pd
 from jurity.fairness.base import _BaseBinaryFairness, _BaseMultiClassMetric
 from jurity.utils import calc_is_member, check_inputs_proba, check_and_convert_list_types,Union
 from jurity.utils import split_array_based_on_membership_label, is_deterministic, get_argmax_membership
-from jurity.utils_proba import get_bootstrap_results
+from jurity.utils_proba import get_bootstrap_results,unpack_bootstrap
 
 
 class BinaryStatisticalParity(_BaseBinaryFairness):
@@ -89,10 +89,8 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
                 check_inputs_proba(predictions, memberships, surrogates, membership_labels)
                 bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels)
 
-            prediction_rate = bootstrap_results[["Prediction Rate"]]
-            group_1_predictions_pct = prediction_rate.loc[membership_labels]
-            group_2_predictions_pct = prediction_rate.loc[~(prediction_rate.index == membership_labels)]
-
+            group_1_predictions_pct,group_2_predictions_pct= \
+                unpack_bootstrap(bootstrap_results,"Prediction Rate",membership_labels)
         return group_1_predictions_pct - group_2_predictions_pct
 
 class MultiStatisticalParity(_BaseMultiClassMetric):

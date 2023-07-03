@@ -50,6 +50,13 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     transformed_bootstrap=bc.transform_bootstrap_results(bootstrap_df)
     return transformed_bootstrap
 
+def unpack_bootstrap(df: pd.DataFrame,stat_name:str,membership_labels:List[int]):
+    stats = df[[stat_name]]
+    v = stats.index.values
+    if len(v)!=2:
+        raise ValueError("Unpacking for probabilistic results only enabled for binary metrics.")
+    return stats.loc[v[membership_labels], stat_name][0],stats.loc[np.delete(v, membership_labels),stat_name][0]
+
 class BiasCalculator:
     """
     Members:
