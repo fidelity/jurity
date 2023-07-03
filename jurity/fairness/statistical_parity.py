@@ -89,9 +89,9 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
                 check_inputs_proba(predictions, memberships, surrogates, membership_labels)
                 bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels)
 
-            prediction_ratio = bootstrap_results[["prediction_ratio"]]
-            group_1_predictions_pct = prediction_ratio.loc[membership_labels]
-            group_2_predictions_pct = prediction_ratio.loc[~(prediction_ratio.index == membership_labels)]
+            prediction_rate = bootstrap_results[["Prediction Rate"]]
+            group_1_predictions_pct = prediction_rate.loc[membership_labels]
+            group_2_predictions_pct = prediction_rate.loc[~(prediction_rate.index == membership_labels)]
 
         return group_1_predictions_pct - group_2_predictions_pct
 
