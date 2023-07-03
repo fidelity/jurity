@@ -13,7 +13,7 @@ from jurity.utils import is_deterministic,check_and_convert_list_types, check_in
 from jurity.utils import calc_is_member
 from jurity.utils import performance_measures
 from jurity.utils import split_array_based_on_membership_label
-from jurity.utils_proba import get_bootstrap_results
+from jurity.utils_proba import get_bootstrap_results,unpack_bootstrap
 
 class FNRDifference(_BaseBinaryFairness):
 
@@ -92,8 +92,6 @@ class FNRDifference(_BaseBinaryFairness):
         else:
             if bootstrap_results is None:
                 bootstrap_results=get_bootstrap_results((predictions, memberships, surrogates, membership_labels, labels))
-            fnr=bootstrap_results["FNR"]
-            fnr_group_1 = fnr.loc[membership_labels]
-            fnr_group_2 = fnr.loc[~(fnr.index == membership_labels)]
+            fnr_group_1,fnr_group_2 = unpack_bootstrap(bootstrap_results,"FNR",membership_labels)
 
         return fnr_group_1 - fnr_group_2

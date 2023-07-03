@@ -13,7 +13,7 @@ from jurity.utils import check_and_convert_list_types,calc_is_member
 from jurity.utils import check_inputs,is_deterministic
 from jurity.utils import performance_measures
 from jurity.utils import split_array_based_on_membership_label
-from jurity.utils_proba import get_bootstrap_results
+from jurity.utils_proba import get_bootstrap_results,unpack_bootstrap
 
 
 class EqualOpportunity(_BaseBinaryFairness):
@@ -95,7 +95,5 @@ class EqualOpportunity(_BaseBinaryFairness):
             if bootstrap_results is None:
                 bootstrap_results=get_bootstrap_results((predictions, memberships, surrogates, membership_labels, labels))
             tpr=bootstrap_results["TPR"]
-            tpr_group_1 = tpr.loc[membership_labels]
-            tpr_group_2 = tpr.loc[~(tpr.index == membership_labels)]
-
+            tpr_group_1,tpr_group_2=unpack_bootstrap(bootstrap_results,"TPR",membership_labels)
         return tpr_group_1 - tpr_group_2

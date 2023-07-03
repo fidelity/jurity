@@ -12,7 +12,7 @@ from jurity.fairness.base import _BaseBinaryFairness
 from jurity.utils import check_and_convert_list_types
 from jurity.utils import check_inputs,is_deterministic
 from jurity.utils import performance_measures,calc_is_member
-from jurity.utils_proba import get_bootstrap_results
+from jurity.utils_proba import get_bootstrap_results,unpack_bootstrap
 from jurity.utils import split_array_based_on_membership_label
 
 
@@ -107,9 +107,7 @@ class AverageOdds(_BaseBinaryFairness):
                 bootstrap_results=get_bootstrap_results((predictions, memberships, surrogates, membership_labels, labels))
             tpr=bootstrap_results["TPR"]
             fpr=bootstrap_results["FPR"]
-            tpr_group_1 = tpr.loc[membership_labels]
-            tpr_group_2 = tpr.loc[~(tpr.index == membership_labels)]
-            fpr_group_1 = fpr.loc[membership_labels]
-            fpr_group_2 = fpr.loc[~(fpr.index == membership_labels)]
+            tpr_group_1,tpr_group_2 = unpack_bootstrap(bootstrap_results,"TPR",membership_labels)
+            fpr_group_1,fpr_group_2 = unpack_bootstrap(bootstrap_results,"FPR",membership_labels)
 
         return 0.5 * (fpr_group_1 - fpr_group_2) + 0.5 * (tpr_group_1 - tpr_group_2)

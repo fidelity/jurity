@@ -11,7 +11,7 @@ import pandas as pd
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.utils import calc_is_member,check_inputs,is_deterministic,performance_measures,check_inputs_proba
 from jurity.utils import check_and_convert_list_types,split_array_based_on_membership_label
-from jurity.utils_proba import get_bootstrap_results
+from jurity.utils_proba import get_bootstrap_results,unpack_bootstrap
 class PredictiveEquality(_BaseBinaryFairness):
 
     def __init__(self):
@@ -97,8 +97,6 @@ class PredictiveEquality(_BaseBinaryFairness):
             if bootstrap_results is None:
                 bootstrap_results=get_bootstrap_results((predictions, memberships, surrogates, membership_labels, labels))
 
-            fpr = bootstrap_results[["FPR"]]
-            fpr_group_1 = fpr.loc[membership_labels]
-            fpr_group_2 = fpr.loc[~(fpr.index == membership_labels)]
+            fpr_group_1,fpr_group_2 = unpack_bootstrap(bootstrap_results,"FPR",membership_labels)
 
         return fpr_group_1 - fpr_group_2
