@@ -89,7 +89,8 @@ class AverageOdds(_BaseBinaryFairness):
             group_2_truth, group_1_truth, group_2_group_idx, group_1_group_idx = \
                 split_array_based_on_membership_label(labels, is_member, membership_labels)
 
-            if (group_2_truth == 1).sum() == 0 or (group_1_truth == 1).sum() == 0:
+            if (group_2_truth == 1).sum() == 0 or (group_1_truth == 1).sum() == 0 \
+                    or (group_2_truth == 0).sum() == 0 or (group_1_truth == 0).sum() == 0:
                 warnings.warn("Encountered homogeneous unary ground truth either in group 2/group 1 group. \
                            Average Odds cannot be calculated.")
                 return np.nan
@@ -105,8 +106,6 @@ class AverageOdds(_BaseBinaryFairness):
         else:
             if bootstrap_results is None:
                 bootstrap_results=get_bootstrap_results((predictions, memberships, surrogates, membership_labels, labels))
-            tpr=bootstrap_results["TPR"]
-            fpr=bootstrap_results["FPR"]
             tpr_group_1,tpr_group_2 = unpack_bootstrap(bootstrap_results,"TPR",membership_labels)
             fpr_group_1,fpr_group_2 = unpack_bootstrap(bootstrap_results,"FPR",membership_labels)
 
