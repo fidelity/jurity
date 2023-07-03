@@ -134,8 +134,7 @@ class TestBinaryFairness(unittest.TestCase):
 
         # Score
         with self.assertWarns(UserWarning):
-            value=metric.get_score(y_true, y_pred, is_member)
-            self.assertTrue(isnan(value),f"Homogenous groups should return np.nan. returned {value} instead")
+            assert isnan(metric.get_score(y_true, y_pred, is_member))
 
     def test_avg_odds_diff_edge_2(self):
 
@@ -150,7 +149,7 @@ class TestBinaryFairness(unittest.TestCase):
 
         # Score
         with self.assertWarns(UserWarning):
-            assert metric.get_score(y_true, y_pred, is_member) is None
+            assert isnan(metric.get_score(y_true, y_pred, is_member))
 
     def test_avg_odds_diff_edge_3(self):
 

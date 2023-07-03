@@ -88,8 +88,8 @@ class TestBinaryProbFairness(unittest.TestCase):
     def test_prob_stat_parity_df_size_invalid(self):
 
         # Data
-        df = pd.DataFrame.from_dict({'predictions': [1, 1, 0, 1],
-                                     'memberships': [[0.2, 0.8], [0.4, 0.6], [0.7, 0.3], [0.9, 0.1]],
+        df = pd.DataFrame.from_dict({'predictions': [1, 1, 0, 1,1]})
+        df2=pd.DataFrame.from_dict({'memberships': [[0.2, 0.8], [0.4, 0.6], [0.7, 0.3], [0.9, 0.1]],
                                      'surrogates': [0, 2, 0, 3]})
         membership_labels = [1]
 
@@ -97,8 +97,8 @@ class TestBinaryProbFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.StatisticalParity()
 
         # Score
-        with self.assertRaises(ValueError):
-            score = metric.get_score(df["predictions"], df["memberships"], df["surrogates"], membership_labels)
+        with self.assertRaises(InputShapeError):
+            score = metric.get_score(df["predictions"], df2["memberships"], df2["surrogates"], membership_labels)
 
     def test_prob_stat_parity_likelihood_size_invalid_outer(self):
 

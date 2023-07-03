@@ -375,9 +375,9 @@ class TestUtilsProba(unittest.TestCase):
 
         summarize = SummaryData("surrogates", "surrogates", "predictions", "labels")
 
-        test_df = pd.DataFrame({"predictions": predictions, "surrogates": surrogates, "labels": labels})
+        test_df = pd.DataFrame({"prediction": predictions, "surrogates": surrogates, "labels": labels})
 
-        with_summary = summarize.confusion_matrix_actual(test_df, "predictions", "labels")
+        with_summary = summarize.confusion_matrix_actual(test_df, "prediction", "labels")
 
         result = pd.concat([pd.Series(surrogates, name="surrogates"), with_summary], axis=1).groupby("surrogates").mean()
 
@@ -387,10 +387,6 @@ class TestUtilsProba(unittest.TestCase):
 
         self.assertEqual(df.shape[0], len(set(surrogates)),
                          "MakeSummaryData.summarize_detail returns wrong number of rows.")
-        print(df.head())
-        print(result.head())
-        print(df.columns)
-        print(result.columns)
 
         self.assertTrue(df[["true_positive_ratio", "true_negative_ratio", "false_positive_ratio",
                             "false_negative_ratio", "prediction_ratio"]].equals(result.drop("correct_ratio", axis=1)))
