@@ -749,7 +749,7 @@ class SummaryData:
 
     def make_summary_data(self, perf_df, zip_df=None):
         """
-        Function that merges two dfs to make a zip-based summary file.
+        Function that merges two dfs to make a surrogate-based summary file.
         And has the needed accuracy.
         Arguments:
         zip_df: a dataframe unique by zip code that has race percentages for the zip code.
@@ -831,19 +831,6 @@ class SummaryData:
         out_cols = ["prediction_ratio", "count"]
         if {"true_positive_ratio", "true_negative_ratio", "false_negative_ratio", "false_positive_ratio"}.issubset(
                 set(check_accuracy.columns)):
-            # Calculate standard confusion matrix stats.
-            check_accuracy["TPR"] = check_accuracy["true_positive_ratio"] / (
-                    check_accuracy["true_positive_ratio"] + check_accuracy["false_negative_ratio"])
-            check_accuracy["FPR"] = check_accuracy["false_positive_ratio"] / (
-                    check_accuracy["true_negative_ratio"] + check_accuracy["false_positive_ratio"])
-            # check_accuracy["TNR"]=check_accuracy["true_negative"]/(check_accuracy["count"])
-            check_accuracy["TNR"] = check_accuracy["true_negative_ratio"] / (
-                    check_accuracy["true_negative_ratio"] + check_accuracy["false_positive_ratio"])
-            check_accuracy["FNR"] = check_accuracy["false_negative_ratio"] / (
-                    check_accuracy["true_positive_ratio"] + check_accuracy["false_negative_ratio"])
-            check_accuracy["ACC"] = (check_accuracy["true_positive_ratio"] + check_accuracy["true_negative_ratio"]) / (
-                check_accuracy["count"])
-            out_cols = out_cols + ["true_positive_ratio", "true_negative_ratio", "false_positive_ratio",
-                                   "false_negative_ratio", "TPR", "TNR", "FNR", "FPR", "ACC"]
+            out_cols = out_cols + ["true_positive_ratio", "true_negative_ratio", "false_positive_ratio","false_negative_ratio"]
             # Return a dataframe that has the stats by group. Use these to compare to expected values
         return check_accuracy[out_cols]
