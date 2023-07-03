@@ -3,7 +3,6 @@ import sklearn
 import pandas as pd
 import numpy as np
 from scipy.stats import kstest
-
 from jurity.utils_proba import BiasCalculator, BiasCalcFromDataFrame, SummaryData
 
 

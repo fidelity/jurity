@@ -88,7 +88,7 @@ class TestBinaryProbFairness(unittest.TestCase):
     def test_prob_stat_parity_df_size_invalid(self):
 
         # Data
-        df = pd.DataFrame.from_dict({'predictions': [1, 1, 0, 1, 0],
+        df = pd.DataFrame.from_dict({'predictions': [1, 1, 0, 1],
                                      'memberships': [[0.2, 0.8], [0.4, 0.6], [0.7, 0.3], [0.9, 0.1]],
                                      'surrogates': [0, 2, 0, 3]})
         membership_labels = [1]
