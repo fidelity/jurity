@@ -170,7 +170,6 @@ class BiasCalculator:
                 self._w = w
         return self._w
 
-    # TODO REMOVE race
     def surrogate_labels(self, value=None):
         """
         Set and get labels for race statistics. Input value must be a 2D list
@@ -309,7 +308,7 @@ class BiasCalculator:
     @staticmethod
     def calc_rates(tp_ratio, fp_ratio, tn_ratio, fn_ratio):
         """
-        Calculates false positive, false negative, ... rates given their ratios
+        Calculates false positive rate, false negative rate, ... rates given their ratios
         """
         return tp_ratio / (tp_ratio + fn_ratio), fp_ratio / (fp_ratio + tn_ratio), tn_ratio / (
                 tn_ratio + fp_ratio), fn_ratio / (fn_ratio + tp_ratio)
@@ -538,7 +537,6 @@ class BiasCalcFromDataFrame:
 
         return bc
 
-    # TODO REMOVE race
     def __str__(self):
         return "BiasCalculatorFromDataFrame(surrogate_names=" + str(self.surrogate_names()) + ", test_names=" + str(
             self.test_names()) + ")"
@@ -821,7 +819,6 @@ class SummaryData:
             acc_cols: accuracy columns that are in the dataframe as 0/1 and will be rolled up by zip
         """
 
-        # TODO this column name is arbitary, change from white/race terminology MFT: DONE
         if group_col is None:
             group_col = ["protected_group"]
 
