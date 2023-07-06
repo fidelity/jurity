@@ -17,17 +17,17 @@ class TestUtilsProba(unittest.TestCase):
         # TODO See Constants in utils to re-use string constants for column names,
         #  add the ones that are missing to Constants and use here
         # Define Constants needed for testing probabilistic utilities
-        cls.test_data = pd.DataFrame({"Zip": [1, 2, 3, 4, 5],
-                                       "White": [0.5, 0.1, 0.3, 0.7, 0.6],
-                                       "Black": [0.2, 0.7, 0.5, 0.1, 0.3],
-                                       "Other": [0.3, 0.2, 0.2, 0.2, 0.1],
+        cls.test_data = pd.DataFrame({"Surrogate": [1, 2, 3, 4, 5],
+                                       "W": [0.5, 0.1, 0.3, 0.7, 0.6],
+                                       "B": [0.2, 0.7, 0.5, 0.1, 0.3],
+                                       "O": [0.3, 0.2, 0.2, 0.2, 0.1],
                                        "N": [30, 10, 6, 9, 2],
                                        "false_positive_ratio": [0.1, 0.5, 0.3, 0.1, 0.2],
                                        "true_positive_ratio": [0.9, 0.5, 0.7, 0.9, 0.8],
                                        "false_negative_ratio": [0.2, 0.4, 0.3, 0.2, 0.1],
                                        "true_negative_ratio": [0.8, 0.6, 0.7, 0.8, 0.9]})
 
-        cls.bcfd = BiasCalcFromDataFrame(["White", "Black", "Other"], "N", [1,2],
+        cls.bcfd = BiasCalcFromDataFrame(["W", "B", "O"], "N", [1,2],
                                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                                           "true_negative_ratio"])
 
@@ -38,7 +38,7 @@ class TestUtilsProba(unittest.TestCase):
                                           "false_positive_ratio": [0.3, 0.4, 0.5],
                                           "true_negative_ratio": [0.75, 0.3, 0.7],
                                           "true_positive_ratio": [0.7, 0.6, 0.5]},
-                                         index=["White", "Black", "Other"])
+                                         index=["W", "B", "O"])
 
         # Test Data for Bootstrap simulations
         # TODO shall we call it surrogate_df instead of zip df?
@@ -49,7 +49,7 @@ class TestUtilsProba(unittest.TestCase):
                                               30, 23, 35, 29, 35, 34, 27, 20, 27, 21, 25, 27, 26, 32, 30, 30, 32,
                                               35, 24, 31, 34, 37, 26, 20, 30, 18, 31, 27, 23, 41, 28, 30, 33, 34,
                                               35, 30, 24, 24, 25, 30, 26, 31, 26, 25, 25, 35, 30, 25, 20],
-                                    "pct_white_zip": [0.36137754, 0.83653862, 0.98303716, 0.52943704, 0.80254777,
+                                    "pct_w_s": [0.36137754, 0.83653862, 0.98303716, 0.52943704, 0.80254777,
                                                       0.86131181, 0.78572192, 0.79557292, 0.94314381, 0.98431145,
                                                       0.97623762, 0.93004508, 0.94375, 0.87960053, 0.9400488,
                                                       0.65223399, 0.97161572, 0.93023638, 0.95479798,
@@ -69,7 +69,7 @@ class TestUtilsProba(unittest.TestCase):
                                                       0.76968338, 0.8861327, 0.44629554, 0.67914006, 0.96602972,
                                                       0.98126951, 0.31041469, 0.64384805, 0.26402656, 0.9602649,
                                                       0.7840254, 0.25, 0.47070506, 0.95252806, 0.97494781],
-                                    "pct_black_zip": [0.53346927, 0.10651034, 0.00565428, 0.31113021, 0.00636943,
+                                    "pct_b_s": [0.53346927, 0.10651034, 0.00565428, 0.31113021, 0.00636943,
                                                       0.00309656, 0.02780789, 0.17230903, 0., 0.0040674,
                                                       0.0019802, 0.01768377, 0., 0.02423198, 0.0232369,
                                                       0.30792262, 0.00873362, 0.00246225, 0.00816498,
@@ -89,7 +89,7 @@ class TestUtilsProba(unittest.TestCase):
                                                       0.18856823, 0.03197848, 0.03738318, 0.28863346, 0.00212314,
                                                       0.00208116, 0.66961591, 0.14106055, 0.02829685, 0.00331126,
                                                       0.17769831, 0.73891626, 0.44502766, 0.0205952, 0.00991649],
-                                    "pct_api_zip": [5.91596800e-03, 2.47713860e-02, 8.07754000e-04, 2.57842700e-03,
+                                    "pct_a_s": [5.91596800e-03, 2.47713860e-02, 8.07754000e-04, 2.57842700e-03,
                                                     5.73248410e-02, 2.81505000e-04, 2.94265860e-02, 1.30208300e-03,
                                                     0.00000000e+00, 5.81058000e-04, 0.00000000e+00, 2.40984740e-02,
                                                     0.00000000e+00, 1.73882190e-02, 1.32450330e-02, 4.26070900e-03,
@@ -114,7 +114,7 @@ class TestUtilsProba(unittest.TestCase):
                                                     5.32141300e-03, 0.00000000e+00, 1.04058300e-03, 8.02083800e-03,
                                                     1.72436150e-02, 6.05144038e-01, 0.00000000e+00, 5.80164900e-03,
                                                     1.23152700e-03, 3.12101010e-02, 4.73689600e-03, 9.91649300e-03],
-                                    "pct_aian_zip": [0.00289505, 0.00327419, 0.00080775, 0.00673256, 0.01910828,
+                                    "pct_ai_s": [0.00289505, 0.00327419, 0.00080775, 0.00673256, 0.01910828,
                                                      0.00487942, 0.01291899, 0.00390625, 0.02341137, 0.00232423,
                                                      0.00693069, 0.00303398, 0.03125, 0.00638751, 0.00209132,
                                                      0.00644864, 0.00218341, 0.02462246, 0.01010101,
@@ -134,7 +134,7 @@ class TestUtilsProba(unittest.TestCase):
                                                      0.00168114, 0.01165571, 0.00040634, 0.00229885, 0.00424628,
                                                      0.0062435, 0.00124034, 0.00570465, 0.00241417, 0.01655629,
                                                      0.00229877, 0.00246305, 0.00305008, 0.00308928, 0.00156576],
-                                    "pct_other_zip": [0.08065856, 0.00486167, 0.00323102, 0.12304827, 0.02547771,
+                                    "pct_o_s": [0.08065856, 0.00486167, 0.00323102, 0.12304827, 0.02547771,
                                                       0.11663695, 0.11456059, 0.01041667, 0., 0.00348635,
                                                       0.0029703, 0.00684813, 0., 0.05125216, 0.00464738,
                                                       0.0040304, 0.0014556, 0.00902823, 0.00841751,
@@ -154,7 +154,7 @@ class TestUtilsProba(unittest.TestCase):
                                                       0.02129448, 0.04542738, 0.01029392, 0.01217539, 0.00424628,
                                                       0.00104058, 0.00372101, 0.1730844, 0.06462546, 0.,
                                                       0.01091002, 0.00738916, 0.02291105, 0.00926784, 0.00104384],
-                                    "pct_2prace_zip": [0.01568361, 0.02404379, 0.00646204, 0.02707349, 0.08917198,
+                                    "pct_2_s": [0.01568361, 0.02404379, 0.00646204, 0.02707349, 0.08917198,
                                                        0.01379375, 0.02956402, 0.01649306, 0.03344482, 0.00522952,
                                                        0.01188119, 0.01829057, 0.025, 0.02113961, 0.01673057,
                                                        0.02510364, 0.01164483, 0.02314511, 0.01464646,
@@ -175,7 +175,7 @@ class TestUtilsProba(unittest.TestCase):
                                                        0.00832466, 0.00698722, 0.01905873, 0.03549293, 0.01986755,
                                                        0.01926585, 0., 0.02709604, 0.00978272, 0.0026096]})
 
-        cls.zip_df["pct_non_white_zip"] = 1 - cls.zip_df["pct_white_zip"]
+        cls.zip_df["pct_nw_s"] = 1 - cls.zip_df["pct_w_s"]
 
     def test_calc_one_bag_form(self):
         """
@@ -185,7 +185,7 @@ class TestUtilsProba(unittest.TestCase):
         --Multiple Y's are handled appropriately
         --Single Y's are handed appropriately
         """
-        out = self.bc.calc_one_bag(self.test_data[["White", "Black", "Other"]].to_numpy(),
+        out = self.bc.calc_one_bag(self.test_data[["W", "B", "O"]].to_numpy(),
                                    self.test_data[["false_positive_ratio", "false_negative_ratio",
                                                    "true_positive_ratio", "true_negative_ratio"]].to_numpy(),
                                    self.test_data["N"].to_numpy())
@@ -205,34 +205,34 @@ class TestUtilsProba(unittest.TestCase):
         --Put the answers in the form that calc_one_boot should return
         --In this unit test, check whether the answers from calc_one_bag are equal to what comes out of sklearn.linear_model
         """
-        out = self.bc.calc_one_bag(self.test_data[["Black", "Other"]].to_numpy(),
+        out = self.bc.calc_one_bag(self.test_data[["B", "O"]].to_numpy(),
                                    self.test_data[["false_positive_ratio", "true_positive_ratio",
                                                    "false_negative_ratio", "true_negative_ratio"]].to_numpy(),
                                    self.test_data["N"].to_numpy())
 
         fp_model = sklearn.linear_model.LinearRegression()
-        fp_model.fit(self.test_data[["Black", "Other"]].to_numpy(),
+        fp_model.fit(self.test_data[["B", "O"]].to_numpy(),
                      self.test_data["false_positive_ratio"].to_numpy(),
                      self.test_data["N"].to_numpy())
 
         np.testing.assert_array_almost_equal(fp_model.coef_, out["false_positive_ratio"].coef_)
 
         fn_model = sklearn.linear_model.LinearRegression()
-        fn_model.fit(self.test_data[["Black", "Other"]].to_numpy(),
+        fn_model.fit(self.test_data[["B", "O"]].to_numpy(),
                      self.test_data["false_negative_ratio"].to_numpy(),
                      self.test_data["N"].to_numpy())
 
         np.testing.assert_array_almost_equal(fn_model.coef_, out["false_negative_ratio"].coef_)
 
         tp_model = sklearn.linear_model.LinearRegression()
-        tp_model.fit(self.test_data[["Black", "Other"]].to_numpy(),
+        tp_model.fit(self.test_data[["B", "O"]].to_numpy(),
                      self.test_data["true_positive_ratio"].to_numpy(),
                      self.test_data["N"].to_numpy())
 
         np.testing.assert_array_almost_equal(tp_model.coef_, out["true_positive_ratio"].coef_)
 
         tn_model = sklearn.linear_model.LinearRegression()
-        tn_model.fit(self.test_data[["Black", "Other"]].to_numpy(),
+        tn_model.fit(self.test_data[["B", "O"]].to_numpy(),
                      self.test_data["true_negative_ratio"].to_numpy(),
                      self.test_data["N"].to_numpy())
 
@@ -322,42 +322,42 @@ class TestUtilsProba(unittest.TestCase):
         """
         Test to make certain make_bias_calculator has the correct race labels and omitted category
         """
-        self.assertTrue("Black" in self.bc.surrogate_labels()[1])
-        self.assertTrue("Other" in self.bc.surrogate_labels()[1])
-        self.assertFalse("White" in self.bc.surrogate_labels()[1])
-        self.assertEqual("White", self.bc.surrogate_labels()[0][0])
+        self.assertTrue("B" in self.bc.surrogate_labels()[1])
+        self.assertTrue("O" in self.bc.surrogate_labels()[1])
+        self.assertFalse("W" in self.bc.surrogate_labels()[1])
+        self.assertEqual("W", self.bc.surrogate_labels()[0][0])
 
     def test_bias_maker_bad_data(self):
         # duplicates
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "White", "Black", "Other"], "N", [3,4],
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "W", "B", "O"], "N", [3,4],
                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                            "true_negative_ratio"])
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other"], "N", [1,2],
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "B", "O"], "N", [1,2],
                           ["false_positive_ratio", "false_positive_ratio", "true_positive_ratio",
                            "false_negative_ratio", "true_negative_ratio"])
         # not list
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, "Black", "N", [1],
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, "B", "N", [1],
                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                            "true_negative_ratio"])
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other"], "N", [1,2],
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "B", "O"], "N", [1,2],
                           "false_positive_ratio")
         # not string
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other", 0], "N", [1,2],
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "B", "O", 0], "N", [1,2],
                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                            "true_negative_ratio"])
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["White", "Black", "Other"], "N", [1,2],
+        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "B", "O"], "N", [1,2],
                           ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio", "true_negative_ratio",
                            0])
         # column missing
-        fac = BiasCalcFromDataFrame(["White", "Black", "Other", "hello world"], "N", [1,2],
+        fac = BiasCalcFromDataFrame(["W", "B", "O", "hello world"], "N", [1,2],
                                     ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                                      "true_negative_ratio"])
         self.assertRaises(ValueError, fac.get_bias_calculator, self.test_data, 1)
-        fac = BiasCalcFromDataFrame(["White", "Black", "Other"], "N", [1,2],
+        fac = BiasCalcFromDataFrame(["W", "B", "O"], "N", [1,2],
                                     ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                                      "true_negative_ratio", "hello world"])
         self.assertRaises(ValueError, fac.get_bias_calculator, self.test_data, 1)
-        fac = BiasCalcFromDataFrame(["White", "Black", "Other"], "hello world", [1,2],
+        fac = BiasCalcFromDataFrame(["W", "B", "O"], "hello world", [1,2],
                                     ["false_positive_ratio", "true_positive_ratio", "false_negative_ratio",
                                      "true_negative_ratio"])
         self.assertRaises(ValueError, fac.get_bias_calculator, self.test_data, 1)
@@ -447,14 +447,14 @@ class TestUtilsProba(unittest.TestCase):
         zip_groups = []
         for name, group in zip_race_prob_grouped:
             try:
-                probs = [group["pct_white_zip"].unique()[0], group.pct_black_zip.unique()[0],
+                probs = [group["pct_w_s"].unique()[0], group.pct_black_zip.unique()[0],
                          group.pct_api_zip.unique()[0],
                          group.pct_aian_zip.unique()[0], group.pct_other_zip.unique()[0],
                          group.pct_2prace_zip.unique()[0]]
-                group['race_group'] = generator.choice(
-                    ["White", "Black Or African American", 'Asian Or Pacific Islander',
-                     'American Indian Or Alaskan Native',
-                     'Other Race', 'Two Or More Races'], len(group), p=probs)
+                group['surrogate'] = generator.choice(
+                    ["W", "B", 'A',
+                     'AI',
+                     'O', 'Two'], len(group), p=probs)
             except:
                 pass
                 # print(name)
@@ -465,11 +465,11 @@ class TestUtilsProba(unittest.TestCase):
 
     @staticmethod
     # TODO REMOVE race terminology
-    def assign_race_and_accuracy(input_data, rates_by_race, generator, race_col_name="white_or_not"):
+    def assign_race_and_accuracy(input_data, rates_by_race, generator, race_col_name="w"):
         # Assign everyone a "true" race for simulation purposes
         race_assignments = TestUtilsProba.assign_race(input_data, generator)
         # Current simulation only handles 2 categories: white or not.
-        race_assignments["white_or_not"] = np.where(race_assignments["race_group"] == "White", "White", "Non-White")
+        race_assignments["w"] = np.where(race_assignments["surrogate"] == "W", "W", "NW")
         # Assign each individual a quadrant in the confusion matrix based on:
         #   Percent of positive (not predict_pos_probs)
         #   probability of being a false positive
@@ -518,7 +518,7 @@ class TestUtilsProba(unittest.TestCase):
 
     # TODO REMOVE race terminology
     @staticmethod
-    def model_outcome_by_race(zip_race_assignment, rates_by_race, race_col_name="white_or_not"):
+    def model_outcome_by_race(zip_race_assignment, rates_by_race, race_col_name="w"):
         # Assign true positive, true negative, etc by race
         zip_race_prob_grouped = zip_race_assignment.groupby(race_col_name)
 

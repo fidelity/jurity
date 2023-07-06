@@ -102,10 +102,10 @@ class TestBinaryProbFairness(unittest.TestCase):
             class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
             instance = class_()  # dynamically instantiate such class
             if name in Constants.no_labels:
-                with self.assertRaises(InputShapeError):
+                with self.assertRaises(InputShapeError,msg=f"{name} does not raise input shape error for invalid predictions shape"):
                     score = instance.get_score(predictions, memberships, surrogates, membership_labels, None)
             else:
-                with self.assertRaises(InputShapeError):
+                with self.assertRaises(InputShapeError,msg=f"{name} does not raise input shape error for invalid predictions shape"):
                     score = instance.get_score(labels, predictions, memberships, surrogates, membership_labels, None)
 
     def test_prob_df_size_invalid(self):
@@ -160,7 +160,6 @@ class TestBinaryProbFairness(unittest.TestCase):
                 with self.assertRaises(InputShapeError,
                                        msg=f"{name} does not raise shape error on invalid likelihood outer shape"):
                     instance.get_score(labels,predictions, memberships, surrogates, membership_labels)
-
 
     def test_prob_likelihood_size_invalid_inner(self):
         # Data
