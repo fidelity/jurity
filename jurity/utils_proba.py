@@ -1,10 +1,9 @@
 import numpy as np
-from numpy.random import Generator
+import warnings
 import pandas as pd
 import scipy.stats
-import os
 from sklearn.linear_model import LinearRegression
-from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants,check_inputs_proba
+from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants, check_inputs_proba
 
 
 def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
@@ -12,7 +11,8 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
                           surrogates: Union[List, np.ndarray, pd.Series],
                           membership_labels: Union[str, int, List[str], List[int]],
                           labels: Union[List, np.ndarray, pd.Series] = None,
-                          bootstrap_trials: int = Constants.bootstrap_trials)-> pd.DataFrame:
+                          bootstrap_trials: int = Constants.bootstrap_trials,
+                          membership_names: List[str] = None) -> pd.DataFrame:
     # TODO add pydoc, add return type hint on what's returned from this call
 
     # Z is the number of unique values for the surrogate variable.
@@ -28,16 +28,18 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     # W [Z by 1]: The number of individuals for each level of Z
     # Right now, these are returned as a single dataframe
     check_inputs_proba(predictions, memberships, surrogates, membership_labels, labels)
-    summary_df = SummaryData.summarize(predictions, memberships, surrogates, labels)
+    if membership_names is None:
+        membership_names = ["A", "B"]
+    summary_df = SummaryData.summarize(predictions, memberships, surrogates, labels, membership_names)
 
     # Add X, Y, and W matricies to the BiasCalculator
     if labels:
-        bc = BiasCalculator.from_df(summary_df,  membership_labels)
+        bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names)
     else:
-        bc = BiasCalculator.from_df(summary_df, membership_labels, test_names=["prediction_ratio"])
+        bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names, test_names=["prediction_ratio"])
 
     # Run bootstrapping to calculate inferred metrics
-    #for 1 to 100:
+    # for 1 to 100:
     #   sample Z rows from X, Y, and W with replacement
     #   Calculate the WOLS estimates for:
     #       true_positive_ratio, false_positive_ration, true_negative_ratio, false_negative_ratio for protected and unprotected groups
@@ -47,15 +49,17 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
 
     # Calculate the means of all statistics across the 100 bootstrapped samples
     # Calculate average odds, equal opportunity, predictive equality, false negative difference, statistical parity
-    transformed_bootstrap=bc.transform_bootstrap_results(bootstrap_df)
+    transformed_bootstrap = bc.transform_bootstrap_results(bootstrap_df)
     return transformed_bootstrap
 
-def unpack_bootstrap(df: pd.DataFrame,stat_name:str,membership_labels:List[int]):
+
+def unpack_bootstrap(df: pd.DataFrame, stat_name: str, membership_labels: List[int]):
     stats = df[[stat_name]]
     v = stats.index.values
-    if len(v)!=2:
+    if len(v) != 2:
         raise ValueError("Unpacking for probabilistic results only enabled for binary metrics.")
-    return stats.loc[v[membership_labels], stat_name][0],stats.loc[np.delete(v, membership_labels),stat_name][0]
+    return stats.loc[v[membership_labels], stat_name][0], stats.loc[np.delete(v, membership_labels), stat_name][0]
+
 
 class BiasCalculator:
     """
@@ -67,9 +71,8 @@ class BiasCalculator:
     _test_labels: Labels for test columns
     """
 
-    # TODO Remove race terminology
     @classmethod
-    def from_df(cls, df, membership_labels, test_names=None):
+    def from_df(cls, df, membership_labels, membership_names, test_names=None, weight_warnings=True):
 
         if test_names is None:
             test_names = ["true_positive_ratio", "true_negative_ratio",
@@ -77,20 +80,23 @@ class BiasCalculator:
                           "prediction_ratio"]
 
         weight_name = "count"
-        membership_names = ["A", "B"]
+        if np.any([m < 0 for m in membership_labels]) or np.any(
+                [m >= len(membership_names) for m in membership_labels]):
+            raise ValueError(
+                f"Protected membership_label:{membership_labels} not in membership_names:{membership_names}.")
 
-        bcfd = BiasCalcFromDataFrame(membership_names, weight_name, membership_labels, test_names)
+        bcdf = BiasCalcFromDataFrame(membership_names, weight_name, membership_labels, test_names)
 
         # Start with min_weight set at the recommended default.
         # If it's too high, set at 10.
         # If 10 is too high, set at 1 and give a warning.
         try:
-            bc = bcfd.get_bias_calculator(df)
+            bc = bcdf.get_bias_calculator(df)
         except WeightTooLarge:
             try:
-                bc = bcfd.get_bias_calculator(df, 10)
+                bc = bcdf.get_bias_calculator(df, 10)
             except WeightTooLarge:
-                bc = bcfd.get_bias_calculator(df, 1)
+                bc = bcdf.get_bias_calculator(df, 1, weight_warnings=weight_warnings)
         return bc
 
     def __init__(self, Y, X, W, surrogate_labels, test_labels, verbose=True):
@@ -185,7 +191,8 @@ class BiasCalculator:
                 # print("There can only be one omitted category")
             else:
                 if len(value[1]) != self._x.shape[1]:
-                    raise ValueError("Race labels does not match dimension of X. Update X first, or check dimensions of input labels.")
+                    raise ValueError(
+                        "Race labels does not match dimension of X. Update X first, or check dimensions of input labels.")
                 else:
                     self._compare_label = value[0][0]
                     self.all_surrogate_labels(value[1])
@@ -208,7 +215,9 @@ class BiasCalculator:
         When change are made, check the dimensions of X, Y, and W to make sure they still match.
         """
         if not self.Y().shape[0] == self.X().shape[0]:
-            raise ValueError("Dimensions of X and Y do not match. Dimensions of X:- {0}, Dimensions of Y: {1}".format(self._x.shape, self._y.shape))
+            raise ValueError(
+                "Dimensions of X and Y do not match. Dimensions of X:- {0}, Dimensions of Y: {1}".format(self._x.shape,
+                                                                                                         self._y.shape))
         elif not self.Y().shape[0] == self.W().shape[0]:
             raise ValueError("Length of W does not match X and Y")
         else:
@@ -270,7 +279,8 @@ class BiasCalculator:
 
         results_by_race = means.T
         temp = np.squeeze(np.stack(
-            [results_by_race[results_by_race.index == self.surrogate_labels()[0][0]].to_numpy()] * results_by_race.shape[0]))
+            [results_by_race[results_by_race.index == self.surrogate_labels()[0][0]].to_numpy()] *
+            results_by_race.shape[0]))
         if len(self.test_labels()) == 1:
             temp = pd.DataFrame(temp, columns=self.test_labels(), index=results_by_race.index)
         results_by_race += temp
@@ -383,9 +393,9 @@ class BiasCalcFromDataFrame:
         """
 
         # Get the first non-protected group listed.
-        for idx,name in enumerate(membership_names):
+        for idx, name in enumerate(membership_names):
             if idx not in membership_labels:
-                omitted_string=name
+                omitted_string = name
                 break;
 
         self.compare_label(omitted_string)
@@ -395,7 +405,6 @@ class BiasCalcFromDataFrame:
         self.test_names(test_names)
         self.weight_name(weight_name)
 
-    # TODO REMOVE race terminology
     def surrogate_names(self, value=None):
         """
         Get or set race names. Make sure it is a list of strings
@@ -478,13 +487,13 @@ class BiasCalcFromDataFrame:
         else:
             return True
 
-    # TODO REMOVE race terminalogy
     def get_X_matrix(self, df):
         """
         Make X matrix for bias calculator.
         """
         if not set(self.surrogate_names()).issubset(set(df.columns)):
-            raise ValueError("Surrogate names: {0} are not in dataframe.".format(set(self._surrogate_names) - (set(df.columns))))
+            raise ValueError(
+                "Surrogate names: {0} are not in dataframe.".format(set(self._surrogate_names) - (set(df.columns))))
         return df[self.surrogate_names()].to_numpy(dtype='f')
 
     def get_Y_matrix(self, df):
@@ -503,13 +512,13 @@ class BiasCalcFromDataFrame:
             raise ValueError("weight name: {0} are not in dataframe.".format(self._weight_name))
         return df[self._weight_name].to_numpy(dtype='f')
 
-    def get_bias_calculator(self, df, min_weight=30):
+    def get_bias_calculator(self, df, min_weight=30, weight_warnings=True):
         """
         Make bias calculator.
         """
         if min_weight < 10:
-            print("WARNING: Recommended minimum count for surrogate class is 30. "
-                  "Minimum weights of less than 10 will give unstable results.")
+            warnings.warn("Recommended minimum count for surrogate class is 30. "
+                          "Minimum weights of less than 10 will give unstable results.")
 
         if self.weight_name() in df.columns:
             subset = df[df[self._weight_name] >= min_weight]
@@ -531,12 +540,13 @@ class BiasCalcFromDataFrame:
 
     # TODO REMOVE race
     def __str__(self):
-        return "BiasCalculatorFromDataFrame(surrogate_names=" + str(self.surrogate_names()) + ", test_names=" + str(self.test_names()) + ")"
+        return "BiasCalculatorFromDataFrame(surrogate_names=" + str(self.surrogate_names()) + ", test_names=" + str(
+            self.test_names()) + ")"
 
 
 class SummaryData:
     """
-    Class that calculates summary data by zip from input detailed data by zip.
+    Class that calculates summary data by surrogate class from input detailed data by surrogate class.
     _tests: Names of tests to be calculated
     _zip_perf_col_name: Name of zip variable in performance data
     _zip_zip_col_name: Name of zip variable in zip code data
@@ -549,12 +559,13 @@ class SummaryData:
                   predictions: Union[List, np.ndarray, pd.Series],
                   memberships: Union[List, np.ndarray, pd.Series, pd.DataFrame],
                   surrogates: Union[List, np.ndarray, pd.Series],
-                  labels: Union[List, np.ndarray, pd.Series] = None) -> pd.DataFrame:
+                  labels: Union[List, np.ndarray, pd.Series] = None,
+                  membership_names: List[str] = None) -> pd.DataFrame:
         """
         Return a summary dataframe suitable for bootstrap calculations.
         """
-
-        membership_names = ["A", "B"]
+        if membership_names is None:
+            membership_names = ["A", "B"]
 
         df = pd.concat([pd.Series(predictions, name="predictions"),
                         pd.Series(surrogates, name="surrogates")], axis=1)
@@ -571,35 +582,35 @@ class SummaryData:
         # To specify likelihoods, user can provide either:
         # 1. An ndarray of likelihoods that gives likelihood of protected membership
         #   for each person. If this is given, we have to summarize the likelihoods at the surrogate level
-        # 2. A dataframe that has a row for each surrogate class value and
+        # 2. A dataframe ttehat has a row for each surrogate class value and
         #   a column for each likelihood value. The dataframe must have surrogate class as an index.
-        if len(memberships) == df.shape[0]:
+        if isinstance(memberships, pd.DataFrame):
+            memberships["surrogates"] = memberships.index
+            likes_df = memberships
+        else:
+            if len(memberships) != df.shape[0]:
+                len_predictions = len(predictions)
+                len_likelihoods = len(memberships)
+                raise InputShapeError("",
+                                      "Likelihoods must either be a pandas dataframe with surrogates as index "
+                                      "or the same length as predictions vector"
+                                      f"length of predictions {len_predictions}"
+                                      f"length of likelihoods {len_likelihoods}")
             if isinstance(memberships, list) or isinstance(memberships, np.ndarray):
                 interim_df = pd.DataFrame(data=memberships)
             elif isinstance(memberships, pd.Series):
                 interim_df = pd.DataFrame(list(memberships.values))
             else:
                 interim_df = memberships
-            likes_detail = pd.concat([pd.Series(surrogates, name="surrogates"), interim_df], axis=1)
-            likes_df = likes_detail.groupby(by="surrogates").mean()
-            likes_df.columns = membership_names
-            likes_df = likes_df.reset_index()
-        elif isinstance(memberships, pd.DataFrame):
-            memberships["surrogates"] = memberships.index
-            likes_df = memberships
-        else:
-            len_predictions = len(predictions)
-            len_likelihoods = len(memberships)
-            raise InputShapeError("",
-                                  "Likelihoods must either be a pandas dataframe with surrogates as index "
-                                  "or the same length as predictions vector"
-                                  f"length of predictions {len_predictions}"
-                                  f"length of likelihoods {len_likelihoods}")
-
+        likes_detail = pd.concat([pd.Series(surrogates, name="surrogates"), interim_df], axis=1)
+        likes_df = likes_detail.groupby(by="surrogates").mean()
+        likes_df.columns = membership_names
+        likes_df = likes_df.reset_index()
         summarizer = cls("surrogates", "surrogates", "predictions", true_name=label_name, test_names=test_names)
         return summarizer.make_summary_data(perf_df=df, zip_df=likes_df)
 
-    def __init__(self, zip_zip_col_name, zip_perf_col_name, pred_name, true_name=None, max_shrinkage=0.5, test_names=None):
+    def __init__(self, zip_zip_col_name, zip_perf_col_name, pred_name, true_name=None, max_shrinkage=0.5,
+                 test_names=None):
         self.zip_zip_col_name(zip_zip_col_name)
         self.zip_perf_col_name(zip_perf_col_name)
         self.pred_name(pred_name)
@@ -702,7 +713,7 @@ class SummaryData:
                 print("Input Zip data has duplicates. Zip data must be de-duplicated by zip.")
         return all_good
 
-    def check_merged_data(self, merged_df, zip_df, performance_df,print_warnings=True):
+    def check_merged_data(self, merged_df, zip_df, performance_df, print_warnings=True):
         """
         Make sure merged data hasn't lost too many rows due to inner join
         And make sure it hasn't increased in rows due to zip code duplicates
@@ -742,7 +753,8 @@ class SummaryData:
         n_unique_zips = merged_df[self._zip_zip_col_name].nunique()
         if not n_rows == n_unique_zips:
             # TODO This keeps printing during tests, can we turn off?
-            print(f"Final dataframe has {n_rows} and {n_unique_zips} unique zip codes. There should be one row per zip code.")
+            print(
+                f"Final dataframe has {n_rows} and {n_unique_zips} unique zip codes. There should be one row per zip code.")
             raise Warning("Possible missing zip codes in output data.")
             # return False
         return True
@@ -831,6 +843,7 @@ class SummaryData:
         out_cols = ["prediction_ratio", "count"]
         if {"true_positive_ratio", "true_negative_ratio", "false_negative_ratio", "false_positive_ratio"}.issubset(
                 set(check_accuracy.columns)):
-            out_cols = out_cols + ["true_positive_ratio", "true_negative_ratio", "false_positive_ratio","false_negative_ratio"]
+            out_cols = out_cols + ["true_positive_ratio", "true_negative_ratio", "false_positive_ratio",
+                                   "false_negative_ratio"]
             # Return a dataframe that has the stats by group. Use these to compare to expected values
         return check_accuracy[out_cols]

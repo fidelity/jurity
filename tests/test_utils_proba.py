@@ -405,7 +405,8 @@ class TestUtilsProba(unittest.TestCase):
         df = SummaryData.summarize(predictions, memberships, surrogates, labels)
 
         bc = BiasCalculator.from_df(df,
-                                    membership_labels=[1], # TODO: SK not sure what this param should be
+                                    [1],
+                                    ["A","B"],
                                     test_names=["true_positive_ratio",
                                                 "true_negative_ratio",
                                                 "false_positive_ratio",
