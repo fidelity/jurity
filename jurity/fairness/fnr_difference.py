@@ -91,7 +91,7 @@ class FNRDifference(_BaseBinaryFairness):
             fnr_group_2 = performance_measures(labels, predictions, group_2_group_idx, group_membership=True)["FNR"]
         else:
             if bootstrap_results is None:
-                bootstrap_results=get_bootstrap_results((predictions, memberships, surrogates, membership_labels, labels))
+                bootstrap_results=get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
             fnr_group_1,fnr_group_2 = unpack_bootstrap(bootstrap_results,"FNR",membership_labels)
 
         return fnr_group_1 - fnr_group_2

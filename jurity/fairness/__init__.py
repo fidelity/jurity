@@ -12,6 +12,7 @@ import pandas as pd
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.fairness.base import _BaseMultiClassMetric
 from jurity.utils import check_inputs, check_inputs_argmax,is_deterministic, check_inputs_proba
+from jurity.utils import Constants
 from jurity.utils_proba import get_bootstrap_results
 from .average_odds import AverageOdds
 from .disparate_impact import BinaryDisparateImpact, MultiDisparateImpact
@@ -95,9 +96,11 @@ class BinaryFairnessMetrics(NamedTuple):
             class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
             instance = class_()  # dynamically instantiate such class
 
-            if bootstrap_results is not None:
-                if name in ["StatisticalParity","PredictiveEquality","AverageOdds","FNRDifference"]:
-                    score=instance.get_score(predictions,memberships,membership_labels,bootstrap_results)
+            if bootstrap_results is not None and name in Constants.bootstrap_implemented:
+                if name in ["PredictiveEquality","AverageOdds","FNRDifference"]:
+                    score=instance.get_score(labels,predictions,memberships,membership_labels,bootstrap_results)
+                elif name=="StatisticalParity":
+                    score = instance.get_score(predictions, memberships, membership_labels, bootstrap_results)
                 else:
                     score=None
             elif name in ["DisparateImpact", "StatisticalParity"]:

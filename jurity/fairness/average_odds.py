@@ -10,9 +10,9 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.utils import check_and_convert_list_types
-from jurity.utils import check_inputs,is_deterministic
-from jurity.utils import performance_measures,calc_is_member
-from jurity.utils_proba import get_bootstrap_results,unpack_bootstrap
+from jurity.utils import check_inputs, is_deterministic
+from jurity.utils import performance_measures, calc_is_member
+from jurity.utils_proba import get_bootstrap_results, unpack_bootstrap
 from jurity.utils import split_array_based_on_membership_label
 
 
@@ -95,9 +95,9 @@ class AverageOdds(_BaseBinaryFairness):
                            Average Odds cannot be calculated.")
                 return np.nan
             results_group_1 = performance_measures(labels, predictions, group_idx=group_1_group_idx,
-                                               group_membership=True)
+                                                   group_membership=True)
             results_group_2 = performance_measures(labels, predictions, group_idx=group_2_group_idx,
-                                               group_membership=True)
+                                                   group_membership=True)
 
             fpr_group_1 = results_group_1["FPR"]
             fpr_group_2 = results_group_2["FPR"]
@@ -105,8 +105,8 @@ class AverageOdds(_BaseBinaryFairness):
             tpr_group_2 = results_group_2["TPR"]
         else:
             if bootstrap_results is None:
-                bootstrap_results=get_bootstrap_results((predictions, memberships, surrogates, membership_labels, labels))
-            tpr_group_1,tpr_group_2 = unpack_bootstrap(bootstrap_results,"TPR",membership_labels)
-            fpr_group_1,fpr_group_2 = unpack_bootstrap(bootstrap_results,"FPR",membership_labels)
+                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
+            tpr_group_1, tpr_group_2 = unpack_bootstrap(bootstrap_results, "TPR", membership_labels)
+            fpr_group_1, fpr_group_2 = unpack_bootstrap(bootstrap_results, "FPR", membership_labels)
 
         return 0.5 * (fpr_group_1 - fpr_group_2) + 0.5 * (tpr_group_1 - tpr_group_2)

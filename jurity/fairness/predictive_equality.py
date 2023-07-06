@@ -95,7 +95,7 @@ class PredictiveEquality(_BaseBinaryFairness):
 
         else:
             if bootstrap_results is None:
-                bootstrap_results=get_bootstrap_results((predictions, memberships, surrogates, membership_labels, labels))
+                bootstrap_results=get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
 
             fpr_group_1,fpr_group_2 = unpack_bootstrap(bootstrap_results,"FPR",membership_labels)
 

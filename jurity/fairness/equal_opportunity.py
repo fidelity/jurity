@@ -93,7 +93,7 @@ class EqualOpportunity(_BaseBinaryFairness):
             tpr_group_2 = performance_measures(labels, predictions, group_2_group_idx, group_membership=True)["TPR"]
         else:
             if bootstrap_results is None:
-                bootstrap_results=get_bootstrap_results((predictions, memberships, surrogates, membership_labels, labels))
+                bootstrap_results=get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
             tpr=bootstrap_results["TPR"]
             tpr_group_1,tpr_group_2=unpack_bootstrap(bootstrap_results,"TPR",membership_labels)
         return tpr_group_1 - tpr_group_2

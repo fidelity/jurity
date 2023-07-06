@@ -33,7 +33,7 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     summary_df = SummaryData.summarize(predictions, memberships, surrogates, labels, membership_names)
 
     # Add X, Y, and W matricies to the BiasCalculator
-    if labels:
+    if labels is not None:
         bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names)
     else:
         bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names, test_names=["prediction_ratio"])
@@ -570,7 +570,7 @@ class SummaryData:
         df = pd.concat([pd.Series(predictions, name="predictions"),
                         pd.Series(surrogates, name="surrogates")], axis=1)
 
-        if labels:
+        if labels is not None:
             df = pd.concat([df, pd.Series(data=labels, name="labels")], axis=1)
             label_name = "labels"
             test_names = ["true_positive_ratio", "true_negative_ratio",
