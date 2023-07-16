@@ -46,6 +46,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#disparate-impact">Disparate Impact</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#equal-opportunity">Equal Opportunity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fnr-difference">FNR Difference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#for-difference">FOR Difference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#generalized-entropy-index">Generalized Entropy Index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#predictive-equality">Predictive Equality</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#statistical-parity">Statistical Parity</a></li>
@@ -108,6 +109,10 @@
 <p>FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.</p>
 <div class="math notranslate nohighlight">
 \[E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]\]</div>
+</section>
+<section id="for-difference">
+<h2>FOR Difference<a class="headerlink" href="#for-difference" title="Permalink to this headline"></a></h2>
+<p>FOR Difference measures the equality (or lack thereof) across groups of the rate of inaccurate "negative" predictions by the model. It is calculated using the ratio of false negatives to negative examples in the dataset, <span class="math notranslate nohighlight">\(FOR = FN/N\)</span>, conditioned on a protected attribute.</p>
 </section>
 <section id="generalized-entropy-index">
 <h2>Generalized Entropy Index<a class="headerlink" href="#generalized-entropy-index" title="Permalink to this headline"></a></h2>
