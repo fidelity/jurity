@@ -19,8 +19,8 @@ class FORDifference(_BaseBinaryFairness):
     def __init__(self):
         super().__init__("FOR difference",
                          "Measures the equality (or lack thereof) of the false omission rates across groups.",
-                         lower_bound=-0.2, #Find this
-                         upper_bound=0.2, #Find this
+                         lower_bound=-0.2,
+                         upper_bound=0.2,
                          ideal_value=0)
 
     @staticmethod
@@ -70,8 +70,6 @@ class FORDifference(_BaseBinaryFairness):
             warnings.warn("Encountered homogeneous unary ground truth either in group 2/group 1 group. \
                            FOR difference cannot be calculated.")
             return np.nan
-
-        print(group_1_group_idx)
 
         # Calculate FOR of both groups
         for_group_1 = performance_measures(labels, predictions, group_1_group_idx, group_membership=True)["FOR"]

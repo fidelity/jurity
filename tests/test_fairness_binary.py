@@ -25,7 +25,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(y_pred, is_member)
 
-        assert np.isclose(score, -0.3333, atol=0.001)
+        assert np.isclose(score, -0.3333, atol = 0.001)
 
     def test_stat_parity_normal_df(self):
 
@@ -39,7 +39,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(my_df['y_pred'], my_df['is_member'])
 
-        assert np.isclose(score, -0.3333, atol=0.001)
+        assert np.isclose(score, -0.3333, atol = 0.001)
 
     def test_stat_parity_normal_list(self):
 
@@ -53,7 +53,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(y_pred, is_member)
 
-        assert np.isclose(score, -0.3333, atol=0.001)
+        assert np.isclose(score, -0.3333, atol = 0.001)
 
     def test_stat_parity_invalid_list(self):
 
@@ -205,7 +205,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(y_true, y_pred, is_member)
 
-        assert np.isclose(score, -0.5833, atol=0.01)
+        assert np.isclose(score, -0.5833, atol = 0.01)
 
     def test_avg_odds_diff_normal_list(self):
 
@@ -220,7 +220,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(y_true, y_pred, is_member)
 
-        assert np.isclose(score, -0.5833, atol=0.01)
+        assert np.isclose(score, -0.5833, atol = 0.01)
 
     def test_avg_odds_diff_normal_df(self):
         # Data: medium number
@@ -234,7 +234,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member'])
 
-        assert np.isclose(score, -0.5833, atol=0.01)
+        assert np.isclose(score, -0.5833, atol = 0.01)
 
     def test_avg_odds_diff_normal_invalid(self):
         # Data: medium number
@@ -347,7 +347,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(y_true, y_pred, is_member)
 
-        assert np.isclose(score, -0.5, atol=0.001)
+        assert np.isclose(score, -0.5, atol = 0.001)
 
     def test_pred_equality_normal_df(self):
 
@@ -362,7 +362,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member'])
 
-        assert np.isclose(score, -0.5, atol=0.001)
+        assert np.isclose(score, -0.5, atol = 0.001)
 
     def test_pred_equality_normal_list(self):
 
@@ -378,7 +378,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(y_true, y_pred, is_member)
 
-        assert np.isclose(score, -0.5, atol=0.001)
+        assert np.isclose(score, -0.5, atol = 0.001)
 
     def test_equal_opp_normal_invalid(self):
 
@@ -407,7 +407,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(y_true, y_pred, is_member)
 
-        assert np.isclose(score, -0.666, atol=0.001)
+        assert np.isclose(score, -0.666, atol = 0.001)
 
     def test_equal_opp_normal_list(self):
 
@@ -422,7 +422,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(y_true, y_pred, is_member)
 
-        assert np.isclose(score, -0.666, atol=0.001)
+        assert np.isclose(score, -0.666, atol = 0.001)
 
     def test_equal_opp_normal_df(self):
 
@@ -437,7 +437,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member'])
 
-        assert np.isclose(score, -0.666, atol=0.001)
+        assert np.isclose(score, -0.666, atol = 0.001)
 
     def test_equal_opp_edge_1(self):
 
@@ -590,7 +590,7 @@ class TestBinaryFairness(unittest.TestCase):
         y_pred = np.array([0, 0, 1, 0, 0, 1, 1, 1, 0, 0])
 
         is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
-        assert np.isclose(metric.get_score(y_true, y_pred, is_member), 0.333, atol=0.001)
+        assert np.isclose(metric.get_score(y_true, y_pred, is_member), 0.333, atol = 0.001)
 
     def test_fnr_diff_normal_list(self):
 
@@ -602,7 +602,7 @@ class TestBinaryFairness(unittest.TestCase):
         y_pred = [0, 0, 1, 0, 0, 1, 1, 1, 0, 0]
 
         is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
-        assert np.isclose(metric.get_score(y_true, y_pred, is_member), 0.333, atol=0.001)
+        assert np.isclose(metric.get_score(y_true, y_pred, is_member), 0.333, atol = 0.001)
 
     def test_fnr_diff_normal_df(self):
 
@@ -615,7 +615,7 @@ class TestBinaryFairness(unittest.TestCase):
         # Score
         score = metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member'])
 
-        assert np.isclose(score, 0.333, atol=0.001)
+        assert np.isclose(score, 0.333, atol = 0.001)
 
     def test_fnr_diff_edge1(self):
 
@@ -643,6 +643,83 @@ class TestBinaryFairness(unittest.TestCase):
 
         assert metric.get_score(y_true, y_pred, is_member) == -1
 
+    def test_for_diff_normal_invalid(self):
+
+        # Metric
+        metric = BinaryFairnessMetrics.FORDifference()
+
+        # Data
+        y_true = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 2])
+        y_pred = np.array([0, 0, 1, 0, 0, 1, 1, 1, 0, 0])
+
+        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        with self.assertRaises(ValueError):
+            metric.get_score(y_true, y_pred, is_member)
+
+    def test_for_diff_normal_np(self):
+
+        # Metric
+        metric = BinaryFairnessMetrics.FORDifference()
+
+        # Data
+        y_true = np.array([0, 0, 0, 1, 1, 1, 1, 0])
+        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        y_pred = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+
+        # Score
+        assert np.isclose(metric.get_score(y_true, y_pred, is_member), 0.25, atol = 0.001)
+
+    def test_for_diff_normal_list(self):
+        # Metric
+        metric = BinaryFairnessMetrics.FORDifference()
+
+        # Data
+        y_true = [0, 0, 0, 1, 1, 1, 1, 0]
+        is_member = [1, 1, 1, 1, 0, 0, 0, 0]
+        y_pred = [0, 0, 0, 0, 1, 1, 1, 1]
+
+        # Score
+        assert np.isclose(metric.get_score(y_true, y_pred, is_member), 0.25, atol = 0.001)
+
+    def test_for_diff_normal_df(self):
+
+        # Metric
+        metric = BinaryFairnessMetrics.FORDifference()
+
+        # Data
+        my_df = pd.DataFrame.from_dict({'y_true': [0, 0, 0, 1, 1, 1, 1, 0],
+                                        'y_pred': [0, 0, 0, 0, 1, 1, 1, 1],
+                                        'is_member': [1, 1, 1, 1, 0, 0, 0, 0]})
+
+        # Score
+        assert np.isclose(metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member']), 0.25, atol = 0.001)
+
+    def test_for_diff_edge1(self):
+
+        # Metric
+        metric = BinaryFairnessMetrics.FORDifference()
+
+        # Edge case of -1
+        y_true = [0, 0, 0, 1, 1, 1, 1, 0]
+        is_member = [0, 0, 0, 0, 1, 1, 1, 1]
+        y_pred = [1, 1, 1, 0, 1, 1, 1, 1]
+
+        # Score
+        assert np.isclose(metric.get_score(y_true, y_pred, is_member), -1, atol = 0.001)
+
+    def test_for_diff_edge2(self):
+
+        # Metric
+        metric = BinaryFairnessMetrics.FORDifference()
+
+        # Edge case of 1
+        y_true = [0, 0, 0, 1, 1, 1, 1, 0]
+        is_member = [1, 1, 1, 1, 0, 0, 0, 0]
+        y_pred = [1, 1, 1, 0, 1, 1, 1, 1]
+
+        # Score
+        assert np.isclose(metric.get_score(y_true, y_pred, is_member), 1, atol = 0.001)
+
     def test_gei_normal_np(self):
 
         # Metric
@@ -653,7 +730,7 @@ class TestBinaryFairness(unittest.TestCase):
 
         score = metric.get_score(y_true, y_pred)
         assert isinstance(score, float)
-        assert np.isclose(score, 0.302, atol=0.01)
+        assert np.isclose(score, 0.302, atol = 0.01)
 
     def test_gei_normal_invalid(self):
 
@@ -678,7 +755,7 @@ class TestBinaryFairness(unittest.TestCase):
         score = metric.get_score(my_df['y_true'], my_df['y_pred'])
 
         assert isinstance(score, float)
-        assert np.isclose(score, 0.302, atol=0.01)
+        assert np.isclose(score, 0.302, atol = 0.01)
 
     def test_gei_normal_list(self):
 
@@ -690,7 +767,7 @@ class TestBinaryFairness(unittest.TestCase):
 
         score = metric.get_score(y_true, y_pred)
         assert isinstance(score, float)
-        assert np.isclose(score, 0.302, atol=0.01)
+        assert np.isclose(score, 0.302, atol = 0.01)
 
     def test_gei_alpha_zero(self):
 
@@ -715,7 +792,7 @@ class TestBinaryFairness(unittest.TestCase):
 
             for y_true, y_pred in my_dict.values():
                 vals.append([y_true, y_pred])
-                results.append(metric.get_score(y_true, y_pred, alpha=alpha))
+                results.append(metric.get_score(y_true, y_pred, alpha = alpha))
 
             assert min(results) == 0
             assert max(results) == np.inf
@@ -744,7 +821,7 @@ class TestBinaryFairness(unittest.TestCase):
 
             for y_true, y_pred in my_dict.values():
                 vals.append([y_true, y_pred])
-                results.append(metric.get_score(y_true, y_pred, alpha=alpha))
+                results.append(metric.get_score(y_true, y_pred, alpha = alpha))
 
             assert min(results) == 0
             assert max(results) == np.log(5)
@@ -770,7 +847,7 @@ class TestBinaryFairness(unittest.TestCase):
             vals = []
             for y_true, y_pred in my_dict.values():
                 vals.append([y_true, y_pred])
-                results.append(metric.get_score(y_true, y_pred, alpha=alpha))
+                results.append(metric.get_score(y_true, y_pred, alpha = alpha))
 
             assert min(results) == 0
             assert max(results) == (np.power(5, alpha - 1) - 1) / (alpha * (alpha - 1))
@@ -785,7 +862,7 @@ class TestBinaryFairness(unittest.TestCase):
 
         score = metric.get_score(y_true, y_pred)
         assert isinstance(score, float)
-        assert np.isclose(score, 0.413, atol=0.01)
+        assert np.isclose(score, 0.413, atol = 0.01)
 
     def test_theil_normal_df(self):
 
@@ -798,7 +875,7 @@ class TestBinaryFairness(unittest.TestCase):
         score = metric.get_score(my_df['y_true'], my_df['y_pred'])
 
         assert isinstance(score, float)
-        assert np.isclose(score, 0.413, atol=0.01)
+        assert np.isclose(score, 0.413, atol = 0.01)
 
     def test_theil_normal_list(self):
 
@@ -810,7 +887,7 @@ class TestBinaryFairness(unittest.TestCase):
 
         score = metric.get_score(y_true, y_pred)
         assert isinstance(score, float)
-        assert np.isclose(score, 0.413, atol=0.01)
+        assert np.isclose(score, 0.413, atol = 0.01)
 
     def test_theil_normal_invalid(self):
 
@@ -866,15 +943,17 @@ class TestBinaryFairness(unittest.TestCase):
         assert self.extract_metric_from_df('Average Odds', df) == 0.375
         assert self.extract_metric_from_df('Disparate Impact', df) == 1.
         assert self.extract_metric_from_df('FNR difference', df) == 0.25
+        assert self.extract_metric_from_df('FOR difference', df) == 0.25
         assert self.extract_metric_from_df('Predictive Equality', df) == 1.00
         assert self.extract_metric_from_df('Generalized Entropy Index', df) == 1.375
-        assert np.isclose(self.extract_metric_from_df('Theil Index', df), 1.263, atol=0.01)
+        assert np.isclose(self.extract_metric_from_df('Theil Index', df), 1.263, atol = 0.01)
 
         attr = 'Ideal Value'
         assert self.extract_metric_from_df('Average Odds', df, attr) == 0
         assert self.extract_metric_from_df('Disparate Impact', df, attr) == 1
         assert self.extract_metric_from_df('Equal Opportunity', df, attr) == 0
         assert self.extract_metric_from_df('FNR difference', df, attr) == 0
+        assert self.extract_metric_from_df('FOR difference', df, attr) == 0
         assert self.extract_metric_from_df('Generalized Entropy Index', df, attr) == 0
         assert self.extract_metric_from_df('Predictive Equality', df, attr) == 0
         assert self.extract_metric_from_df('Statistical Parity', df, attr) == 0
@@ -885,6 +964,7 @@ class TestBinaryFairness(unittest.TestCase):
         assert self.extract_metric_from_df('Disparate Impact', df, attr) == .8
         assert self.extract_metric_from_df('Equal Opportunity', df, attr) == -.2
         assert self.extract_metric_from_df('FNR difference', df, attr) == -.2
+        assert self.extract_metric_from_df('FOR difference', df, attr) == -.2
         assert self.extract_metric_from_df('Generalized Entropy Index', df, attr) == 0.
         assert self.extract_metric_from_df('Predictive Equality', df, attr) == -.2
         assert self.extract_metric_from_df('Statistical Parity', df, attr) == -.2
@@ -895,6 +975,7 @@ class TestBinaryFairness(unittest.TestCase):
         assert self.extract_metric_from_df('Disparate Impact', df, attr) == 1.2
         assert self.extract_metric_from_df('Equal Opportunity', df, attr) == .2
         assert self.extract_metric_from_df('FNR difference', df, attr) == .2
+        assert self.extract_metric_from_df('FOR difference', df, attr) == .2
         assert not np.isfinite(self.extract_metric_from_df('Generalized Entropy Index', df, attr))
         assert self.extract_metric_from_df('Predictive Equality', df, attr) == .2
         assert self.extract_metric_from_df('Statistical Parity', df, attr) == .2
@@ -915,15 +996,17 @@ class TestBinaryFairness(unittest.TestCase):
         assert not np.isfinite(self.extract_metric_from_df('Average Odds', df))
         assert not np.isfinite(self.extract_metric_from_df('Disparate Impact', df))
         assert self.extract_metric_from_df('FNR difference', df) == 0.
+        assert self.extract_metric_from_df('FOR difference', df) == -0.4
         assert not np.isfinite(self.extract_metric_from_df('Predictive Equality', df))
         assert self.extract_metric_from_df('Generalized Entropy Index', df) == 2.
-        assert np.isclose(self.extract_metric_from_df('Theil Index', df), 1.609, atol=0.01)
+        assert np.isclose(self.extract_metric_from_df('Theil Index', df), 1.609, atol = 0.01)
 
         attr = 'Ideal Value'
         assert self.extract_metric_from_df('Average Odds', df, attr) == 0
         assert self.extract_metric_from_df('Disparate Impact', df, attr) == 1
         assert self.extract_metric_from_df('Equal Opportunity', df, attr) == 0
         assert self.extract_metric_from_df('FNR difference', df, attr) == 0
+        assert self.extract_metric_from_df('FOR difference', df, attr) == 0
         assert self.extract_metric_from_df('Generalized Entropy Index', df, attr) == 0
         assert self.extract_metric_from_df('Predictive Equality', df, attr) == 0
         assert self.extract_metric_from_df('Statistical Parity', df, attr) == 0
@@ -934,6 +1017,7 @@ class TestBinaryFairness(unittest.TestCase):
         assert self.extract_metric_from_df('Disparate Impact', df, attr) == .8
         assert self.extract_metric_from_df('Equal Opportunity', df, attr) == -.2
         assert self.extract_metric_from_df('FNR difference', df, attr) == -.2
+        assert self.extract_metric_from_df('FOR difference', df, attr) == -.2
         assert self.extract_metric_from_df('Generalized Entropy Index', df, attr) == 0.
         assert self.extract_metric_from_df('Predictive Equality', df, attr) == -.2
         assert self.extract_metric_from_df('Statistical Parity', df, attr) == -.2
@@ -944,6 +1028,7 @@ class TestBinaryFairness(unittest.TestCase):
         assert self.extract_metric_from_df('Disparate Impact', df, attr) == 1.2
         assert self.extract_metric_from_df('Equal Opportunity', df, attr) == .2
         assert self.extract_metric_from_df('FNR difference', df, attr) == .2
+        assert self.extract_metric_from_df('FOR difference', df, attr) == .2
         assert not np.isfinite(self.extract_metric_from_df('Generalized Entropy Index', df, attr))
         assert self.extract_metric_from_df('Predictive Equality', df, attr) == .2
         assert self.extract_metric_from_df('Statistical Parity', df, attr) == .2
