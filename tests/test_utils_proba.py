@@ -42,7 +42,7 @@ class TestUtilsProba(unittest.TestCase):
 
         # Test Data for Bootstrap simulations
         # TODO shall we call it surrogate_df instead of zip df?
-        cls.zip_df = pd.DataFrame({"ZIP5_AD_IMP": list(range(0, 99)),
+        cls.surrogate_df = pd.DataFrame({"surrogate5_AD_IMP": list(range(0, 99)),
                                    "count": [34, 32, 26, 34, 37, 23, 27, 21, 31, 28, 38, 18, 25, 30, 26, 35, 31,
                                              23, 28, 28, 22, 33, 30, 19, 35, 25, 24, 31, 25, 42, 27, 23, 32, 36,
                                              25, 37, 24, 15, 39, 28, 26, 38, 36, 30, 27, 27, 33, 28, 23, 24,
@@ -175,7 +175,7 @@ class TestUtilsProba(unittest.TestCase):
                                                0.00832466, 0.00698722, 0.01905873, 0.03549293, 0.01986755,
                                                0.01926585, 0., 0.02709604, 0.00978272, 0.0026096]})
 
-        cls.zip_df["pct_nw_s"] = 1 - cls.zip_df["pct_w_s"]
+        cls.surrogate_df["pct_nw_s"] = 1 - cls.surrogate_df["pct_w_s"]
 
     def test_calc_one_bag_form(self):
         """
@@ -441,17 +441,17 @@ class TestUtilsProba(unittest.TestCase):
     # So we can continue to use this when the census data changes.
     # TODO: REMOVE race terminology
     @staticmethod
-    def assign_race(population_data, generator, zip_col_name='ZIP5_AD_IMP'):
+    def assign_race(population_data, generator, surrogate_col_name='surrogate5_AD_IMP'):
         # Passing in the global random number generator
         # Lets us make sure that we're not accidentally resetting the seed
-        zip_race_prob_grouped = population_data.groupby(zip_col_name)
-        zip_groups = []
-        for name, group in zip_race_prob_grouped:
+        surrogate_protected_prob_grouped = population_data.groupby(surrogate_col_name)
+        surrogate_groups = []
+        for name, group in surrogate_protected_prob_grouped:
             try:
                 probs = [group["pct_w_s"].unique()[0], group.pct_black_zip.unique()[0],
                          group.pct_api_zip.unique()[0],
                          group.pct_aian_zip.unique()[0], group.pct_other_zip.unique()[0],
-                         group.pct_2prace_zip.unique()[0]]
+                         group.pct_2pprotected_zip.unique()[0]]
                 group['surrogate'] = generator.choice(
                     ["W", "B", 'A',
                      'AI',
@@ -460,25 +460,25 @@ class TestUtilsProba(unittest.TestCase):
                 pass
                 # print(name)
                 # print(probs)
-            zip_groups.append(group)
-        out_data = pd.concat(zip_groups)
+            surrogate_groups.append(group)
+        out_data = pd.concat(surrogate_groups)
         return out_data
 
     @staticmethod
     # TODO REMOVE race terminology
-    def assign_race_and_accuracy(input_data, rates_by_race, generator, race_col_name="w"):
+    def assign_protected_and_accuracy(input_data, rates_by_protected, generator, protected_col_name="w"):
         # Assign everyone a "true" race for simulation purposes
-        race_assignments = TestUtilsProba.assign_race(input_data, generator)
+        protected_assignments = TestUtilsProba.assign_protected(input_data, generator)
         # Current simulation only handles 2 categories: white or not.
-        race_assignments["w"] = np.where(race_assignments["surrogate"] == "W", "W", "NW")
+        protected_assignments["w"] = np.where(protected_assignments["surrogate"] == "W", "W", "NW")
         # Assign each individual a quadrant in the confusion matrix based on:
         #   Percent of positive (not predict_pos_probs)
         #   probability of being a false positive
         #   probability of being a false negative
         # These are different by race and fed into the simulation through indexes
         # Index keys are the values in the race column, e.g. "White" and "Non-White"
-        model_outcomes = TestUtilsProba.model_outcome_by_race(race_assignments, rates_by_race,
-                                                              race_col_name=race_col_name)
+        model_outcomes = TestUtilsProba.model_outcome_by_protected(protected_assignments, rates_by_protected,
+                                                              protected_col_name=protected_col_name)
         accuracy = TestUtilsProba.accuracy_columns(model_outcomes, "prediction", "label")
         return accuracy
 
@@ -519,13 +519,13 @@ class TestUtilsProba(unittest.TestCase):
 
     # TODO REMOVE race terminology
     @staticmethod
-    def model_outcome_by_race(zip_race_assignment, rates_by_race, race_col_name="w"):
+    def model_outcome_by_protected(surrogate_protected_assignment, rates_by_protected, protected_col_name="w"):
         # Assign true positive, true negative, etc by race
-        zip_race_prob_grouped = zip_race_assignment.groupby(race_col_name)
+        surrogate_protected_prob_grouped = surrogate_protected_assignment.groupby(protected_col_name)
 
         classified_groups = []
-        for name, group in zip_race_prob_grouped:
-            rates_dict = rates_by_race[name]
+        for name, group in surrogate_protected_prob_grouped:
+            rates_dict = rates_by_protected[name]
             probs = TestUtilsProba.confusion_matrix_prob(rates_dict["pct_positive"], rates_dict["fpr"],
                                                          rates_dict["fnr"])
             group['pred_category'] = np.random.choice(['fp', 'fn', 'tn', 'tp'], len(group), p=probs)
