@@ -166,8 +166,8 @@ class TestBinaryProbFairness(unittest.TestCase):
         labels = [0, 1, 0, 1]
         predictions = np.array([1, 1, 0, 1])
         surrogates = np.array([0, 2, 0, 1])
-        memberships = np.array([[0.5, 0.5, 0.5], [0.5],
-                                [0.5, 0.5], [0.5, 0.5]])
+        memberships = np.array([list([0.5, 0.5, 0.5]), list([0.5]),
+                                list([0.5, 0.5]), list([0.5, 0.5])],dtype=object)
         membership_labels = [1]
 
         fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
