@@ -18,6 +18,7 @@ Available Fairness Metrics
 * `Disparate Impact <https://fidelity.github.io/jurity/about_fairness.html#disparate-impact>`_
 * `Equal Opportunity <https://fidelity.github.io/jurity/about_fairness.html#equal-opportunity>`_
 * `False Negative Rate Difference <https://fidelity.github.io/jurity/about_fairness.html#fnr-difference>`_
+* `False Omission Rate Difference <https://fidelity.github.io/jurity/about_fairness.html#for-difference>`_
 * `Generalized Entropy Index <https://fidelity.github.io/jurity/about_fairness.html#generalized-entropy-index>`_
 * `Predictive Equality <https://fidelity.github.io/jurity/about_fairness.html#predictive-equality>`_
 * `Statistical Parity <https://fidelity.github.io/jurity/about_fairness.html#statistical-parity>`_
