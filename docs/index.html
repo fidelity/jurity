@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jurity: Fairness &amp; Evaluation Library &mdash; Jurity 1.3.3 documentation</title>
+  <title>Jurity: Fairness &amp; Evaluation Library &mdash; Jurity 1.3.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -26,11 +27,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="#" class="icon icon-home"> Jurity
+
+          
+          
+          <a href="#" class="icon icon-home">
+            Jurity
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -57,8 +62,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>Jurity: Fairness &amp; Evaluation Library</li>
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Jurity: Fairness &amp; Evaluation Library</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -69,16 +74,17 @@
            <div itemprop="articleBody">
              
   <section id="jurity-fairness-evaluation-library">
-<h1>Jurity: Fairness &amp; Evaluation Library<a class="headerlink" href="#jurity-fairness-evaluation-library" title="Permalink to this headline"></a></h1>
+<h1>Jurity: Fairness &amp; Evaluation Library<a class="headerlink" href="#jurity-fairness-evaluation-library" title="Permalink to this heading"></a></h1>
 <p>Jurity is a research library that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.</p>
 <p>Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments.</p>
 <section id="available-fairness-metrics">
-<h2>Available Fairness Metrics<a class="headerlink" href="#available-fairness-metrics" title="Permalink to this headline"></a></h2>
+<h2>Available Fairness Metrics<a class="headerlink" href="#available-fairness-metrics" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_fairness.html#average-odds">Average Odds</a></p></li>
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_fairness.html#disparate-impact">Disparate Impact</a></p></li>
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_fairness.html#equal-opportunity">Equal Opportunity</a></p></li>
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_fairness.html#fnr-difference">False Negative Rate Difference</a></p></li>
+<li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_fairness.html#for-difference">False Omission Rate Difference</a></p></li>
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_fairness.html#generalized-entropy-index">Generalized Entropy Index</a></p></li>
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_fairness.html#predictive-equality">Predictive Equality</a></p></li>
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_fairness.html#statistical-parity">Statistical Parity</a></p></li>
@@ -86,13 +92,13 @@
 </ul>
 </section>
 <section id="available-bias-mitigation-techniques">
-<h2>Available Bias Mitigation Techniques<a class="headerlink" href="#available-bias-mitigation-techniques" title="Permalink to this headline"></a></h2>
+<h2>Available Bias Mitigation Techniques<a class="headerlink" href="#available-bias-mitigation-techniques" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_fairness.html#equalized-odds">Equalized Odds</a></p></li>
 </ul>
 </section>
 <section id="available-recommenders-metrics">
-<h2>Available Recommenders Metrics<a class="headerlink" href="#available-recommenders-metrics" title="Permalink to this headline"></a></h2>
+<h2>Available Recommenders Metrics<a class="headerlink" href="#available-recommenders-metrics" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_reco.html#auc-area-under-the-curve">AUC: Area Under the Curve</a></p></li>
 <li><p><a class="reference external" href="https://fidelity.github.io/jurity/about_reco.html#ctr-click-through-rate">CTR: Click-through rate</a></p></li>
@@ -105,7 +111,7 @@
 </ul>
 </section>
 <section id="available-classification-metrics">
-<h2>Available Classification Metrics<a class="headerlink" href="#available-classification-metrics" title="Permalink to this headline"></a></h2>
+<h2>Available Classification Metrics<a class="headerlink" href="#available-classification-metrics" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html">Accuracy</a></p></li>
 <li><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_auc_score.html#sklearn.metrics.roc_auc_score">AUC</a></p></li>
@@ -116,9 +122,9 @@
 </section>
 </section>
 <section id="quick-start">
-<span id="quick"></span><h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline"></a></h1>
+<span id="quick"></span><h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this heading"></a></h1>
 <section id="calculate-fairness-metrics">
-<h2>Calculate Fairness Metrics<a class="headerlink" href="#calculate-fairness-metrics" title="Permalink to this headline"></a></h2>
+<h2>Calculate Fairness Metrics<a class="headerlink" href="#calculate-fairness-metrics" title="Permalink to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import binary and multi-class fairness metrics</span>
 <span class="kn">from</span> <span class="nn">jurity.fairness</span> <span class="kn">import</span> <span class="n">BinaryFairnessMetrics</span><span class="p">,</span> <span class="n">MultiClassFairnessMetrics</span>
 
@@ -145,7 +151,7 @@
 </div>
 </section>
 <section id="fit-and-apply-bias-mitigation">
-<h2>Fit and Apply Bias Mitigation<a class="headerlink" href="#fit-and-apply-bias-mitigation" title="Permalink to this headline"></a></h2>
+<h2>Fit and Apply Bias Mitigation<a class="headerlink" href="#fit-and-apply-bias-mitigation" title="Permalink to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import binary fairness metrics and mitigation</span>
 <span class="kn">from</span> <span class="nn">jurity.fairness</span> <span class="kn">import</span> <span class="n">BinaryFairnessMetrics</span>
 <span class="kn">from</span> <span class="nn">jurity.mitigation</span> <span class="kn">import</span> <span class="n">BinaryMitigation</span>
@@ -172,7 +178,7 @@
 </div>
 </section>
 <section id="calculate-recommenders-metrics">
-<h2>Calculate Recommenders Metrics<a class="headerlink" href="#calculate-recommenders-metrics" title="Permalink to this headline"></a></h2>
+<h2>Calculate Recommenders Metrics<a class="headerlink" href="#calculate-recommenders-metrics" title="Permalink to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import recommenders metrics</span>
 <span class="kn">from</span> <span class="nn">jurity.recommenders</span> <span class="kn">import</span> <span class="n">BinaryRecoMetrics</span><span class="p">,</span> <span class="n">RankingRecoMetrics</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -198,7 +204,7 @@
 </div>
 </section>
 <section id="calculate-classification-metrics">
-<h2>Calculate Classification Metrics<a class="headerlink" href="#calculate-classification-metrics" title="Permalink to this headline"></a></h2>
+<h2>Calculate Classification Metrics<a class="headerlink" href="#calculate-classification-metrics" title="Permalink to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import classification metrics</span>
 <span class="kn">from</span> <span class="nn">jurity.classification</span> <span class="kn">import</span> <span class="n">BinaryClassificationMetrics</span>
 
@@ -217,7 +223,7 @@
 </section>
 </section>
 <section id="source-code">
-<h1>Source Code<a class="headerlink" href="#source-code" title="Permalink to this headline"></a></h1>
+<h1>Source Code<a class="headerlink" href="#source-code" title="Permalink to this heading"></a></h1>
 <p>The source code is hosted on <a class="reference external" href="https://github.com/fidelity/jurity">GitHub</a>.</p>
 <aside class="sidebar">
 <p class="sidebar-title">Contents</p>
@@ -243,6 +249,7 @@
 <li class="toctree-l2"><a class="reference internal" href="about_fairness.html#disparate-impact">Disparate Impact</a></li>
 <li class="toctree-l2"><a class="reference internal" href="about_fairness.html#equal-opportunity">Equal Opportunity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="about_fairness.html#fnr-difference">FNR Difference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about_fairness.html#for-difference">FOR Difference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="about_fairness.html#generalized-entropy-index">Generalized Entropy Index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="about_fairness.html#predictive-equality">Predictive Equality</a></li>
 <li class="toctree-l2"><a class="reference internal" href="about_fairness.html#statistical-parity">Statistical Parity</a></li>
@@ -271,7 +278,7 @@
 </aside>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>

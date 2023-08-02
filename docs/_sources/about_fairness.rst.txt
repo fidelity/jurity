@@ -35,6 +35,10 @@ FNR Difference measures the equality (or lack thereof) of the false negative rat
 
     E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]
 
+FOR Difference
+^^^^^^^^^^^^^^
+FOR Difference measures the equality (or lack thereof) across groups of the rate of inaccurate "negative" predictions by the model. It is calculated using the ratio of false negatives to negative examples in the dataset, :math:`FOR = FN/N`, conditioned on a protected attribute.
+
 Generalized Entropy Index
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Generalized Entropy Index is proposed as a unified individual and group fairness measure in [1]_. With :math:`b_i = \hat{y}_i - y_i + 1`:
