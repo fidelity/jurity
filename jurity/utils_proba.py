@@ -27,7 +27,10 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     # X [Z by p]: Likelihoods at surrogate variable level, p>=2 with the probabilities of protected and unprotected status
     # W [Z by 1]: The number of individuals for each level of Z
     # Right now, these are returned as a single dataframe
-    check_inputs_proba(predictions, memberships, surrogates, membership_labels, labels)
+    if labels is not None:
+        check_inputs_proba(predictions, memberships, surrogates, membership_labels, True, labels)
+    else:
+        check_inputs_proba(predictions, memberships, surrogates, membership_labels, False)
     if membership_names is None:
         membership_names = ["A", "B"]
     summary_df = SummaryData.summarize(predictions, memberships, surrogates, labels, membership_names)
@@ -56,7 +59,7 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
 def unpack_bootstrap(df: pd.DataFrame, stat_name: str, membership_labels: List[int]):
     stats = df[[stat_name]]
     v = stats.index.values
-    if len(v) != 2:
+    if len(v) != 2 or len(membership_labels)>1:
         raise ValueError("Unpacking for probabilistic results only enabled for binary metrics.")
     return stats.loc[v[membership_labels], stat_name][0], stats.loc[np.delete(v, membership_labels), stat_name][0]
 
@@ -72,12 +75,11 @@ class BiasCalculator:
     """
 
     @classmethod
-    def from_df(cls, df, membership_labels, membership_names, test_names=None, weight_warnings=True):
-
+    def from_df(cls,df, membership_labels, membership_names, test_names=None, weight_warnings=True):
         if test_names is None:
-            test_names = ["true_positive_ratio", "true_negative_ratio",
-                          "false_positive_ratio", "false_negative_ratio",
-                          "prediction_ratio"]
+            test_names = [Constants.true_positive_ratio, Constants.true_negative_ratio,
+                          Constants.false_positive_ratio, Constants.false_negative_ratio,
+                          Constants.prediction_ratio]
 
         weight_name = "count"
         if np.any([m < 0 for m in membership_labels]) or np.any(
@@ -131,10 +133,9 @@ class BiasCalculator:
                 self._y = np.reshape(y, (-1, y.shape[0]))
             elif not y.ndim == 2:
                 raise ValueError("Input Y must have 1 or 2 dimensions.")
-            else:
-                self._y = y
-                # always update n_tests when we update Y
-                self._n_tests = self._y.shape[1]
+            self._y = y
+            # always update n_tests when we update Y
+            self._n_tests = self._y.shape[1]
         return self._y
 
     def X(self, value=None):
@@ -150,8 +151,7 @@ class BiasCalculator:
                 self._x = np.reshape(x, (-1, x.shape[0]))
             elif not x.ndim == 2:
                 raise ValueError("Input X must have 1 or 2 dimensions")
-            else:
-                self._x = x
+            self._x = x
         return self._x
 
     def W(self, value=None):
@@ -165,9 +165,7 @@ class BiasCalculator:
                 print("Cannot convert W into a numpy array or floats.")
             if not w.ndim == 1:
                 raise ValueError("W must be a one-dimensional array.")
-                # return self._w
-            else:
-                self._w = w
+            self._w = w
         return self._w
 
     def surrogate_labels(self, value=None):
@@ -178,20 +176,15 @@ class BiasCalculator:
         input_form = f"Input was of form {value}"
         if value:
             if not isinstance(value, list):
-                raise ValueError(r_form)
-                # print("Input is not a list")
-                # print(input_form)
+                raise ValueError(f"{r_form}\n{input_form}")
             elif not len(value) == 2:
-                raise ValueError(r_form)
-                # print("Input has wrong dimensions. Must be a nested list of length 2.")
-                # print(input_form)
+                raise ValueError(f"{r_form}\n{input_form}")
             elif not len(value[0]) == 1:
-                raise ValueError(r_form)
-                # print("There can only be one omitted category")
+                raise ValueError("There can only be one omitted category")
             else:
                 if len(value[1]) != self._x.shape[1]:
                     raise ValueError(
-                        "Race labels does not match dimension of X. Update X first, or check dimensions of input labels.")
+                        "Surrogate labels does not match dimension of X. Update X first, or check dimensions of input labels.")
                 else:
                     self._compare_label = value[0][0]
                     self.all_surrogate_labels(value[1])
@@ -205,7 +198,12 @@ class BiasCalculator:
 
     def test_labels(self, value=None):
         if value is not None:
-            # TODO: sanitize
+            if not isinstance(value,list):
+                raise ValueError(f"test_labels must be a list of strings. Input: {value}")
+            else:
+                for s in value:
+                    if not isinstance(s,str):
+                        raise ValueError(f"test_labels must be a list of strings. Input: {value}")
             self._test_labels = value
         return self._test_labels
 
@@ -219,6 +217,8 @@ class BiasCalculator:
                                                                                                          self._y.shape))
         elif not self.Y().shape[0] == self.W().shape[0]:
             raise ValueError("Length of W does not match X and Y")
+        elif not self.Y().shape[1]==len(self.test_labels()):
+            raise ValueError("Y and test_names have different dimensions. Y:{0} labels: {1}.".format(self.Y().shape[1],len(self.test_labels())))
         else:
             return True
 
@@ -391,12 +391,14 @@ class BiasCalcFromDataFrame:
         Initialize names to be read and name of comparison category for regression.
         """
 
+        omitted_string=None
         # Get the first non-protected group listed.
         for idx, name in enumerate(membership_names):
             if idx not in membership_labels:
                 omitted_string = name
-                break;
-
+                break
+        if omitted_string is None:
+            raise ValueError("All groups appear to be protected groups. Must designate at least one non-protected group.")
         self.compare_label(omitted_string)
         self.surrogate_names(membership_names)
         if self._compare_label in membership_names:
@@ -406,7 +408,7 @@ class BiasCalcFromDataFrame:
 
     def surrogate_names(self, value=None):
         """
-        Get or set race names. Make sure it is a list of strings
+        Get or set surrogate class names. Make sure it is a list of strings
         """
         if value:
             if type(value) != list:
@@ -433,7 +435,8 @@ class BiasCalcFromDataFrame:
                     raise ValueError(f"Test name {l} is not a string.")
             self._test_names = value
             if not len(self._test_names) == len(v):
-                raise ValueError("List of test names contains duplicates. De-duplicating.")
+                warnings.warn("List of test names contains duplicates. De-duplicating.")
+                self._test_names=list(set(value))
         return self._test_names
 
     def compare_label(self, value=None):
@@ -546,8 +549,8 @@ class SummaryData:
     """
     Class that calculates summary data by surrogate class from input detailed data by surrogate class.
     _tests: Names of tests to be calculated
-    _zip_perf_col_name: Name of zip variable in performance data
-    _zip_zip_col_name: Name of zip variable in zip code data
+    _surrogate_perf_col_name: Name of zip variable in performance data
+    _surrogate_surrogate_col_name: Name of zip variable in zip code data
     _pred_name: Name of column with predicted label
     _true_name: Name of column with true label
     """
@@ -571,12 +574,12 @@ class SummaryData:
         if labels is not None:
             df = pd.concat([df, pd.Series(data=labels, name="labels")], axis=1)
             label_name = "labels"
-            test_names = ["true_positive_ratio", "true_negative_ratio",
-                          "false_positive_ratio", "false_negative_ratio",
-                          "prediction_ratio"]
+            test_names = [Constants.true_positive_ratio, Constants.true_negative_ratio,
+                          Constants.false_positive_ratio, Constants.false_negative_ratio,
+                          Constants.prediction_ratio]
         else:
             label_name = None
-            test_names = ["prediction_ratio"]
+            test_names = [Constants.prediction_ratio]
         # To specify likelihoods, user can provide either:
         # 1. An ndarray of likelihoods that gives likelihood of protected membership
         #   for each person. If this is given, we have to summarize the likelihoods at the surrogate level
@@ -591,7 +594,7 @@ class SummaryData:
                 len_likelihoods = len(memberships)
                 raise InputShapeError("",
                                       "Likelihoods must either be a pandas dataframe with surrogates as index "
-                                      "or the same length as predictions vector"
+                                      "or be the same length as predictions vector"
                                       f"length of predictions {len_predictions}"
                                       f"length of likelihoods {len_likelihoods}")
             if isinstance(memberships, list) or isinstance(memberships, np.ndarray):
@@ -600,17 +603,17 @@ class SummaryData:
                 interim_df = pd.DataFrame(list(memberships.values))
             else:
                 interim_df = memberships
-        likes_detail = pd.concat([pd.Series(surrogates, name="surrogates"), interim_df], axis=1)
-        likes_df = likes_detail.groupby(by="surrogates").mean()
-        likes_df.columns = membership_names
-        likes_df = likes_df.reset_index()
+            likes_detail = pd.concat([pd.Series(surrogates, name="surrogates"), interim_df], axis=1)
+            likes_df = likes_detail.groupby(by="surrogates").mean()
+            likes_df.columns = membership_names
+            likes_df = likes_df.reset_index()
         summarizer = cls("surrogates", "surrogates", "predictions", true_name=label_name, test_names=test_names)
-        return summarizer.make_summary_data(perf_df=df, zip_df=likes_df)
+        return summarizer.make_summary_data(perf_df=df, surrogate_df=likes_df)
 
-    def __init__(self, zip_zip_col_name, zip_perf_col_name, pred_name, true_name=None, max_shrinkage=0.5,
+    def __init__(self, surrogate_surrogate_col_name, surrogate_perf_col_name, pred_name, true_name=None, max_shrinkage=0.5,
                  test_names=None):
-        self.zip_zip_col_name(zip_zip_col_name)
-        self.zip_perf_col_name(zip_perf_col_name)
+        self.surrogate_surrogate_col_name(surrogate_surrogate_col_name)
+        self.surrogate_perf_col_name(surrogate_perf_col_name)
         self.pred_name(pred_name)
         self._true_name = None
         self.true_name(true_name)
@@ -618,17 +621,17 @@ class SummaryData:
         self._test_names = None
         self.test_names(test_names)
 
-    def zip_zip_col_name(self, value=None):
+    def surrogate_surrogate_col_name(self, value=None):
         if value:
             if self.col_name_checker(value):
-                self._zip_zip_col_name = value
-        return self._zip_zip_col_name
+                self._surrogate_surrogate_col_name = value
+        return self._surrogate_surrogate_col_name
 
-    def zip_perf_col_name(self, value=None):
+    def surrogate_perf_col_name(self, value=None):
         if value:
             if self.col_name_checker(value):
-                self._zip_perf_col_name = value
-        return self._zip_perf_col_name
+                self._surrogate_perf_col_name = value
+        return self._surrogate_perf_col_name
 
     def pred_name(self, value=None):
         if value:
@@ -661,9 +664,9 @@ class SummaryData:
         Checks specific to performance data.
         """
         if self.true_name() is not None:
-            needed_names = [self.true_name()] + [self.pred_name()] + [self.zip_perf_col_name()]
+            needed_names = [self.true_name()] + [self.pred_name()] + [self.surrogate_perf_col_name()]
         else:
-            needed_names = [self.pred_name()] + [self.zip_perf_col_name()]
+            needed_names = [self.pred_name()] + [self.surrogate_perf_col_name()]
         return self.check_read_data(df, needed_names, "performance_data")
 
     def check_read_data(self, df, needed_names, df_name, id_col_name=None):
@@ -696,33 +699,33 @@ class SummaryData:
                 self._test_names = ["prediction_ratio"]
         return self._test_names
 
-    def check_zip_data(self, df):
+    def check_surrogate_data(self, df):
         """
         Checks specific to zip data.
         """
         all_good = True
-        needed_names = [self._zip_zip_col_name]
+        needed_names = [self._surrogate_surrogate_col_name]
         if not self.check_read_data(df, needed_names, "zip data"):
             all_good = False
             return all_good
         else:
-            all_good = (df[self._zip_zip_col_name].nunique() == df.shape[0])
+            all_good = (df[self._surrogate_surrogate_col_name].nunique() == df.shape[0])
             if not all_good:
                 print("Input Zip data has duplicates. Zip data must be de-duplicated by zip.")
         return all_good
 
-    def check_merged_data(self, merged_df, zip_df, performance_df, print_warnings=True):
+    def check_merged_data(self, merged_df, surrogate_df, performance_df, print_warnings=True):
         """
         Make sure merged data hasn't lost too many rows due to inner join
         And make sure it hasn't increased in rows due to zip code duplicates
         Arguments:
-        merged_df: data frame resulting from merge between zip_df and performance_df
-        zip_df: zip code data frame
+        merged_df: data frame resulting from merge between surrogate_df and performance_df
+        surrogate_df: zip code data frame
         performance_df: Performance data frame
         """
 
         m_rows = float(merged_df.shape[0])
-        z_rows = float(zip_df.shape[0])
+        z_rows = float(surrogate_df.shape[0])
         p_rows = float(performance_df.shape[0])
         shrinkage = 1 - m_rows / p_rows
 
@@ -733,13 +736,13 @@ class SummaryData:
             elif shrinkage > self.max_shrinkage():
                 print(f"Merged data has {m_rows}, but performance data only has {p_rows}.")
                 raise ValueError(
-                    "Merge between zip code data and performance data rows results in loss of {0:.0}% of performance data.".format(
+                    "Merge between surrogate data and performance data results in loss of {0:.0}% of performance data.".format(
                         shrinkage))
             elif shrinkage > 0.2:
-                print(f"Merged data has {m_rows}, but performance data has {p_rows}.")
+                warnings.warn(f"Merged data has {m_rows}, but performance data has {p_rows}.")
                 # raise Warning("Merge between zip code data and performance data rows results in loss of {0:.0}% of performance data.".format(shrinkage))
 
-    def check_zip_confusion_matrix(self, confusion_df, merged_df):
+    def check_surrogate_confusion_matrix(self, confusion_df, merged_df):
         """
         Make sure confusion matrix is unique by zip code.
         Make sure nothing has been lost in the summary.
@@ -748,7 +751,7 @@ class SummaryData:
             merged_df: the original detail df.
         """
         n_rows = confusion_df.shape[0]
-        n_unique_zips = merged_df[self._zip_zip_col_name].nunique()
+        n_unique_zips = merged_df[self._surrogate_surrogate_col_name].nunique()
         if not n_rows == n_unique_zips:
             # TODO This keeps printing during tests, can we turn off?
             print(
@@ -757,31 +760,33 @@ class SummaryData:
             # return False
         return True
 
-    def make_summary_data(self, perf_df, zip_df=None):
+    def make_summary_data(self, perf_df, surrogate_df=None):
         """
         Function that merges two dfs to make a surrogate-based summary file.
         And has the needed accuracy.
         Arguments:
-        zip_df: a dataframe unique by zip code that has race percentages for the zip code.
+        surrogate_df: a dataframe unique by zip code that has race percentages for the zip code.
         perf_df: a dataframe that has zip code and performance columns
         """
         self.check_performance_data(perf_df)
-        self.check_zip_data(zip_df)
-        merged_data = perf_df.merge(zip_df, left_on=self.zip_perf_col_name(), right_on=self.zip_zip_col_name())
-        self.check_merged_data(merged_data, zip_df, perf_df)
+        self.check_surrogate_data(surrogate_df)
+        merged_data = perf_df.merge(surrogate_df, left_on=self.surrogate_perf_col_name(), right_on=self.surrogate_surrogate_col_name())
+        self.check_merged_data(merged_data, surrogate_df, perf_df)
 
         # Create accuracy columns that measure true positive, true negative etc
-        accuracy_df = pd.concat([merged_data[self.zip_zip_col_name()],
+        accuracy_df = pd.concat([merged_data[self.surrogate_surrogate_col_name()],
                                  self.confusion_matrix_actual(merged_data, self.pred_name(), self.true_name())], axis=1)
         # Use calc_accuracy_metrics to create zip-level summary
         if self.true_name() is not None:
-            acc_cols = ["true_positive", "true_negative", "false_positive", "false_negative"]
+            acc_cols = [Constants.true_positive_ratio,Constants.true_negative_ratio,
+                        Constants.false_positive_ratio,Constants.false_negative_ratio,
+                        Constants.prediction_ratio]
         else:
-            acc_cols = []
-        confusion_matrix_zip_summary = self.calc_accuracy_metrics(accuracy_df, group_col=[self._zip_zip_col_name],
+            acc_cols = [Constants.prediction_ratio]
+        confusion_matrix_surrogate_summary = self.calc_accuracy_metrics(accuracy_df, group_col=[self._surrogate_surrogate_col_name],
                                                                   acc_cols=acc_cols)
-        self.check_zip_confusion_matrix(confusion_matrix_zip_summary, merged_data)
-        return confusion_matrix_zip_summary.join(zip_df.set_index(zip_df[self.zip_zip_col_name()]))
+        self.check_surrogate_confusion_matrix(confusion_matrix_surrogate_summary, merged_data)
+        return confusion_matrix_surrogate_summary.join(surrogate_df.set_index(surrogate_df[self.surrogate_surrogate_col_name()]))
 
     # Add columns to a pandas dataframe flagging each row as false positive, etc.
     def confusion_matrix_actual(self, test_df, pred_col, label_col):
@@ -836,11 +841,13 @@ class SummaryData:
             .rename(columns={group_col[0]: "count"})
         for c in ac_cols:
             check_accuracy[c + "_ratio"] = check_accuracy[c] / check_accuracy["count"]
-        check_accuracy = check_accuracy.rename(columns={"_".join([self.pred_name(), "ratio"]): "prediction_ratio"})
+        check_accuracy = check_accuracy.rename(columns={"_".join([self.pred_name(), "ratio"]): Constants.prediction_ratio})
+
         out_cols = ["prediction_ratio", "count"]
-        if {"true_positive_ratio", "true_negative_ratio", "false_negative_ratio", "false_positive_ratio"}.issubset(
+
+        if {Constants.true_negative_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio, Constants.false_positive_ratio}.issubset(
                 set(check_accuracy.columns)):
-            out_cols = out_cols + ["true_positive_ratio", "true_negative_ratio", "false_positive_ratio",
-                                   "false_negative_ratio"]
+            out_cols = out_cols + [Constants.true_negative_ratio, Constants.true_positive_ratio,
+                                   Constants.false_negative_ratio, Constants.false_positive_ratio]
             # Return a dataframe that has the stats by group. Use these to compare to expected values
         return check_accuracy[out_cols]

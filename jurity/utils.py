@@ -43,6 +43,7 @@ class Constants(NamedTuple):
     true_negative_ratio = "true_negative_ratio"
     false_positive_ratio = "false_positive_ratio"
     false_negative_ratio = "false_negative_ratio"
+    prediction_ratio = "prediction_ratio"
     bootstrap_implemented=["StatisticalParity","PredictiveEquality","EqualOpportunity","AverageOdds","FNRDifference"]
     no_labels=["StatisticalParity","DisparateImpact"]
     no_memberships=["GeneralizedEntropyIndex", "TheilIndex"]
