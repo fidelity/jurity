@@ -3,7 +3,7 @@ import warnings
 import pandas as pd
 import scipy.stats
 from sklearn.linear_model import LinearRegression
-from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants, check_inputs_proba
+from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants, check_inputs_proba,confusion_matrix
 
 
 def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
@@ -277,13 +277,6 @@ class BiasCalculator:
         del means["run_id"]
 
         results_by_race = means.T
-        temp = np.squeeze(np.stack(
-            [results_by_race[results_by_race.index == self.surrogate_labels()[0][0]].to_numpy()] *
-            results_by_race.shape[0]))
-        if len(self.test_labels()) == 1:
-            temp = pd.DataFrame(temp, columns=self.test_labels(), index=results_by_race.index)
-        results_by_race += temp
-        results_by_race[results_by_race.index == self.surrogate_labels()[0][0]] /= 2
         tests_we_have = results_by_race.columns
         # For binary classifiers, if we know the true labels, we will probably want these tests.
         common_tests = ["false_positive_ratio", "false_negative_ratio", "true_positive_ratio", "true_negative_ratio"]
@@ -435,8 +428,7 @@ class BiasCalcFromDataFrame:
                     raise ValueError(f"Test name {l} is not a string.")
             self._test_names = value
             if not len(self._test_names) == len(v):
-                warnings.warn("List of test names contains duplicates. De-duplicating.")
-                self._test_names=list(set(value))
+                raise(ValueError,"List of test names contains duplicates.")
         return self._test_names
 
     def compare_label(self, value=None):
@@ -776,15 +768,8 @@ class SummaryData:
         # Create accuracy columns that measure true positive, true negative etc
         accuracy_df = pd.concat([merged_data[self.surrogate_surrogate_col_name()],
                                  self.confusion_matrix_actual(merged_data, self.pred_name(), self.true_name())], axis=1)
-        # Use calc_accuracy_metrics to create zip-level summary
-        if self.true_name() is not None:
-            acc_cols = [Constants.true_positive_ratio,Constants.true_negative_ratio,
-                        Constants.false_positive_ratio,Constants.false_negative_ratio,
-                        Constants.prediction_ratio]
-        else:
-            acc_cols = [Constants.prediction_ratio]
-        confusion_matrix_surrogate_summary = self.calc_accuracy_metrics(accuracy_df, group_col=[self._surrogate_surrogate_col_name],
-                                                                  acc_cols=acc_cols)
+        # Use calc_accuracy_metrics to create surrogate-level summary
+        confusion_matrix_surrogate_summary = self.calc_accuracy_metrics(accuracy_df)
         self.check_surrogate_confusion_matrix(confusion_matrix_surrogate_summary, merged_data)
         return confusion_matrix_surrogate_summary.join(surrogate_df.set_index(surrogate_df[self.surrogate_surrogate_col_name()]))
 
@@ -796,6 +781,7 @@ class SummaryData:
         pred_col: 0/1 predicted in class or not.
         label_col: 0/1 true label
         """
+        #TODO: Replace this with confusion_matrix from utils.py
         if label_col is not None:
             correct = (test_df[pred_col] == test_df[label_col]).astype(int)
             correct.name = "correct"
@@ -813,22 +799,21 @@ class SummaryData:
             # This means we only have predictions and no true labels
             return test_df[pred_col]
 
-    def calc_accuracy_metrics(self, test_df,
-                              group_col=None,
-                              acc_cols=None):
+    def calc_accuracy_metrics(self, test_df):
         """
         Calculate TPR, etc from the confusion matrix columns
         Arguments:
             test_df: dataframe with detail data that will be rolled up by zip code
-            group_col: Usually zip code
+            group_col: surrogate column name
             acc_cols: accuracy columns that are in the dataframe as 0/1 and will be rolled up by zip
         """
+        group_col=[self._surrogate_perf_col_name]
 
-        if group_col is None:
-            group_col = ["protected_group"]
-
-        if acc_cols is None:
-            acc_cols = ["true_positive", "true_negative", "false_positive", "false_negative"]
+        if self.true_name() is not None:
+            acc_cols = ["true_positive","true_negative",
+                        "false_positive","false_negative"]
+        else:
+            acc_cols=[]
 
         agg_dict = {}
         ac_cols = acc_cols + [self.pred_name()]

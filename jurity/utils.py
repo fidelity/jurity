@@ -32,6 +32,7 @@ class Constants(NamedTuple):
     FDR = "FDR"
     FOR = "FOR"
     ACC = "ACC"
+    prediction_rate="Prediction Rate"
 
     user_id = "user_id"
     item_id = "item_id"
@@ -148,7 +149,8 @@ def check_input_type(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
     """
     check_true(type(input_) == np.ndarray or
                type(input_) == list or
-               type(input_) == pd.Series,
+               type(input_) == pd.Series or
+               type(input_) == pd.DataFrame,
                TypeError("Incorrect input type."))
 
 
@@ -374,7 +376,7 @@ def check_inputs_argmax(predictions: Union[List, np.ndarray, pd.Series],
 
 
 def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
-                       memberships: Union[List[List], np.ndarray, pd.Series],
+                       memberships: Union[List[List], np.ndarray, pd.Series,pd.DataFrame],
                        surrogates: Union[List[List], np.ndarray, pd.Series],
                        membership_labels: Union[int, float, str, List[int]],
                        must_have_labels: bool = False,
@@ -421,20 +423,23 @@ def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
                                 f"but likelihoods has array length: {len_likelihoods}")
 
     # Type check, for inner array (list, ndarray)
-    for likelihood in memberships:
-        check_true(type(likelihood) in [np.ndarray, list],
-                   TypeError("Membership likelihoods need to be 2D lists or arrays"))
+    if not isinstance(memberships,pd.DataFrame):
+        for likelihood in memberships:
+            check_true(type(likelihood) in [np.ndarray, list,pd.DataFrame],
+                       TypeError("Membership likelihoods need to be 2D lists or arrays"))
 
-    # Size match, for inner array (all arrays should be same size)
-    num_protected_classes = len(memberships[0])
+        # Size match, for inner array (all arrays should be same size)
+        num_protected_classes = len(memberships[0])
 
-    for i, likelihood in enumerate(memberships):
-        check_true(len(likelihood) == num_protected_classes,
-                   InputShapeError("",
-                                   f"Shapes of inputs do not match. "
-                                   f"Number of classes: {num_protected_classes}"
-                                   f"You supplied array lengths "
-                                   f"size: {len_likelihoods}, at index: {i}."))
+        for i, likelihood in enumerate(memberships):
+            check_true(len(likelihood) == num_protected_classes,
+                       InputShapeError("",
+                                  f"Shapes of inputs do not match. "
+                                       f"Number of classes: {num_protected_classes}"
+                                       f"You supplied array lengths "
+                                       f"size: {len_likelihoods}, at index: {i}."))
+    else:
+        num_protected_classes=len(memberships.columns)
 
     # Protected label is bounded by the number of protected
     if isinstance(membership_labels, list):
@@ -444,7 +449,6 @@ def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
     # Likelihoods should sum up to 1 (here its either numpy array or panda series)
     check_true(math.isclose(total_sum, len_likelihoods),
                ValueError("Likelihoods do not sum up to 1"))
-
 
 def performance_measures(ground_truth: np.ndarray,
                          predictions: np.ndarray,

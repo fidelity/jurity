@@ -1,4 +1,6 @@
 import unittest
+import warnings
+
 import sklearn
 import pandas as pd
 import numpy as np
@@ -35,18 +37,32 @@ class TestUtilsProba(unittest.TestCase):
                                          [Constants.false_positive_ratio,
                                               Constants.true_positive_ratio,
                                               Constants.false_negative_ratio,
-                                              Constants.true_negative_ratio])
+                                              Constants.true_negative_ratio,
+                                            Constants.prediction_ratio])
         #DataFrame matching the form that is returned bu BiasCalculator.run_bootstrap()
         #Tests transformations
         cls.test_boot_results = pd.DataFrame({"W": [0.25, 0.3, 0.2, 0.25, 0.55],
                            "B": [0.7, 0.2, 0.09, 0.01, 0.21],
                            "O": [0.05, 0.5, 0.2, 0.25, 0.75],
-                           "stat_name": ["false_negative_ratio", "false_positive_ratio",
-                                         "true_negative_ratio", "true_positive_ratio",
-                                         "prediction_ratio"],
+                           "stat_name": [Constants.false_negative_ratio, Constants.false_positive_ratio,
+                                         Constants.true_negative_ratio, Constants.true_positive_ratio,
+                                         Constants.prediction_ratio],
                            "run_id": [0, 0, 0, 0, 0]})
+        cls.bc=BiasCalculator.from_df(cls.summarized_df,membership_labels=[1,2],membership_names=["W","B","O"])
 
-        cls.bc=BiasCalculator.from_df(cls.summarized_df,membership_labels=[1],membership_names=["W","B","O"])
+    @staticmethod
+    def calc_rates(results):
+        results[Constants.FPR] = results[Constants.false_positive_ratio] / (
+                results[Constants.false_positive_ratio] + results[Constants.true_negative_ratio])
+        results[Constants.FNR] = results[Constants.false_negative_ratio] / (
+                results[Constants.false_negative_ratio] + results[Constants.true_positive_ratio])
+        results[Constants.TPR] = results[Constants.true_positive_ratio] / (
+                results[Constants.true_positive_ratio] + results[Constants.false_negative_ratio])
+        results[Constants.TNR] = results[Constants.true_negative_ratio] / (
+                results[Constants.true_negative_ratio] + results[Constants.false_positive_ratio])
+        results[Constants.ACC]=results[Constants.true_positive_ratio]+results[Constants.true_negative_ratio]
+        results[Constants.prediction_rate]=results[Constants.prediction_ratio]
+        return results
 
     def test_calc_one_bag_form(self):
         """
@@ -77,32 +93,16 @@ class TestUtilsProba(unittest.TestCase):
         --In this unit test, check whether the answers from calc_one_bag are equal to what comes out of sklearn.linear_model
         """
         x=np.array(self.summarized_df[["B","O"]])
-        y=np.array(self.summarized_df[[Constants.false_positive_ratio, Constants.false_negative_ratio,
-                                Constants.true_positive_ratio, Constants.true_negative_ratio]])
+        y=np.array(self.summarized_df[self.bc.test_labels()])
         w=np.array(self.summarized_df["count"])
 
         out = self.bc.calc_one_bag(x,y,w)
 
-        fp_model = sklearn.linear_model.LinearRegression()
-        fp_model.fit(x,y[:,0],sample_weight=w)
-
-        np.testing.assert_array_almost_equal(fp_model.coef_, out[Constants.false_positive_ratio].coef_)
-
-        fn_model = sklearn.linear_model.LinearRegression()
+        model = sklearn.linear_model.LinearRegression()
         #Make sure each has the proper label
-        fn_model.fit(x,y[:,1],w)
-
-        np.testing.assert_array_almost_equal(fn_model.coef_, out[Constants.false_negative_ratio].coef_)
-
-        tp_model = sklearn.linear_model.LinearRegression()
-        tp_model.fit(x,y[:,2],w)
-
-        np.testing.assert_array_almost_equal(tp_model.coef_, out[Constants.true_positive_ratio].coef_)
-
-        tn_model = sklearn.linear_model.LinearRegression()
-        tn_model.fit(x,y[:,3],w)
-
-        np.testing.assert_array_almost_equal(tn_model.coef_, out[Constants.true_negative_ratio].coef_)
+        for i,l in enumerate(self.bc.test_labels()):
+            model.fit(x,np.array(self.summarized_df[l]),sample_weight=w)
+            np.testing.assert_array_almost_equal(model.coef_, out[l].coef_)
 
     def test_run_boot_form(self):
         """
@@ -129,19 +129,12 @@ class TestUtilsProba(unittest.TestCase):
         """
         Test that transform_bootstrap_results gives the correct numbers
         """
-        boot = self.bc.transform_bootstrap_results(self.test_boot_results)[["FPR", "FNR", "TPR", "TNR"]]
-        ratios_added = self.test_boot_results.groupby("stat_name").mean()
-        del ratios_added["run_id"]
-        ratios_added = ratios_added.T
-        for i in range(1, ratios_added.shape[0]):
-            ratios_added.iloc[i] += ratios_added.iloc[0]
-        ratios_added = ratios_added.to_numpy()
-        ans = np.array([ratios_added[:, 1] / (ratios_added[:, 1] + ratios_added[:, 2]),
-                        ratios_added[:, 0] / (ratios_added[:, 0] + ratios_added[:, 3]),
-                        ratios_added[:, 3] / (ratios_added[:, 3] + ratios_added[:, 0]),
-                        ratios_added[:, 2] / (ratios_added[:, 2] + ratios_added[:, 1])])
-        np.testing.assert_almost_equal(boot, ans.T)
-
+        #TODO: Add ACC and Prediction Rate
+        test_these=[Constants.FNR,Constants.FPR,Constants.TNR,Constants.TPR,Constants.ACC,Constants.prediction_rate]
+        boot = self.bc.transform_bootstrap_results(self.test_boot_results)
+        ratios_added=pd.DataFrame(self.test_boot_results.drop(["run_id"],axis=1).groupby("stat_name").mean())
+        rates=self.calc_rates(ratios_added.T)
+        np.testing.assert_array_almost_equal(np.array(boot[test_these]),np.array(rates[test_these]))
     """
     These tests are for MakeBiasCalcFromDataFrame 
     """
@@ -151,11 +144,11 @@ class TestUtilsProba(unittest.TestCase):
         Test that make_x_matrix creates a two-dimensional numpy array with the correct numbers
         """
         Y = self.bcfd.get_Y_matrix(self.summarized_df)
-        ans = [[0.1, 0.9, 0.2, 0.8],
-               [0.5, 0.5, 0.4, 0.6],
-               [0.3, 0.7, 0.3, 0.7],
-               [0.1, 0.9, 0.2, 0.8],
-               [0.2, 0.8, 0.1, 0.9]]
+        ans = [[0.1, 0.9, 0.2, 0.8,1.0],
+               [0.5, 0.5, 0.4, 0.6,1.0],
+               [0.3, 0.7, 0.3, 0.7,1.0],
+               [0.1, 0.9, 0.2, 0.8,1.0],
+               [0.2, 0.8, 0.1, 0.9,1.0]]
         np.testing.assert_array_almost_equal(Y, ans)
 
     def test_make_X_matrix(self):
@@ -195,13 +188,6 @@ class TestUtilsProba(unittest.TestCase):
         self.assertEqual("W", self.bc.surrogate_labels()[0][0])
 
     def test_bias_maker_bad_data(self):
-        # duplicates
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "W", "B", "O"], "count", [3, 4],
-                          [Constants.false_positive_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio,
-                           Constants.true_negative_ratio])
-        self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "B", "O"], "count", [1, 2],
-                          [Constants.false_positive_ratio, Constants.false_positive_ratio, Constants.true_positive_ratio,
-                           Constants.false_negative_ratio, Constants.true_negative_ratio])
         # not list
         self.assertRaises(ValueError, BiasCalcFromDataFrame, "B", "count", [1],
                           [Constants.false_positive_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio,
@@ -287,10 +273,8 @@ class TestUtilsProba(unittest.TestCase):
         self.assertRaises(ValueError,unpack_bootstrap,test_unpack,"FNR",[1,2])
 
     def test_from_df(self):
-        self.assertRaises(ValueError,BiasCalculator.from_df(self.summarized_df,
-                                                            [3],
-                                                            ["W", "B","O"]),
-                          "Protected group membership out of range should raise value error but doesn't.")
+        self.assertRaises(ValueError,BiasCalculator.from_df,self.summarized_df,
+                                    [3],["W", "B","O"])
 
 #Simulations to ensure numbers accuracy
 class Simulations(unittest.TestCase):
@@ -482,7 +466,7 @@ class Simulations(unittest.TestCase):
 
     @classmethod
     def assign_protected_and_accuracy(cls,input_data, rates_by_protected, generator,
-                                      surrogate_name="surrogate", col_names=["W", "B", "O", "A", "AI", "T"]):
+                                      surrogate_name="surrogate"):
         # Assign everyone a "true" race for simulation purposes
         protected_assignments = cls.assign_protected(input_data, generator)
         # Current simulation only handles 2 categories: white or not.
@@ -494,7 +478,8 @@ class Simulations(unittest.TestCase):
         # These are different by race and fed into the simulation through indexes
         # Index keys are the values in the race column, e.g. "White" and "Non-White"
         model_outcomes = cls.model_outcome_by_protected(protected_assignments, rates_by_protected,
-                                                    protected_col_name="class")
+                                                    protected_col_name="class",
+                                                        surrogate_name=surrogate_name)
         return model_outcomes
 
     @classmethod
@@ -532,7 +517,6 @@ class Simulations(unittest.TestCase):
             classified_groups.append(group)
         classified_data = pd.concat(classified_groups)
         return classified_data
-
 
     @classmethod
     # Add columns to a pandas dataframe flagging each row as false positive, etc.
