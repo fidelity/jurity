@@ -376,42 +376,48 @@ def check_inputs_argmax(predictions: Union[List, np.ndarray, pd.Series],
                                    f"predictions: {len(predictions)}, is_member: {len(memberships)}."))
 
 
-def check_memberships_proba(memberships, unique_surrogate_list, membership_names):
+def check_memberships_proba(memberships, len_predictions,unique_surrogate_list, membership_names):
     """
     Make sure proabilistic memberships are a 2D list or array with the right dimensions
     """
-    if isinstance(memberships, pd.DataFrame):
-        check_memberships_proba_df(memberships, unique_surrogate_list, membership_names)
-    else:
-        check_input_type(memberships)
-        len_likelihoods = len(memberships[0])
-        for i, likelihood in enumerate(memberships):
-            check_true(type(likelihood) in [np.ndarray, list],
-                       TypeError("Membership likelihoods need to be 2D lists or arrays"))
+    check_input_type(memberships)
+    len_likelihoods = len(memberships[0])
+    check_true(len(memberships)==len_predictions,
+               InputShapeError("",f"Likelihoods outer array/list must be same length as predictions array."
+                "Likelihood array is:{len_likelihoods}. Predictions array is: {len_predictions}"))
+    for i, likelihood in enumerate(memberships):
+        check_true(type(likelihood) in [np.ndarray, list],
+                   TypeError(f"Membership likelihoods need to be 2D lists or arrays. Likelihood at {i} is not array or list."))
 
-            # Size match, for inner array (all arrays should be same size)
-            len_this_like = len(likelihood)
-            check_true(len_likelihoods == len_this_like,
-                       InputShapeError("",
-                                       f"Shapes of inputs do not match. "
-                                       f"Number of classes: {len_this_like}"
-                                       f"You supplied array lengths "
-                                       f"size: {len_likelihoods}, at index: {i}."))
-        if membership_names is not None:
-            errormsg="Shapes of inputs do not match. {0} is the likelihood length. Membership names is {1}".format(len_likelihoods, len(membership_names))
-            check_true(len(membership_names) == len_likelihoods,InputShapeError("",errormsg))
+        # Size match, for inner array (all arrays should be same size)
+        len_this_like = len(likelihood)
+        check_true(len_likelihoods == len_this_like,
+                   InputShapeError("",
+                                   f"Shapes of inputs do not match. "
+                                   f"Number of classes: {len_this_like}"
+                                   f"You supplied array lengths "
+                                   f"size: {len_likelihoods}, at index: {i}."))
+        check_true(math.isclose(np.sum(likelihood),1.0),
+                   InputShapeError("","Membership likelihood does not sum to 1.0. Sums to {0} at index {0}.".format(np.sum(likelihood),i)))
+    if membership_names is not None:
+        errormsg="Shapes of inputs do not match. {0} is the likelihood length. Membership names is {1}".format(len_likelihoods, len(membership_names))
+        check_true(len(membership_names) == len_likelihoods,InputShapeError("",errormsg))
 
-def check_memberships_proba_df(memberships_df, unique_surrogate_list, membership_names):
+    # Likelihoods must either match the length of the predictions vector
+    # or be a pandas dataframe with a unique index for the surrogate classes
+
+def check_memberships_proba_df(memberships_df: pd.DataFrame, unique_surrogate_list: set, membership_names:List[str]):
     if membership_names is None:
         membership_names = memberships_df.columns
     sum_to_one = pd.Series(memberships_df.sum(axis=1)).apply(lambda x: np.isclose(x, 1.0))
     check_true(len(unique_surrogate_list) == memberships_df.shape[0],
-               InputShapeError("Memberships dataframe must have one row per surrogate class."))
+               InputShapeError("","Memberships dataframe must have one row per surrogate class."))
     check_true(set(memberships_df.index.values) == unique_surrogate_list,
-               InputShapeError("Memberships dataframe must have an index with surrogate values"))
+               InputShapeError("","Memberships dataframe must have an index with surrogate values"))
     check_true(memberships_df.shape[1] == len(membership_names),
-               InputShapeError("Memberships dataframe must have one column per protected class name"))
-
+               InputShapeError("","Memberships dataframe must have one column per protected class name."))
+    #Make sure each row in the input dataframe sums to 1.
+    check_true(np.all(sum_to_one),ValueError("Each row in membership dataframe must sum to 1."))
 
 def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
                        memberships: Union[List[List], np.ndarray, pd.Series, pd.DataFrame],
@@ -434,40 +440,17 @@ def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
     check_true(memberships is not None,
                ValueError("For non-binary membership, need to provide membership likelihoods"))
 
-    check_memberships_proba(memberships, set(surrogates), membership_names)
-
-    # Find total sum
-    total_sum = np.sum(memberships.sum()) if isinstance(memberships, pd.Series) else np.sum(memberships)
-
-    # Length
-    len_likelihoods = len(memberships)
-    unique_sc = set(surrogates)
-
-    # Likelihoods must either match the length of the predictions vector
-    # or be a pandas dataframe with a unique index for the surrogate classes
-    if not (len_likelihoods == len_predictions):
-        if np.array(memberships).shape[0] == len(unique_sc):
-            error_text = "Memberships array has an entry for each unique value of surrogate class. It must be a pandas.DataFrame with surrogate class as index."
-            if not isinstance(memberships, pd.DataFrame):
-                TypeError(error_text)
-            else:
-                correct_index = (unique_sc == set(memberships.index.values))
-                if not correct_index:
-                    TypeError(error_text)
-        else:
-            InputShapeError("", f"Shapes of inputs do not match. "
-                                f"Lenth of predictions: {len_predictions}"
-                                f"but likelihoods has array length: {len_likelihoods}")
+    if isinstance(memberships,pd.DataFrame):
+        check_memberships_proba_df(memberships,set(surrogates),membership_names)
+        len_likelihoods=memberships.shape[1]
+    else:
+        check_memberships_proba(memberships, len_predictions, set(surrogates), membership_names)
+        len_likelihoods=len(memberships[0])
 
     # Protected label is bounded by the number of protected
     if isinstance(membership_labels, list):
-        check_true(len(membership_labels) < len(memberships[0]),
-                   ValueError("Protected label cannot exceed number of classes"))
-
-    # Likelihoods should sum up to 1 (here its either numpy array or panda series)
-    check_true(math.isclose(total_sum, len_likelihoods),
-               ValueError("Likelihoods do not sum up to 1"))
-
+        check_true(len(membership_labels) < len_likelihoods,
+                   ValueError("Protected label must be less than number of classes"))
 
 def performance_measures(ground_truth: np.ndarray,
                          predictions: np.ndarray,

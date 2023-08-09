@@ -29,7 +29,7 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     # Right now, these are returned as a single dataframe
     if membership_names is None:
         if isinstance(memberships,pd.DataFrame):
-            membership_names=memberships.columns
+            membership_names=list(memberships.columns.values)
         else:
             membership_names=["A","B"]
     if labels is not None:
@@ -278,25 +278,25 @@ class BiasCalculator:
         means = df.groupby("stat_name").mean()
         del means["run_id"]
 
-        results_by_race = means.T
-        tests_we_have = results_by_race.columns
+        results_by_protected = means.T
+        tests_we_have = results_by_protected.columns
         # For binary classifiers, if we know the true labels, we will probably want these tests.
         common_tests = ["false_positive_ratio", "false_negative_ratio", "true_positive_ratio", "true_negative_ratio"]
         if set(common_tests).issubset(set(tests_we_have)):
-            results_by_race["FPR"] = results_by_race["false_positive_ratio"] / (
-                    results_by_race["false_positive_ratio"] + results_by_race["true_negative_ratio"])
-            results_by_race["FNR"] = results_by_race["false_negative_ratio"] / (
-                    results_by_race["false_negative_ratio"] + results_by_race["true_positive_ratio"])
-            results_by_race["TPR"] = results_by_race["true_positive_ratio"] / (
-                    results_by_race["true_positive_ratio"] + results_by_race["false_negative_ratio"])
-            results_by_race["TNR"] = results_by_race["true_negative_ratio"] / (
-                    results_by_race["true_negative_ratio"] + results_by_race["false_positive_ratio"])
-            results_by_race["ACC"] = results_by_race["true_positive_ratio"] + results_by_race[
+            results_by_protected[Constants.FPR] = results_by_protected["false_positive_ratio"] / (
+                    results_by_protected["false_positive_ratio"] + results_by_protected["true_negative_ratio"])
+            results_by_protected[Constants.FNR] = results_by_protected["false_negative_ratio"] / (
+                    results_by_protected["false_negative_ratio"] + results_by_protected["true_positive_ratio"])
+            results_by_protected[Constants.TPR] = results_by_protected["true_positive_ratio"] / (
+                    results_by_protected["true_positive_ratio"] + results_by_protected["false_negative_ratio"])
+            results_by_protected[Constants.TNR] = results_by_protected["true_negative_ratio"] / (
+                    results_by_protected["true_negative_ratio"] + results_by_protected["false_positive_ratio"])
+            results_by_protected[Constants.ACC] = results_by_protected["true_positive_ratio"] + results_by_protected[
                 "true_negative_ratio"]
         # For binary classifiers we can always calculate the prediction_ratio, even if we don't have anything else
         if "prediction_ratio" in tests_we_have:
-            results_by_race["Prediction Rate"] = results_by_race["prediction_ratio"]
-        return results_by_race
+            results_by_protected[Constants.prediction_rate] = results_by_protected["prediction_ratio"]
+        return results_by_protected
 
     # TODO cannot we use sth from utils and/or merge with something in utils
     # TODO I feel we are duplicating many such calculations (I can be wrong)
@@ -405,7 +405,7 @@ class BiasCalcFromDataFrame:
         """
         Get or set surrogate class names. Make sure it is a list of strings
         """
-        if value:
+        if value is not None:
             if type(value) != list:
                 raise ValueError("Surrogate class names must be a list of strings")
             v = list(set(value))

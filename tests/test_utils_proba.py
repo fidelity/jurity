@@ -8,6 +8,7 @@ from scipy.stats import kstest
 from jurity.utils_proba import BiasCalculator, BiasCalcFromDataFrame,SummaryData
 from jurity.utils_proba import unpack_bootstrap
 from jurity.utils import Constants
+from jurity.utils_proba import get_bootstrap_results
 
 class TestUtilsProba(unittest.TestCase):
     """
@@ -277,13 +278,13 @@ class TestUtilsProba(unittest.TestCase):
                                     [3],["W", "B","O"])
     #TODO: Write tests for check_memberships_proba
 #Simulations to ensure numbers accuracy
-class Simulations(unittest.TestCase):
+class TestWithSimulation(unittest.TestCase):
     """
     Helper functions 
     """
     @classmethod
     def setUpClass(cls) -> None:
-        surrogate_df = pd.DataFrame({"surrogate": list(range(0, 99)),
+        cls.surrogate_df = pd.DataFrame({"surrogate": list(range(0, 99)),
                                      "count": [83, 103, 96, 96, 102, 117, 95, 107, 106, 109, 92, 95, 105,
                                                87, 114, 99, 99, 85, 119, 110, 97, 87, 123, 90, 90, 107,
                                                85, 91, 111, 108, 89, 107, 91, 95, 119, 125, 86, 95, 121,
@@ -431,14 +432,15 @@ class Simulations(unittest.TestCase):
                             'O': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1},
                             'T': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1}}
         cls.rng=np.random.default_rng(347123)
+        cls.test_data=cls.explode_dataframe(cls.surrogate_df)
 
     @classmethod
     def explode_dataframe(cls,df, count_name="count"):
         """
         Given a dataframe that has a count, produce a number of identical rows equal to that count
         """
-        df2 = df.loc[df.index.repeat(df[count_name])]
-        return df2.drop("count", axis=1)
+        e_df = df.loc[df.index.repeat(df[count_name])].drop("count",axis=1)
+        return cls.assign_protected_and_accuracy(e_df,cls.rates_dict,cls.rng)
 
 
     # For the simulation, build "True" protected groups based on population
@@ -478,8 +480,7 @@ class Simulations(unittest.TestCase):
         # These are different by race and fed into the simulation through indexes
         # Index keys are the values in the race column, e.g. "White" and "Non-White"
         model_outcomes = cls.model_outcome_by_protected(protected_assignments, rates_by_protected,
-                                                    protected_col_name="class",
-                                                        surrogate_name=surrogate_name)
+                                                    protected_col_name="class")
         return model_outcomes
 
     @classmethod
@@ -503,7 +504,7 @@ class Simulations(unittest.TestCase):
         return probs
 
     @classmethod
-    def model_outcome_by_protected(cls,surrogate_protected_assignment, rates_by_protected, protected_col_name="surrogate"):
+    def model_outcome_by_protected(cls,surrogate_protected_assignment, rates_by_protected, protected_col_name="class"):
         # Assign true positive, true negative, etc by race
         surrogate_protected_prob_grouped = surrogate_protected_assignment.groupby(protected_col_name)
 
@@ -528,5 +529,9 @@ class Simulations(unittest.TestCase):
         test_data["false_positive"] = (~(test_data["correct"]) & (test_data[pred_col] == 1)).astype(int)
         return test_data
 
-
-
+    def test_membership_as_df(self):
+        results=get_bootstrap_results(self.test_data["prediction"],self.surrogate_df.drop("count",axis=1).set_index("surrogate"),
+                                      self.test_data["surrogate"],[1,2],self.test_data["label"])
+        self.assertTrue(isinstance(results,pd.DataFrame),"get_bootstrap_results does not return a Pandas DataFrame.")
+        self.assertTrue({Constants.FPR,Constants.FNR,Constants.TNR,Constants.TPR,Constants.ACC}.issubset(set(results.columns)),
+                        "get_bootstrap_results does not contain FPR, FNR, etc. Columns in DataFrame are:{0}".format(results.columns))

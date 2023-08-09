@@ -11,7 +11,6 @@ import inspect
 from jurity.fairness import BinaryFairnessMetrics
 from jurity.utils import InputShapeError, Constants
 
-
 def run_all_fairness(labels, predictions, memberships, surrogates, membership_labels):
     fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
     for f in fairness_funcs:
