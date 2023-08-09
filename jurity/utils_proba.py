@@ -3,7 +3,7 @@ import warnings
 import pandas as pd
 import scipy.stats
 from sklearn.linear_model import LinearRegression
-from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants, check_inputs_proba,confusion_matrix
+from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants, check_inputs_proba
 
 
 def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
@@ -27,19 +27,22 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     # X [Z by p]: Likelihoods at surrogate variable level, p>=2 with the probabilities of protected and unprotected status
     # W [Z by 1]: The number of individuals for each level of Z
     # Right now, these are returned as a single dataframe
-    if labels is not None:
-        check_inputs_proba(predictions, memberships, surrogates, membership_labels, True, labels)
-    else:
-        check_inputs_proba(predictions, memberships, surrogates, membership_labels, False)
     if membership_names is None:
-        membership_names = ["A", "B"]
+        if isinstance(memberships,pd.DataFrame):
+            membership_names=memberships.columns
+        else:
+            membership_names=["A","B"]
+    if labels is not None:
+        check_inputs_proba(predictions, memberships, surrogates, membership_labels, membership_names,True, labels)
+    else:
+        check_inputs_proba(predictions, memberships, surrogates, membership_labels, membership_names,False)
     summary_df = SummaryData.summarize(predictions, memberships, surrogates, labels, membership_names)
 
     # Add X, Y, and W matricies to the BiasCalculator
     if labels is not None:
         bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names)
     else:
-        bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names, test_names=["prediction_ratio"])
+        bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names, test_names=[Constants.prediction_ratio])
 
     # Run bootstrapping to calculate inferred metrics
     # for 1 to 100:
@@ -75,13 +78,12 @@ class BiasCalculator:
     """
 
     @classmethod
-    def from_df(cls,df, membership_labels, membership_names, test_names=None, weight_warnings=True):
+    def from_df(cls,df, membership_labels, membership_names, test_names=None, weight_name="count",weight_warnings=True):
         if test_names is None:
             test_names = [Constants.true_positive_ratio, Constants.true_negative_ratio,
                           Constants.false_positive_ratio, Constants.false_negative_ratio,
                           Constants.prediction_ratio]
 
-        weight_name = "count"
         if np.any([m < 0 for m in membership_labels]) or np.any(
                 [m >= len(membership_names) for m in membership_labels]):
             raise ValueError(

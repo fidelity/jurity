@@ -86,7 +86,7 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
         # Probabilistic calculation with inferred metrics from bootstrap
         else:
             if bootstrap_results is None:
-                check_inputs_proba(predictions, memberships, surrogates, membership_labels)
+                check_inputs_proba(predictions, memberships, surrogates, membership_labels, None)
                 bootstrap_results = get_bootstrap_results(predictions,memberships,surrogates,membership_labels)
 
             group_1_predictions_pct,group_2_predictions_pct= \

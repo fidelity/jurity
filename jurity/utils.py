@@ -32,7 +32,7 @@ class Constants(NamedTuple):
     FDR = "FDR"
     FOR = "FOR"
     ACC = "ACC"
-    prediction_rate="Prediction Rate"
+    prediction_rate = "Prediction Rate"
 
     user_id = "user_id"
     item_id = "item_id"
@@ -45,9 +45,11 @@ class Constants(NamedTuple):
     false_positive_ratio = "false_positive_ratio"
     false_negative_ratio = "false_negative_ratio"
     prediction_ratio = "prediction_ratio"
-    bootstrap_implemented=["StatisticalParity","PredictiveEquality","EqualOpportunity","AverageOdds","FNRDifference"]
-    no_labels=["StatisticalParity","DisparateImpact"]
-    no_memberships=["GeneralizedEntropyIndex", "TheilIndex"]
+    bootstrap_implemented = ["StatisticalParity", "PredictiveEquality", "EqualOpportunity", "AverageOdds",
+                             "FNRDifference"]
+    no_labels = ["StatisticalParity", "DisparateImpact"]
+    no_memberships = ["GeneralizedEntropyIndex", "TheilIndex"]
+
 
 class Error(Exception):
     """
@@ -149,8 +151,7 @@ def check_input_type(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
     """
     check_true(type(input_) == np.ndarray or
                type(input_) == list or
-               type(input_) == pd.Series or
-               type(input_) == pd.DataFrame,
+               type(input_) == pd.Series,
                TypeError("Incorrect input type."))
 
 
@@ -375,13 +376,50 @@ def check_inputs_argmax(predictions: Union[List, np.ndarray, pd.Series],
                                    f"predictions: {len(predictions)}, is_member: {len(memberships)}."))
 
 
+def check_memberships_proba(memberships, unique_surrogate_list, membership_names):
+    """
+    Make sure proabilistic memberships are a 2D list or array with the right dimensions
+    """
+    if isinstance(memberships, pd.DataFrame):
+        check_memberships_proba_df(memberships, unique_surrogate_list, membership_names)
+    else:
+        check_input_type(memberships)
+        len_likelihoods = len(memberships[0])
+        for i, likelihood in enumerate(memberships):
+            check_true(type(likelihood) in [np.ndarray, list],
+                       TypeError("Membership likelihoods need to be 2D lists or arrays"))
+
+            # Size match, for inner array (all arrays should be same size)
+            len_this_like = len(likelihood)
+            check_true(len_likelihoods == len_this_like,
+                       InputShapeError("",
+                                       f"Shapes of inputs do not match. "
+                                       f"Number of classes: {len_this_like}"
+                                       f"You supplied array lengths "
+                                       f"size: {len_likelihoods}, at index: {i}."))
+        if membership_names is not None:
+            errormsg="Shapes of inputs do not match. {0} is the likelihood length. Membership names is {1}".format(len_likelihoods, len(membership_names))
+            check_true(len(membership_names) == len_likelihoods,InputShapeError("",errormsg))
+
+def check_memberships_proba_df(memberships_df, unique_surrogate_list, membership_names):
+    if membership_names is None:
+        membership_names = memberships_df.columns
+    sum_to_one = pd.Series(memberships_df.sum(axis=1)).apply(lambda x: np.isclose(x, 1.0))
+    check_true(len(unique_surrogate_list) == memberships_df.shape[0],
+               InputShapeError("Memberships dataframe must have one row per surrogate class."))
+    check_true(set(memberships_df.index.values) == unique_surrogate_list,
+               InputShapeError("Memberships dataframe must have an index with surrogate values"))
+    check_true(memberships_df.shape[1] == len(membership_names),
+               InputShapeError("Memberships dataframe must have one column per protected class name"))
+
+
 def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
-                       memberships: Union[List[List], np.ndarray, pd.Series,pd.DataFrame],
-                       surrogates: Union[List[List], np.ndarray, pd.Series],
+                       memberships: Union[List[List], np.ndarray, pd.Series, pd.DataFrame],
+                       surrogates: Union[List, np.ndarray, pd.Series],
                        membership_labels: Union[int, float, str, List[int]],
+                       membership_names: List,
                        must_have_labels: bool = False,
                        labels: Union[List, np.ndarray, pd.Series] = None):
-
     check_input_type(surrogates)
 
     len_surrogate_class = len(surrogates)
@@ -396,8 +434,7 @@ def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
     check_true(memberships is not None,
                ValueError("For non-binary membership, need to provide membership likelihoods"))
 
-    # Type check, for outer array (list, ndarray, series)
-    check_input_type(memberships)
+    check_memberships_proba(memberships, set(surrogates), membership_names)
 
     # Find total sum
     total_sum = np.sum(memberships.sum()) if isinstance(memberships, pd.Series) else np.sum(memberships)
@@ -422,33 +459,15 @@ def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
                                 f"Lenth of predictions: {len_predictions}"
                                 f"but likelihoods has array length: {len_likelihoods}")
 
-    # Type check, for inner array (list, ndarray)
-    if not isinstance(memberships,pd.DataFrame):
-        for likelihood in memberships:
-            check_true(type(likelihood) in [np.ndarray, list,pd.DataFrame],
-                       TypeError("Membership likelihoods need to be 2D lists or arrays"))
-
-        # Size match, for inner array (all arrays should be same size)
-        num_protected_classes = len(memberships[0])
-
-        for i, likelihood in enumerate(memberships):
-            check_true(len(likelihood) == num_protected_classes,
-                       InputShapeError("",
-                                  f"Shapes of inputs do not match. "
-                                       f"Number of classes: {num_protected_classes}"
-                                       f"You supplied array lengths "
-                                       f"size: {len_likelihoods}, at index: {i}."))
-    else:
-        num_protected_classes=len(memberships.columns)
-
     # Protected label is bounded by the number of protected
     if isinstance(membership_labels, list):
-        check_true(len(membership_labels) < num_protected_classes,
+        check_true(len(membership_labels) < len(memberships[0]),
                    ValueError("Protected label cannot exceed number of classes"))
 
     # Likelihoods should sum up to 1 (here its either numpy array or panda series)
     check_true(math.isclose(total_sum, len_likelihoods),
                ValueError("Likelihoods do not sum up to 1"))
+
 
 def performance_measures(ground_truth: np.ndarray,
                          predictions: np.ndarray,
@@ -669,18 +688,17 @@ def is_deterministic(memberships):
     # If pd series, or 1d np array, or 1d list, than it is deterministic membership
     if isinstance(memberships, pd.Series) and memberships.dtype != 'object':
         return True
-    elif type(memberships)==list:
-        if type(memberships[0]) != list and (not isinstance(memberships[0],np.ndarray)):
+    elif type(memberships) == list:
+        if type(memberships[0]) != list and (not isinstance(memberships[0], np.ndarray)):
             return True
     elif isinstance(memberships, np.ndarray):
-        if not type(memberships[0])==list and memberships.ndim==1:
+        if not type(memberships[0]) == list and memberships.ndim == 1:
             return True
     else:
         return False
 
 
 def get_argmax_membership(memberships, membership_labels):
-
     # TODO argmax = array with argmax across memberships likelihood array
     argmax = None
 
@@ -689,11 +707,12 @@ def get_argmax_membership(memberships, membership_labels):
 
     return is_member
 
-def calc_is_member(memberships, membership_labels,predictions):
+
+def calc_is_member(memberships, membership_labels, predictions):
     if is_deterministic(memberships):
         check_inputs(predictions, memberships, membership_labels)
         is_member = check_and_convert_list_types(memberships)
     else:
-        check_inputs_argmax(predictions,memberships,membership_labels)
+        check_inputs_argmax(predictions, memberships, membership_labels)
         is_member = get_argmax_membership(memberships, membership_labels)
     return is_member

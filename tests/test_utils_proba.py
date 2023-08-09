@@ -275,7 +275,7 @@ class TestUtilsProba(unittest.TestCase):
     def test_from_df(self):
         self.assertRaises(ValueError,BiasCalculator.from_df,self.summarized_df,
                                     [3],["W", "B","O"])
-
+    #TODO: Write tests for check_memberships_proba
 #Simulations to ensure numbers accuracy
 class Simulations(unittest.TestCase):
     """
