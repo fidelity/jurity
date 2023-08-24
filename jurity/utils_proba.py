@@ -191,12 +191,16 @@ class BiasCalculator:
                 else:
                     self._compare_label = value[0][0]
                     self.all_surrogate_labels(value[1])
-        return [[self._compare_label], self.all_surrogate_labels()]
+        return [[self._compare_label], self._all_surrogate_labels]
 
     def all_surrogate_labels(self, value=None):
         if value is not None:
-            # TODO: sanitize
-            self._all_surrogate_labels = value
+            if not isinstance(value,list):
+                raise ValueError("Surrogate labels must be a list.")
+            elif not len(value)!=self._x.shape[1]:
+                raise ValueError("Surrogate labels must have same shape as input x.")
+            else:
+                self._all_surrogate_labels = value
         return self._all_surrogate_labels
 
     def test_labels(self, value=None):
@@ -252,11 +256,10 @@ class BiasCalculator:
         # Run one regression
         for i in range(len(names_of_Ys)):
             y = in_Y[:, i]
-            all_models[names_of_Ys[i]] = LinearRegression().fit(in_X, y, in_W)
-        if self.verbose():
-            for k in list(all_models.keys()):
-                # TODO this m is not used, so sth is off with the for-loop?
-                m = all_models[k]
+            m=LinearRegression()
+            m.fit(in_X, y, in_W)
+            m.predict(self._prediction_matrix)
+            all_models[names_of_Ys[i]] = m.predict(self._prediction_matrix)
         return all_models
 
     def run_bootstrap(self, bootstrap_trials):
@@ -272,19 +275,12 @@ class BiasCalculator:
             in_X = self.X()[select_these]
             in_Y = self.Y()[select_these]
             in_W = self.W()[select_these]
-            models = self.calc_one_bag(in_X, in_Y, in_W)
             #Modified so we return the predictions instead of the coefficients.
-            for k in list(models.keys()):
-                m = models[k]
-                model_result_dict = {"run_id": [i], "stat_name": [k], self.surrogate_labels()[0][0]: m.intercept_}
-                # This depends on sklearn returning a coefficient array that is in the same
-                # order as the input X's. This is a reasonable assumption--scoring doesn't work without it.
-                n_xs = in_X.shape[1]
-                coefs_with_names = {self.surrogate_labels()[1][j]: m.coef_[j] for j in range(n_xs)}
-                model_result_dict.update(coefs_with_names)
-                df = pd.DataFrame(model_result_dict)
-                all_model_results.append(df)
-        return pd.concat(all_model_results)
+            preds = self.calc_one_bag(in_X, in_Y, in_W)
+            all_model_results.append(pd.DataFrame.from_dict(preds)).T
+        out_data=pd.concat(all_model_results,axis=0)
+        out_data.columns=self._all_surrogate_labels
+        return
 
     def transform_bootstrap_results(self, df):
         """
