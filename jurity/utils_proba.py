@@ -111,6 +111,7 @@ class BiasCalculator:
             self.surrogate_labels(surrogate_labels)
         if test_labels:
             self.test_labels(test_labels)
+        self.prediction_matrix(construct=True)
         self.check_dimensions()
         self.verbose(verbose)
 
@@ -214,7 +215,10 @@ class BiasCalculator:
         Build and Return the matrix used to calculate the predicted statistics for each class
         """
         #Construct matrix of all possible values, corresponding to surrogate_labels()
-        pass
+        if construct:
+            n_xs = len(self.surrogate_labels()[1])
+            self._prediction_matrix=np.concatenate((np.zeros((1, n_xs)), np.identity(n_xs)))
+        return self._prediction_matrix
     def check_dimensions(self):
         """
         When change are made, check the dimensions of X, Y, and W to make sure they still match.
@@ -227,6 +231,12 @@ class BiasCalculator:
             raise ValueError("Length of W does not match X and Y")
         elif not self.Y().shape[1]==len(self.test_labels()):
             raise ValueError("Y and test_names have different dimensions. Y:{0} labels: {1}.".format(self.Y().shape[1],len(self.test_labels())))
+        elif not self._prediction_matrix.shape==(self.X().shape[1]+1, self.X().shape[1]):
+            #If we are checking the dimensions, the problem could be that tht prediction matrix hasn't been constructed yet
+            self.prediction_matrix(construct=True)
+            if not self._prediction_matrix.shape==(self.X().shape[1]+1,self.X().shape[1]):
+                raise ValueError("Prediction matrix should be square with dim [1 + number of cols in X,n cols in Y]. X dim: {0}. Prediction matrix has dimensions: {1}"\
+                                 .format(self.X().shape,self.prediction_matrix().shape))
         else:
             return True
 
