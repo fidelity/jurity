@@ -28,21 +28,22 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     # W [Z by 1]: The number of individuals for each level of Z
     # Right now, these are returned as a single dataframe
     if membership_names is None:
-        if isinstance(memberships,pd.DataFrame):
-            membership_names=list(memberships.columns.values)
+        if isinstance(memberships, pd.DataFrame):
+            membership_names = list(memberships.columns.values)
         else:
-            membership_names=["A","B"]
+            membership_names = ["A", "B"]
     if labels is not None:
-        check_inputs_proba(predictions, memberships, surrogates, membership_labels, membership_names,True, labels)
+        check_inputs_proba(predictions, memberships, surrogates, membership_labels, membership_names, True, labels)
     else:
-        check_inputs_proba(predictions, memberships, surrogates, membership_labels, membership_names,False)
+        check_inputs_proba(predictions, memberships, surrogates, membership_labels, membership_names, False)
     summary_df = SummaryData.summarize(predictions, memberships, surrogates, labels, membership_names)
 
     # Add X, Y, and W matricies to the BiasCalculator
     if labels is not None:
         bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names)
     else:
-        bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names, test_names=[Constants.prediction_ratio])
+        bc = BiasCalculator.from_df(summary_df, membership_labels, membership_names,
+                                    test_names=[Constants.prediction_ratio])
 
     # Run bootstrapping to calculate inferred metrics
     # for 1 to 100:
@@ -62,7 +63,7 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
 def unpack_bootstrap(df: pd.DataFrame, stat_name: str, membership_labels: List[int]):
     stats = df[[stat_name]]
     v = stats.index.values
-    if len(v) != 2 or len(membership_labels)>1:
+    if len(v) != 2 or len(membership_labels) > 1:
         raise ValueError("Unpacking for probabilistic results only enabled for binary metrics.")
     return stats.loc[v[membership_labels], stat_name][0], stats.loc[np.delete(v, membership_labels), stat_name][0]
 
@@ -78,7 +79,8 @@ class BiasCalculator:
     """
 
     @classmethod
-    def from_df(cls,df, membership_labels, membership_names, test_names=None, weight_name="count",weight_warnings=True):
+    def from_df(cls, df, membership_labels, membership_names, test_names=None, weight_name="count",
+                weight_warnings=True):
         if test_names is None:
             test_names = [Constants.true_positive_ratio, Constants.true_negative_ratio,
                           Constants.false_positive_ratio, Constants.false_negative_ratio,
@@ -95,10 +97,10 @@ class BiasCalculator:
         # If it's too high, set at 10.
         # If 10 is too high, set at 1 and give a warning.
         try:
-            bc = bcdf.get_bias_calculator(df,weight_warnings=weight_warnings)
+            bc = bcdf.get_bias_calculator(df, weight_warnings=weight_warnings)
         except WeightTooLarge:
             try:
-                bc = bcdf.get_bias_calculator(df, 10,weight_warnings=weight_warnings)
+                bc = bcdf.get_bias_calculator(df, 10, weight_warnings=weight_warnings)
             except WeightTooLarge:
                 bc = bcdf.get_bias_calculator(df, 1, weight_warnings=weight_warnings)
         return bc
@@ -190,39 +192,39 @@ class BiasCalculator:
                         "Surrogate labels does not match dimension of X. Update X first, or check dimensions of input labels.")
                 else:
                     self._compare_label = value[0][0]
-                    self.all_surrogate_labels(value[1])
-        return [[self._compare_label], self._all_surrogate_labels]
+                    self._non_compare_labels=value[1]
+                    self.all_surrogate_labels(calculate=True)
+        return [[self._compare_label], self._non_compare_labels]
 
-    def all_surrogate_labels(self, value=None):
-        if value is not None:
-            if not isinstance(value,list):
-                raise ValueError("Surrogate labels must be a list.")
-            elif not len(value)!=self._x.shape[1]:
-                raise ValueError("Surrogate labels must have same shape as input x.")
-            else:
-                self._all_surrogate_labels = value
+    def all_surrogate_labels(self, calculate=False):
+        if calculate:
+            l = [self._compare_label]
+            for c in self._non_compare_labels:
+                l.append(c)
+            self._all_surrogate_labels = l
         return self._all_surrogate_labels
 
     def test_labels(self, value=None):
         if value is not None:
-            if not isinstance(value,list):
+            if not isinstance(value, list):
                 raise ValueError(f"test_labels must be a list of strings. Input: {value}")
             else:
                 for s in value:
-                    if not isinstance(s,str):
+                    if not isinstance(s, str):
                         raise ValueError(f"test_labels must be a list of strings. Input: {value}")
             self._test_labels = value
         return self._test_labels
 
-    def prediction_matrix(self,construct=False):
+    def prediction_matrix(self, construct=False):
         """
         Build and Return the matrix used to calculate the predicted statistics for each class
         """
-        #Construct matrix of all possible values, corresponding to surrogate_labels()
+        # Construct matrix of all possible values, corresponding to surrogate_labels()
         if construct:
             n_xs = len(self.surrogate_labels()[1])
-            self._prediction_matrix=np.concatenate((np.zeros((1, n_xs)), np.identity(n_xs)))
+            self._prediction_matrix = np.concatenate((np.zeros((1, n_xs)), np.identity(n_xs)))
         return self._prediction_matrix
+
     def check_dimensions(self):
         """
         When change are made, check the dimensions of X, Y, and W to make sure they still match.
@@ -233,14 +235,16 @@ class BiasCalculator:
                                                                                                          self._y.shape))
         elif not self.Y().shape[0] == self.W().shape[0]:
             raise ValueError("Length of W does not match X and Y")
-        elif not self.Y().shape[1]==len(self.test_labels()):
-            raise ValueError("Y and test_names have different dimensions. Y:{0} labels: {1}.".format(self.Y().shape[1],len(self.test_labels())))
-        elif not self._prediction_matrix.shape==(self.X().shape[1]+1, self.X().shape[1]):
-            #If we are checking the dimensions, the problem could be that tht prediction matrix hasn't been constructed yet
+        elif not self.Y().shape[1] == len(self.test_labels()):
+            raise ValueError("Y and test_names have different dimensions. Y:{0} labels: {1}.".format(self.Y().shape[1],
+                                                                                                     len(self.test_labels())))
+        elif not self._prediction_matrix.shape == (self.X().shape[1] + 1, self.X().shape[1]):
+            # If we are checking the dimensions, the problem could be that tht prediction matrix hasn't been constructed yet
             self.prediction_matrix(construct=True)
-            if not self._prediction_matrix.shape==(self.X().shape[1]+1,self.X().shape[1]):
-                raise ValueError("Prediction matrix should be square with dim [1 + number of cols in X,n cols in Y]. X dim: {0}. Prediction matrix has dimensions: {1}"\
-                                 .format(self.X().shape,self.prediction_matrix().shape))
+            if not self._prediction_matrix.shape == (self.X().shape[1] + 1, self.X().shape[1]):
+                raise ValueError(
+                    "Prediction matrix should be square with dim [1 + number of cols in X,n cols in Y]. X dim: {0}. Prediction matrix has dimensions: {1}" \
+                    .format(self.X().shape, self.prediction_matrix().shape))
         else:
             return True
 
@@ -256,7 +260,7 @@ class BiasCalculator:
         # Run one regression
         for i in range(len(names_of_Ys)):
             y = in_Y[:, i]
-            m=LinearRegression()
+            m = LinearRegression()
             m.fit(in_X, y, in_W)
             m.predict(self._prediction_matrix)
             all_models[names_of_Ys[i]] = m.predict(self._prediction_matrix)
@@ -275,12 +279,59 @@ class BiasCalculator:
             in_X = self.X()[select_these]
             in_Y = self.Y()[select_these]
             in_W = self.W()[select_these]
-            #Modified so we return the predictions instead of the coefficients.
-            preds = self.calc_one_bag(in_X, in_Y, in_W)
-            all_model_results.append(pd.DataFrame.from_dict(preds)).T
-        out_data=pd.concat(all_model_results,axis=0)
-        out_data.columns=self._all_surrogate_labels
-        return
+            # Modified so we return the predictions instead of the coefficients.
+            preds = pd.DataFrame.from_dict(self.calc_one_bag(in_X, in_Y, in_W))
+            # FPR, FNR, etc are functions of stats we calculated.
+            # We have to calculate individually and then take the grand mean.
+            binary_metrics = self.add_binary_metrics(preds)
+            if binary_metrics is not None:
+                all_model_results.append(binary_metrics)
+            else:
+                preds['class']=self.surrogate_labels()
+                all_model_results.append(preds)
+        out_data = pd.concat(all_model_results, axis=0).reset_index()
+        return out_data
+
+    def add_binary_metrics(self, df):
+        tests_we_have = df.columns
+        # For binary classifiers, if we know the true labels, we will probably want these tests.
+        common_tests = ["false_positive_ratio", "false_negative_ratio", "true_positive_ratio", "true_negative_ratio"]
+        out_cols = []
+        if set(common_tests).issubset(set(tests_we_have)):
+            FPR = df["false_positive_ratio"] / (
+                    df["false_positive_ratio"] + df["true_negative_ratio"])
+            FPR.name = Constants.FPR
+            out_cols.append(FPR)
+
+            FNR = df["false_negative_ratio"] / (
+                    df["false_negative_ratio"] + df["true_positive_ratio"])
+            FNR.name = Constants.FNR
+            out_cols.append(FNR)
+
+            TPR = df["true_positive_ratio"] / (
+                    df["true_positive_ratio"] + df["false_negative_ratio"])
+            TPR.name = Constants.TPR
+            out_cols.append(TPR)
+
+            TNR = df["true_negative_ratio"] / (
+                    df["true_negative_ratio"] + df["false_positive_ratio"])
+            TNR.name = Constants.TNR
+            out_cols.append(TNR)
+
+            ACC = df["true_positive_ratio"] + df["true_negative_ratio"]
+            ACC.name = Constants.ACC
+            out_cols.append(ACC)
+        # For binary classifiers we can always calculate the prediction_ratio, even if we don't have anything else
+        if "prediction_ratio" in tests_we_have:
+            prediction_rate = df["prediction_ratio"]
+            prediction_rate.name = Constants.prediction_rate
+            out_cols.append(prediction_rate)
+        if len(out_cols)>0:
+            df=pd.concat(out_cols,axis=1)
+            df['class']=self.all_surrogate_labels()
+            return df
+        else:
+            return None
 
     def transform_bootstrap_results(self, df):
         """
@@ -288,28 +339,8 @@ class BiasCalculator:
         Input: Pandas Dataframe that is the result of self.run_bootstrap
         Returns: Transposed version of input dataframe with added columns (if applicable)
         """
-        means = df.groupby("stat_name").mean()
-        del means["run_id"]
+        return df.groupby("class").mean()
 
-        results_by_protected = means.T
-        tests_we_have = results_by_protected.columns
-        # For binary classifiers, if we know the true labels, we will probably want these tests.
-        common_tests = ["false_positive_ratio", "false_negative_ratio", "true_positive_ratio", "true_negative_ratio"]
-        if set(common_tests).issubset(set(tests_we_have)):
-            results_by_protected[Constants.FPR] = results_by_protected["false_positive_ratio"] / (
-                    results_by_protected["false_positive_ratio"] + results_by_protected["true_negative_ratio"])
-            results_by_protected[Constants.FNR] = results_by_protected["false_negative_ratio"] / (
-                    results_by_protected["false_negative_ratio"] + results_by_protected["true_positive_ratio"])
-            results_by_protected[Constants.TPR] = results_by_protected["true_positive_ratio"] / (
-                    results_by_protected["true_positive_ratio"] + results_by_protected["false_negative_ratio"])
-            results_by_protected[Constants.TNR] = results_by_protected["true_negative_ratio"] / (
-                    results_by_protected["true_negative_ratio"] + results_by_protected["false_positive_ratio"])
-            results_by_protected[Constants.ACC] = results_by_protected["true_positive_ratio"] + results_by_protected[
-                "true_negative_ratio"]
-        # For binary classifiers we can always calculate the prediction_ratio, even if we don't have anything else
-        if "prediction_ratio" in tests_we_have:
-            results_by_protected[Constants.prediction_rate] = results_by_protected["prediction_ratio"]
-        return results_by_protected
 
     # TODO cannot we use sth from utils and/or merge with something in utils
     # TODO I feel we are duplicating many such calculations (I can be wrong)
@@ -399,14 +430,15 @@ class BiasCalcFromDataFrame:
         Initialize names to be read and name of comparison category for regression.
         """
 
-        omitted_string=None
+        omitted_string = None
         # Get the first non-protected group listed.
         for idx, name in enumerate(membership_names):
             if idx not in membership_labels:
                 omitted_string = name
                 break
         if omitted_string is None:
-            raise ValueError("All groups appear to be protected groups. Must designate at least one non-protected group.")
+            raise ValueError(
+                "All groups appear to be protected groups. Must designate at least one non-protected group.")
         self.compare_label(omitted_string)
         self.surrogate_names(membership_names)
         if self._compare_label in membership_names:
@@ -443,7 +475,7 @@ class BiasCalcFromDataFrame:
                     raise ValueError(f"Test name {l} is not a string.")
             self._test_names = value
             if not len(self._test_names) == len(v):
-                raise(ValueError,"List of test names contains duplicates.")
+                raise (ValueError, "List of test names contains duplicates.")
         return self._test_names
 
     def compare_label(self, value=None):
@@ -619,7 +651,8 @@ class SummaryData:
         summarizer = cls("surrogates", "surrogates", "predictions", true_name=label_name, test_names=test_names)
         return summarizer.make_summary_data(perf_df=df, surrogate_df=likes_df)
 
-    def __init__(self, surrogate_surrogate_col_name, surrogate_perf_col_name, pred_name, true_name=None, max_shrinkage=0.5,
+    def __init__(self, surrogate_surrogate_col_name, surrogate_perf_col_name, pred_name, true_name=None,
+                 max_shrinkage=0.5,
                  test_names=None):
         self.surrogate_surrogate_col_name(surrogate_surrogate_col_name)
         self.surrogate_perf_col_name(surrogate_perf_col_name)
@@ -779,7 +812,8 @@ class SummaryData:
         """
         self.check_performance_data(perf_df)
         self.check_surrogate_data(surrogate_df)
-        merged_data = perf_df.merge(surrogate_df, left_on=self.surrogate_perf_col_name(), right_on=self.surrogate_surrogate_col_name())
+        merged_data = perf_df.merge(surrogate_df, left_on=self.surrogate_perf_col_name(),
+                                    right_on=self.surrogate_surrogate_col_name())
         self.check_merged_data(merged_data, surrogate_df, perf_df)
 
         # Create accuracy columns that measure true positive, true negative etc
@@ -788,7 +822,8 @@ class SummaryData:
         # Use calc_accuracy_metrics to create surrogate-level summary
         confusion_matrix_surrogate_summary = self.calc_accuracy_metrics(accuracy_df)
         self.check_surrogate_confusion_matrix(confusion_matrix_surrogate_summary, merged_data)
-        return confusion_matrix_surrogate_summary.join(surrogate_df.set_index(surrogate_df[self.surrogate_surrogate_col_name()]))
+        return confusion_matrix_surrogate_summary.join(
+            surrogate_df.set_index(surrogate_df[self.surrogate_surrogate_col_name()]))
 
     # Add columns to a pandas dataframe flagging each row as false positive, etc.
     def confusion_matrix_actual(self, test_df, pred_col, label_col):
@@ -798,7 +833,7 @@ class SummaryData:
         pred_col: 0/1 predicted in class or not.
         label_col: 0/1 true label
         """
-        #TODO: Replace this with confusion_matrix from utils.py
+        # TODO: Replace this with confusion_matrix from utils.py
         if label_col is not None:
             correct = (test_df[pred_col] == test_df[label_col]).astype(int)
             correct.name = "correct"
@@ -824,13 +859,13 @@ class SummaryData:
             group_col: surrogate column name
             acc_cols: accuracy columns that are in the dataframe as 0/1 and will be rolled up by zip
         """
-        group_col=[self._surrogate_perf_col_name]
+        group_col = [self._surrogate_perf_col_name]
 
         if self.true_name() is not None:
-            acc_cols = ["true_positive","true_negative",
-                        "false_positive","false_negative"]
+            acc_cols = ["true_positive", "true_negative",
+                        "false_positive", "false_negative"]
         else:
-            acc_cols=[]
+            acc_cols = []
 
         agg_dict = {}
         ac_cols = acc_cols + [self.pred_name()]
@@ -843,11 +878,13 @@ class SummaryData:
             .rename(columns={group_col[0]: "count"})
         for c in ac_cols:
             check_accuracy[c + "_ratio"] = check_accuracy[c] / check_accuracy["count"]
-        check_accuracy = check_accuracy.rename(columns={"_".join([self.pred_name(), "ratio"]): Constants.prediction_ratio})
+        check_accuracy = check_accuracy.rename(
+            columns={"_".join([self.pred_name(), "ratio"]): Constants.prediction_ratio})
 
         out_cols = ["prediction_ratio", "count"]
 
-        if {Constants.true_negative_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio, Constants.false_positive_ratio}.issubset(
+        if {Constants.true_negative_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio,
+            Constants.false_positive_ratio}.issubset(
                 set(check_accuracy.columns)):
             out_cols = out_cols + [Constants.true_negative_ratio, Constants.true_positive_ratio,
                                    Constants.false_negative_ratio, Constants.false_positive_ratio]
