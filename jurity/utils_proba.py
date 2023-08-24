@@ -95,10 +95,10 @@ class BiasCalculator:
         # If it's too high, set at 10.
         # If 10 is too high, set at 1 and give a warning.
         try:
-            bc = bcdf.get_bias_calculator(df)
+            bc = bcdf.get_bias_calculator(df,weight_warnings=weight_warnings)
         except WeightTooLarge:
             try:
-                bc = bcdf.get_bias_calculator(df, 10)
+                bc = bcdf.get_bias_calculator(df, 10,weight_warnings=weight_warnings)
             except WeightTooLarge:
                 bc = bcdf.get_bias_calculator(df, 1, weight_warnings=weight_warnings)
         return bc
@@ -209,6 +209,12 @@ class BiasCalculator:
             self._test_labels = value
         return self._test_labels
 
+    def prediction_matrix(self,construct=False):
+        """
+        Build and Return the matrix used to calculate the predicted statistics for each class
+        """
+        #Construct matrix of all possible values, corresponding to surrogate_labels()
+        pass
     def check_dimensions(self):
         """
         When change are made, check the dimensions of X, Y, and W to make sure they still match.
@@ -257,6 +263,7 @@ class BiasCalculator:
             in_Y = self.Y()[select_these]
             in_W = self.W()[select_these]
             models = self.calc_one_bag(in_X, in_Y, in_W)
+            #Modified so we return the predictions instead of the coefficients.
             for k in list(models.keys()):
                 m = models[k]
                 model_result_dict = {"run_id": [i], "stat_name": [k], self.surrogate_labels()[0][0]: m.intercept_}
@@ -513,13 +520,15 @@ class BiasCalcFromDataFrame:
         Make bias calculator.
         """
         if min_weight < 10:
-            warnings.warn("Recommended minimum count for surrogate class is 30. "
-                          "Minimum weights of less than 10 will give unstable results.")
+            if weight_warnings:
+                warnings.warn("Recommended minimum count for surrogate class is 30. "
+                              "Minimum weights of less than 10 will give unstable results.")
 
         if self.weight_name() in df.columns:
             subset = df[df[self._weight_name] >= min_weight]
-            print("{0} rows removed from datafame for insufficient weight values" \
-                  .format(df.shape[0] - subset.shape[0]))
+            if weight_warnings:
+                print("{0} rows removed from datafame for insufficient weight values" \
+                      .format(df.shape[0] - subset.shape[0]))
             if subset.shape[0] < len(self.surrogate_names()):
                 raise WeightTooLarge("Input dataframe does not have enough rows to estimate surrogate classes "
                                      "reduce minimum weight.")

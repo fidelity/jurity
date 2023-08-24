@@ -49,7 +49,7 @@ class TestUtilsProba(unittest.TestCase):
                                          Constants.true_negative_ratio, Constants.true_positive_ratio,
                                          Constants.prediction_ratio],
                            "run_id": [0, 0, 0, 0, 0]})
-        cls.bc=BiasCalculator.from_df(cls.summarized_df,membership_labels=[1,2],membership_names=["W","B","O"])
+        cls.bc=BiasCalculator.from_df(cls.summarized_df,membership_labels=[1,2],membership_names=["W","B","O"],weight_warnings=False)
 
     @staticmethod
     def calc_rates(results):
@@ -259,7 +259,7 @@ class TestUtilsProba(unittest.TestCase):
 
         df = SummaryData.summarize(predictions, memberships, surrogates, labels)
 
-        bc = BiasCalculator.from_df(df,[1],["A", "B"])
+        bc = BiasCalculator.from_df(df,[1],["A", "B"],weight_warnings=False)
 
         self.assertTrue(np.all(np.isclose(bc.X().ravel(), df["B"].values)),
                         "X matrix in bias calculator does not match surrogate class probabilities."
@@ -275,7 +275,7 @@ class TestUtilsProba(unittest.TestCase):
 
     def test_from_df(self):
         self.assertRaises(ValueError,BiasCalculator.from_df,self.summarized_df,
-                                    [3],["W", "B","O"])
+                                    [3],["W", "B","O"],weight_warnings=False)
     #TODO: Write tests for check_memberships_proba
 #Simulations to ensure numbers accuracy
 class TestWithSimulation(unittest.TestCase):
@@ -434,14 +434,6 @@ class TestWithSimulation(unittest.TestCase):
         cls.rng=np.random.default_rng(347123)
         cls.test_data=cls.explode_dataframe(cls.surrogate_df)
 
-    @classmethod
-    def explode_dataframe(cls,df, count_name="count"):
-        """
-        Given a dataframe that has a count, produce a number of identical rows equal to that count
-        """
-        e_df = df.loc[df.index.repeat(df[count_name])].drop("count",axis=1)
-        return cls.assign_protected_and_accuracy(e_df,cls.rates_dict,cls.rng)
-
 
     # For the simulation, build "True" protected groups based on population
     # Note; The census data names the columns as follows:
@@ -457,18 +449,16 @@ class TestWithSimulation(unittest.TestCase):
         # Lets us make sure that we're not accidentally resetting the seed
         surrogate_protected_prob_grouped = population_data.groupby(surrogate_name)
         surrogate_groups = []
-        surrogate_groups = []
         for name, group in surrogate_protected_prob_grouped:
             probs = [group[v].unique()[0] for v in membership_values]
             group["class"] = generator.choice(list(membership_values), len(group), p=probs)
             surrogate_groups.append(group)
         out_data = pd.concat(surrogate_groups)
-        out_data = pd.concat(surrogate_groups)
         return out_data
 
     @classmethod
     def assign_protected_and_accuracy(cls,input_data, rates_by_protected, generator,
-                                      surrogate_name="surrogate"):
+                                      protected_name="class"):
         # Assign everyone a "true" race for simulation purposes
         protected_assignments = cls.assign_protected(input_data, generator)
         # Current simulation only handles 2 categories: white or not.
@@ -480,7 +470,7 @@ class TestWithSimulation(unittest.TestCase):
         # These are different by race and fed into the simulation through indexes
         # Index keys are the values in the race column, e.g. "White" and "Non-White"
         model_outcomes = cls.model_outcome_by_protected(protected_assignments, rates_by_protected,
-                                                    protected_col_name="class")
+                                                    protected_col_name=protected_name)
         return model_outcomes
 
     @classmethod
@@ -528,10 +518,41 @@ class TestWithSimulation(unittest.TestCase):
         test_data["false_negative"] = (~(test_data["correct"]) & (test_data[pred_col] == 0)).astype(int)
         test_data["false_positive"] = (~(test_data["correct"]) & (test_data[pred_col] == 1)).astype(int)
         return test_data
+    @classmethod
+    def explode_dataframe(cls,df, count_name="count"):
+        """
+        Given a dataframe that has a count, produce a number of identical rows equal to that count
+        """
+        e_df = df.loc[df.index.repeat(df[count_name])].drop("count",axis=1)
+        return cls.assign_protected_and_accuracy(e_df,cls.rates_dict,cls.rng)
 
     def test_membership_as_df(self):
+        """
+        Check output from get_bootstrap_results when inputs are a surrogate
+        """
         results=get_bootstrap_results(self.test_data["prediction"],self.surrogate_df.drop("count",axis=1).set_index("surrogate"),
                                       self.test_data["surrogate"],[1,2],self.test_data["label"])
         self.assertTrue(isinstance(results,pd.DataFrame),"get_bootstrap_results does not return a Pandas DataFrame.")
         self.assertTrue({Constants.FPR,Constants.FNR,Constants.TNR,Constants.TPR,Constants.ACC}.issubset(set(results.columns)),
-                        "get_bootstrap_results does not contain FPR, FNR, etc. Columns in DataFrame are:{0}".format(results.columns))
+                        "get_bootstrap_results does not return a dataframe with all expected binary metrics. Columns in DataFrame are:{0}".format(results.columns))
+        self.assertTrue(set(results.index.values)==set(self.surrogate_df.drop(["surrogate","count"],axis=1).columns),
+                    "get_bootstrap_results does not return a dataframe with rows index equal to the columns of input surrogate dataframe.\n"
+                    "returned rows are:{0}\n"
+                    "returned columns are: {1}\n".format(results.index.values,self.surrogate_df.columns))
+
+    def test_summarize_df(self):
+        "Means of BiasCalculator.Y() should be same as summarized df"
+        pass
+
+    def test_simulation_range(self):
+        "Test whether simulated data is within expected ranges based on input model rates"
+        pass
+
+    def test_bootstrap_ranges(self):
+        "Test whether bootstrap returns values that are expected based on simulated data"
+        pass
+
+
+
+
+
