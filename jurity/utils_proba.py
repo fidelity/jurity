@@ -279,17 +279,19 @@ class BiasCalculator:
             in_X = self.X()[select_these]
             in_Y = self.Y()[select_these]
             in_W = self.W()[select_these]
-            # Modified so we return the predictions instead of the coefficients.
+
+            # calc_one_bag modified so we return the predictions instead of the coefficients.
             preds = pd.DataFrame.from_dict(self.calc_one_bag(in_X, in_Y, in_W))
+
             # FPR, FNR, etc are functions of stats we calculated.
             # We have to calculate individually and then take the grand mean.
             binary_metrics = self.add_binary_metrics(preds)
             if binary_metrics is not None:
-                all_model_results.append(binary_metrics)
+                all_model_results.append(pd.concat([binary_metrics,preds],axis=1))
             else:
                 preds['class']=self.surrogate_labels()
                 all_model_results.append(preds)
-        out_data = pd.concat(all_model_results, axis=0).reset_index()
+        out_data = pd.concat(all_model_results, axis=0).reset_index().drop(["index"],axis=1)
         return out_data
 
     def add_binary_metrics(self, df):

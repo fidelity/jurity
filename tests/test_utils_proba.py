@@ -32,7 +32,7 @@ class TestUtilsProba(unittest.TestCase):
                                       Constants.false_negative_ratio: [0.2, 0.4, 0.3, 0.2, 0.1],
                                       Constants.true_negative_ratio: [0.8, 0.6, 0.7, 0.8, 0.9]})
         cls.summarized_df[Constants.prediction_ratio]=\
-            cls.summarized_df[Constants.true_positive_ratio]+cls.summarized_df[Constants.false_positive_ratio]
+        cls.summarized_df[Constants.true_positive_ratio]+cls.summarized_df[Constants.false_positive_ratio]
         #Create bias calculator from above dataframe
         cls.bcfd = BiasCalcFromDataFrame(["W", "B", "O"], "count", ["B", "O"],
                                          [Constants.false_positive_ratio,
@@ -78,10 +78,10 @@ class TestUtilsProba(unittest.TestCase):
                                                    Constants.true_positive_ratio, Constants.true_negative_ratio, Constants.prediction_ratio]].to_numpy(),
                                    self.summarized_df["count"].to_numpy())
 
-        self.assertTrue(isinstance(out[Constants.false_positive_ratio], sklearn.linear_model.LinearRegression))
-        self.assertTrue(isinstance(out[Constants.false_negative_ratio], sklearn.linear_model.LinearRegression))
-        self.assertTrue(isinstance(out[Constants.true_positive_ratio], sklearn.linear_model.LinearRegression))
-        self.assertTrue(isinstance(out[Constants.true_negative_ratio], sklearn.linear_model.LinearRegression))
+        self.assertTrue(isinstance(out[Constants.false_positive_ratio], np.array))
+        self.assertTrue(isinstance(out[Constants.false_negative_ratio], np.array))
+        self.assertTrue(isinstance(out[Constants.true_positive_ratio], np.array))
+        self.assertTrue(isinstance(out[Constants.true_negative_ratio], np.array))
 
     def test_calc_one_bag(self):
         """
@@ -100,10 +100,12 @@ class TestUtilsProba(unittest.TestCase):
         out = self.bc.calc_one_bag(x,y,w)
 
         model = sklearn.linear_model.LinearRegression()
+        pred_matrix=np.array([[0.0,0.0],[1.0,0.0],[0.0,1.0]])
         #Make sure each has the proper label
         for i,l in enumerate(self.bc.test_labels()):
             model.fit(x,np.array(self.summarized_df[l]),sample_weight=w)
-            np.testing.assert_array_almost_equal(model.coef_, out[l].coef_)
+            p=model.predict(pred_matrix)
+            np.testing.assert_array_almost_equal(p, out[l])
 
     def test_run_boot_form(self):
         """
