@@ -5,10 +5,11 @@ import sklearn
 import pandas as pd
 import numpy as np
 from scipy.stats import kstest
-from jurity.utils_proba import BiasCalculator, BiasCalcFromDataFrame,SummaryData
+from jurity.utils_proba import BiasCalculator, BiasCalcFromDataFrame, SummaryData
 from jurity.utils_proba import unpack_bootstrap
 from jurity.utils import Constants
 from jurity.utils_proba import get_bootstrap_results
+
 
 class TestUtilsProba(unittest.TestCase):
     """
@@ -21,38 +22,41 @@ class TestUtilsProba(unittest.TestCase):
         # TODO See Constants in utils to re-use string constants for column names,
         #  add the ones that are missing to Constants and use here
         # Define Constants needed for testing probabilistic utilities
-        #Example summarized dataframe suitable for creating a bootstrap calculator
-        cls.summarized_df = pd.DataFrame({"surrogate": [1,2,3,4,5],
-                                      "W": [0.5, 0.1, 0.3, 0.7, 0.6], #unprotected class
-                                      "B": [0.2, 0.7, 0.5, 0.1, 0.3], #protected class B
-                                      "O": [0.3, 0.2, 0.2, 0.2, 0.1], #protected class O
-                                      "count": [30, 10, 6, 9, 2],   #weight column
-                                      Constants.false_positive_ratio: [0.1, 0.5, 0.3, 0.1, 0.2],
-                                      Constants.true_positive_ratio: [0.9, 0.5, 0.7, 0.9, 0.8],
-                                      Constants.false_negative_ratio: [0.2, 0.4, 0.3, 0.2, 0.1],
-                                      Constants.true_negative_ratio: [0.8, 0.6, 0.7, 0.8, 0.9]})
-        cls.summarized_df[Constants.prediction_ratio]=\
-        cls.summarized_df[Constants.true_positive_ratio]+cls.summarized_df[Constants.false_positive_ratio]
-        #Create bias calculator from above dataframe
+        # Example summarized dataframe suitable for creating a bootstrap calculator
+        cls.summarized_df = pd.DataFrame({"surrogate": [1, 2, 3, 4, 5],
+                                          "W": [0.5, 0.1, 0.3, 0.7, 0.6],  # unprotected class
+                                          "B": [0.2, 0.7, 0.5, 0.1, 0.3],  # protected class B
+                                          "O": [0.3, 0.2, 0.2, 0.2, 0.1],  # protected class O
+                                          "count": [30, 10, 6, 9, 2],  # weight column
+                                          Constants.false_positive_ratio: [0.1, 0.5, 0.3, 0.1, 0.2],
+                                          Constants.true_positive_ratio: [0.9, 0.5, 0.7, 0.9, 0.8],
+                                          Constants.false_negative_ratio: [0.2, 0.4, 0.3, 0.2, 0.1],
+                                          Constants.true_negative_ratio: [0.8, 0.6, 0.7, 0.8, 0.9]})
+        cls.summarized_df[Constants.prediction_ratio] = \
+            cls.summarized_df[Constants.true_positive_ratio] + cls.summarized_df[Constants.false_positive_ratio]
+        # Create bias calculator from above dataframe
         cls.bcfd = BiasCalcFromDataFrame(["W", "B", "O"], "count", ["B", "O"],
                                          [Constants.false_positive_ratio,
-                                              Constants.true_positive_ratio,
-                                              Constants.false_negative_ratio,
-                                              Constants.true_negative_ratio,
-                                            Constants.prediction_ratio])
-        #DataFrame matching the form that is returned bu BiasCalculator.run_bootstrap()
-        #Tests transformations
-        cls.test_boot_results = pd.DataFrame({"W": [0.25, 0.3, 0.2, 0.25, 0.55],
-                           "B": [0.7, 0.2, 0.09, 0.01, 0.21],
-                           "O": [0.05, 0.5, 0.2, 0.25, 0.75],
-                           "stat_name": [Constants.false_negative_ratio, Constants.false_positive_ratio,
-                                         Constants.true_negative_ratio, Constants.true_positive_ratio,
-                                         Constants.prediction_ratio],
-                           "run_id": [0, 0, 0, 0, 0]})
-        cls.bc=BiasCalculator.from_df(cls.summarized_df,membership_labels=[1,2],membership_names=["W","B","O"],weight_warnings=False)
+                                          Constants.true_positive_ratio,
+                                          Constants.false_negative_ratio,
+                                          Constants.true_negative_ratio,
+                                          Constants.prediction_ratio])
+        # DataFrame matching the form that is returned bu BiasCalculator.run_bootstrap()
+        # Tests transformations
+        raw_boot_results = pd.DataFrame({
+            Constants.false_negative_ratio: [0.25, 0.7, 0.5],
+            Constants.false_positive_ratio: [0.3, 0.2, 0.5],
+            Constants.true_negative_ratio: [0.2, 0.09, 0.2],
+            Constants.true_positive_ratio: [0.25, 0.01, 0.25],
+            Constants.prediction_ratio: [0.55, 0.21, 0.75],
+            "class": ["W", "B", "O"]})
+        # Add FRP, FNR, etc to match what's returned by the bootstrap
+        cls.test_boot_results = cls.calc_rates(raw_boot_results)
+        cls.bc = BiasCalculator.from_df(cls.summarized_df, membership_labels=[1, 2], membership_names=["W", "B", "O"],
+                                        weight_warnings=False)
 
-    @staticmethod
-    def calc_rates(results):
+    @classmethod
+    def calc_rates(cls, results):
         results[Constants.FPR] = results[Constants.false_positive_ratio] / (
                 results[Constants.false_positive_ratio] + results[Constants.true_negative_ratio])
         results[Constants.FNR] = results[Constants.false_negative_ratio] / (
@@ -61,8 +65,8 @@ class TestUtilsProba(unittest.TestCase):
                 results[Constants.true_positive_ratio] + results[Constants.false_negative_ratio])
         results[Constants.TNR] = results[Constants.true_negative_ratio] / (
                 results[Constants.true_negative_ratio] + results[Constants.false_positive_ratio])
-        results[Constants.ACC]=results[Constants.true_positive_ratio]+results[Constants.true_negative_ratio]
-        results[Constants.prediction_rate]=results[Constants.prediction_ratio]
+        results[Constants.ACC] = results[Constants.true_positive_ratio] + results[Constants.true_negative_ratio]
+        results[Constants.prediction_rate] = results[Constants.prediction_ratio]
         return results
 
     def test_calc_one_bag_form(self):
@@ -75,13 +79,14 @@ class TestUtilsProba(unittest.TestCase):
         """
         out = self.bc.calc_one_bag(self.summarized_df[["B", "O"]].to_numpy(),
                                    self.summarized_df[[Constants.false_positive_ratio, Constants.false_negative_ratio,
-                                                   Constants.true_positive_ratio, Constants.true_negative_ratio, Constants.prediction_ratio]].to_numpy(),
+                                                       Constants.true_positive_ratio, Constants.true_negative_ratio,
+                                                       Constants.prediction_ratio]].to_numpy(),
                                    self.summarized_df["count"].to_numpy())
 
-        self.assertTrue(isinstance(out[Constants.false_positive_ratio], np.array))
-        self.assertTrue(isinstance(out[Constants.false_negative_ratio], np.array))
-        self.assertTrue(isinstance(out[Constants.true_positive_ratio], np.array))
-        self.assertTrue(isinstance(out[Constants.true_negative_ratio], np.array))
+        self.assertTrue(isinstance(out[Constants.false_positive_ratio], np.ndarray))
+        self.assertTrue(isinstance(out[Constants.false_negative_ratio], np.ndarray))
+        self.assertTrue(isinstance(out[Constants.true_positive_ratio], np.ndarray))
+        self.assertTrue(isinstance(out[Constants.true_negative_ratio], np.ndarray))
 
     def test_calc_one_bag(self):
         """
@@ -93,18 +98,18 @@ class TestUtilsProba(unittest.TestCase):
         --Put the answers in the form that calc_one_boot should return
         --In this unit test, check whether the answers from calc_one_bag are equal to what comes out of sklearn.linear_model
         """
-        x=np.array(self.summarized_df[["B","O"]])
-        y=np.array(self.summarized_df[self.bc.test_labels()])
-        w=np.array(self.summarized_df["count"])
+        x = np.array(self.summarized_df[["B", "O"]])
+        y = np.array(self.summarized_df[self.bc.test_labels()])
+        w = np.array(self.summarized_df["count"])
 
-        out = self.bc.calc_one_bag(x,y,w)
+        out = self.bc.calc_one_bag(x, y, w)
 
         model = sklearn.linear_model.LinearRegression()
-        pred_matrix=np.array([[0.0,0.0],[1.0,0.0],[0.0,1.0]])
-        #Make sure each has the proper label
-        for i,l in enumerate(self.bc.test_labels()):
-            model.fit(x,np.array(self.summarized_df[l]),sample_weight=w)
-            p=model.predict(pred_matrix)
+        pred_matrix = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+        # Make sure each has the proper label
+        for i, l in enumerate(self.bc.test_labels()):
+            model.fit(x, np.array(self.summarized_df[l]), sample_weight=w)
+            p = model.predict(pred_matrix)
             np.testing.assert_array_almost_equal(p, out[l])
 
     def test_run_boot_form(self):
@@ -117,27 +122,28 @@ class TestUtilsProba(unittest.TestCase):
         --Test different numbers of bootstraps and different numbers of columns for X and W
         """
         bootstrap = self.bc.run_bootstrap(5)
-        self.assertEqual(bootstrap.shape, (25, 5))
+        self.assertEqual(bootstrap.shape, (15, 12))
 
     def test_transform_bootstrap_results_form(self):
         """
         Test that transform_results gives an output with the correct number of rows and columns
         """
         br = self.bc.transform_bootstrap_results(self.bc.run_bootstrap(5))
-        self.assertEqual(br.shape, (3, 11),"Returned bootstrap has shape: {0}. Expected (3,11).".format(br.shape))
-        test_cols=[s in br.columns for s in ["FPR","FNR","TPR","TNR","ACC"]]
-        self.assertTrue(np.all(test_cols),"Not all tests are returned by bootstrap transform")
+        self.assertEqual(br.shape, (3, 11), "Returned bootstrap has shape: {0}. Expected (3,11).".format(br.shape))
+        test_cols = [s in br.columns for s in ["FPR", "FNR", "TPR", "TNR", "ACC"]]
+        self.assertTrue(np.all(test_cols), "Not all tests are returned by bootstrap transform")
 
     def test_transform_bootstrap_results_answer(self):
         """
         Test that transform_bootstrap_results gives the correct numbers
         """
-        #TODO: Add ACC and Prediction Rate
-        test_these=[Constants.FNR,Constants.FPR,Constants.TNR,Constants.TPR,Constants.ACC,Constants.prediction_rate]
+        # TODO: Add ACC and Prediction Rate
+        test_these = [Constants.FNR, Constants.FPR, Constants.TNR, Constants.TPR, Constants.ACC,
+                      Constants.prediction_rate]
         boot = self.bc.transform_bootstrap_results(self.test_boot_results)
-        ratios_added=pd.DataFrame(self.test_boot_results.drop(["run_id"],axis=1).groupby("stat_name").mean())
-        rates=self.calc_rates(ratios_added.T)
-        np.testing.assert_array_almost_equal(np.array(boot[test_these]),np.array(rates[test_these]))
+        ratios_added = boot.groupby("class").mean()
+        np.testing.assert_array_almost_equal(np.array(boot[test_these]), np.array(ratios_added[test_these]))
+
     """
     These tests are for MakeBiasCalcFromDataFrame 
     """
@@ -147,11 +153,11 @@ class TestUtilsProba(unittest.TestCase):
         Test that make_x_matrix creates a two-dimensional numpy array with the correct numbers
         """
         Y = self.bcfd.get_Y_matrix(self.summarized_df)
-        ans = [[0.1, 0.9, 0.2, 0.8,1.0],
-               [0.5, 0.5, 0.4, 0.6,1.0],
-               [0.3, 0.7, 0.3, 0.7,1.0],
-               [0.1, 0.9, 0.2, 0.8,1.0],
-               [0.2, 0.8, 0.1, 0.9,1.0]]
+        ans = [[0.1, 0.9, 0.2, 0.8, 1.0],
+               [0.5, 0.5, 0.4, 0.6, 1.0],
+               [0.3, 0.7, 0.3, 0.7, 1.0],
+               [0.1, 0.9, 0.2, 0.8, 1.0],
+               [0.2, 0.8, 0.1, 0.9, 1.0]]
         np.testing.assert_array_almost_equal(Y, ans)
 
     def test_make_X_matrix(self):
@@ -193,33 +199,38 @@ class TestUtilsProba(unittest.TestCase):
     def test_bias_maker_bad_data(self):
         # not list
         self.assertRaises(ValueError, BiasCalcFromDataFrame, "B", "count", [1],
-                          [Constants.false_positive_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio,
+                          [Constants.false_positive_ratio, Constants.true_positive_ratio,
+                           Constants.false_negative_ratio,
                            Constants.true_negative_ratio])
         self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "B", "O"], "count", [1, 2],
                           Constants.false_positive_ratio)
         # not string
         self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "B", "O", 0], "count", [1, 2],
-                          [Constants.false_positive_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio,
+                          [Constants.false_positive_ratio, Constants.true_positive_ratio,
+                           Constants.false_negative_ratio,
                            Constants.true_negative_ratio])
         self.assertRaises(ValueError, BiasCalcFromDataFrame, ["W", "B", "O"], "count", [1, 2],
-                          [Constants.false_positive_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio, Constants.true_negative_ratio,
+                          [Constants.false_positive_ratio, Constants.true_positive_ratio,
+                           Constants.false_negative_ratio, Constants.true_negative_ratio,
                            0])
         # column missing
         fac = BiasCalcFromDataFrame(["W", "B", "O", "hello world"], "N", [1, 2],
-                                    [Constants.false_positive_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio,
+                                    [Constants.false_positive_ratio, Constants.true_positive_ratio,
+                                     Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
         self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
         fac = BiasCalcFromDataFrame(["W", "B", "O"], "N", [1, 2],
-                                    [Constants.false_positive_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio,
+                                    [Constants.false_positive_ratio, Constants.true_positive_ratio,
+                                     Constants.false_negative_ratio,
                                      Constants.true_negative_ratio, "hello world"])
         self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
         fac = BiasCalcFromDataFrame(["W", "B", "O"], "hello world", [1, 2],
-                                    [Constants.false_positive_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio,
+                                    [Constants.false_positive_ratio, Constants.true_positive_ratio,
+                                     Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
         self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
 
     def test_summary(self):
-
         predictions = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
         surrogates = [1, 1, 1, 2, 3, 3, 4, 5, 5, 5, 5]
         labels = [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0]
@@ -232,7 +243,7 @@ class TestUtilsProba(unittest.TestCase):
         summarize = SummaryData("surrogates", "surrogates", "predictions", "labels")
 
         test_df = pd.DataFrame({"prediction": predictions, "surrogates": surrogates, "labels": labels})
-        #use other confusion matrix to test
+        # use other confusion matrix to test
         with_summary = summarize.confusion_matrix_actual(test_df, "prediction", "labels")
 
         result = pd.concat([pd.Series(surrogates, name="surrogates"), with_summary], axis=1).groupby(
@@ -245,11 +256,11 @@ class TestUtilsProba(unittest.TestCase):
         self.assertEqual(df.shape[0], len(set(surrogates)),
                          "MakeSummaryData.summarize_detail returns wrong number of rows.")
 
-        self.assertTrue(df[[Constants.true_positive_ratio, Constants.true_negative_ratio, Constants.false_positive_ratio,
-                            Constants.false_negative_ratio, "prediction_ratio"]].equals(result.drop("correct_ratio", axis=1)))
+        self.assertTrue(
+            df[[Constants.true_positive_ratio, Constants.true_negative_ratio, Constants.false_positive_ratio,
+                Constants.false_negative_ratio, "prediction_ratio"]].equals(result.drop("correct_ratio", axis=1)))
 
     def test_bias_calc_from_dataframe(self):
-
         predictions = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
         memberships = np.array([[0.5, 0.5], [0.5, 0.5], [0.5, 0.5],
                                 [0.2, 0.8],
@@ -261,7 +272,7 @@ class TestUtilsProba(unittest.TestCase):
 
         df = SummaryData.summarize(predictions, memberships, surrogates, labels)
 
-        bc = BiasCalculator.from_df(df,[1],["A", "B"],weight_warnings=False)
+        bc = BiasCalculator.from_df(df, [1], ["A", "B"], weight_warnings=False)
 
         self.assertTrue(np.all(np.isclose(bc.X().ravel(), df["B"].values)),
                         "X matrix in bias calculator does not match surrogate class probabilities."
@@ -271,171 +282,177 @@ class TestUtilsProba(unittest.TestCase):
         self.assertEqual(bc.Y().shape[0], len(np.unique(surrogates)),
                          "Y matrix in BiasCalculator has wrong length. Length is {0}. Should be {1}.".format(
                              bc.Y().shape[0], len(np.unique(surrogates))))
+
     def test_unpack_bootstrap(self):
-        test_unpack=self.bc.transform_bootstrap_results(self.test_boot_results)
-        self.assertRaises(ValueError,unpack_bootstrap,test_unpack,"FNR",[1,2])
+        test_unpack = self.bc.transform_bootstrap_results(self.test_boot_results)
+        self.assertRaises(ValueError, unpack_bootstrap, test_unpack, "FNR", [1, 2])
 
     def test_from_df(self):
-        self.assertRaises(ValueError,BiasCalculator.from_df,self.summarized_df,
-                                    [3],["W", "B","O"],weight_warnings=False)
-    #TODO: Write tests for check_memberships_proba
-#Simulations to ensure numbers accuracy
+        self.assertRaises(ValueError, BiasCalculator.from_df, self.summarized_df,
+                          [3], ["W", "B", "O"], weight_warnings=False)
+    # TODO: Write tests for check_memberships_proba
+
+
+# Simulations to ensure numbers accuracy
 class TestWithSimulation(unittest.TestCase):
     """
     Helper functions 
     """
+
     @classmethod
     def setUpClass(cls) -> None:
-        cls.surrogate_df = pd.DataFrame({"surrogate": list(range(0, 99)),
-                                     "count": [83, 103, 96, 96, 102, 117, 95, 107, 106, 109, 92, 95, 105,
-                                               87, 114, 99, 99, 85, 119, 110, 97, 87, 123, 90, 90, 107,
-                                               85, 91, 111, 108, 89, 107, 91, 95, 119, 125, 86, 95, 121,
-                                               103, 99, 97, 88, 106, 96, 90, 101, 102, 99, 119, 102, 93,
-                                               105, 97, 100, 97, 88, 98, 93, 112, 91, 92, 93, 90, 109,
-                                               99, 98, 106, 115, 97, 110, 93, 85, 116, 92, 115, 88, 108,
-                                               106, 118, 114, 96, 97, 94, 96, 85, 96, 91, 101, 89, 97,
-                                               99, 86, 106, 112, 112, 114, 108, 104],
-                                     "W": [0.36137754, 0.83653862, 0.98303716, 0.52943704, 0.80254777,
-                                           0.86131181, 0.78572192, 0.79557292, 0.94314381, 0.98431145,
-                                           0.97623762, 0.93004508, 0.94375, 0.87960053, 0.9400488,
-                                           0.65223399, 0.97161572, 0.93023638, 0.95479798,
-                                           0.89171974, 0.97123894, 0.95230717, 0.22796454, 0.66407934,
-                                           0.97238007, 0.1840455, 0.98376723, 0.98458971, 0.98717949,
-                                           0.79029126, 0.91857947, 0.88296571, 0.88260341, 0.82066313,
-                                           0.64678885, 0.9261571, 0.45299573, 0.65396544, 0.75473463,
-                                           0.71911322, 0.91455557, 0.55873562, 0.68013085, 0.92248062,
-                                           0.90759089, 0.94984894, 0.97193437, 0.86554149, 0.8591954,
-                                           0.84304381, 0.94390104, 0.79376303, 0.79835391, 0.99337748,
-                                           0.97175349, 0.88572513, 0.64860465, 0.83355958, 0.97107438,
-                                           0.77651098, 0.712, 0.98913043, 0.49761412, 0.46572154,
-                                           0.57169428, 0.70574713, 0.96366279, 0.95924765, 0.94465361,
-                                           0.96124031, 0.89406286, 0.96956522, 0.96589359, 0.62571886,
-                                           0.75265434, 0.63236253, 0.51799237, 0.98781179, 0.7579503,
-                                           0.95535714, 0.96797005, 0.55753216, 0.45074149, 0.7496386,
-                                           0.76968338, 0.8861327, 0.44629554, 0.67914006, 0.96602972,
-                                           0.98126951, 0.31041469, 0.64384805, 0.26402656, 0.9602649,
-                                           0.7840254, 0.25, 0.47070506, 0.95252806, 0.97494781],
-                                     "B": [0.53346927, 0.10651034, 0.00565428, 0.31113021, 0.00636943,
-                                           0.00309656, 0.02780789, 0.17230903, 0., 0.0040674,
-                                           0.0019802, 0.01768377, 0., 0.02423198, 0.0232369,
-                                           0.30792262, 0.00873362, 0.00246225, 0.00816498,
-                                           0.10191083, 0., 0.00211297, 0.00993179, 0.30616645,
-                                           0.00308356, 0.54513636, 0.00245023, 0.00176678, 0.003663,
-                                           0.00388349, 0.04850585, 0.01071464, 0.00364964, 0.05440557,
-                                           0.062256, 0.00604955, 0.28707358, 0.32713041, 0.0746768,
-                                           0.20776774, 0.00648778, 0.04176577, 0.05834996, 0.,
-                                           0.05076383, 0.00634441, 0.00345423, 0.1021097, 0.10057471,
-                                           0.0031053, 0.037687, 0.01223824, 0.03703704, 0.,
-                                           0.00110051, 0.00550493, 0.14318182, 0.03979129, 0.00295159,
-                                           0.02460712, 0.131, 0.0013587, 0.4413433, 0.03242778,
-                                           0.08792695, 0.00413793, 0.00872093, 0., 0.03087349,
-                                           0.00775194, 0.0007761, 0.00124224, 0., 0.02630338,
-                                           0.0307324, 0.05933493, 0.22485763, 0.00141723, 0.10647612,
-                                           0.00714286, 0.00207987, 0.18627493, 0.24671719, 0.07806288,
-                                           0.18856823, 0.03197848, 0.03738318, 0.28863346, 0.00212314,
-                                           0.00208116, 0.66961591, 0.14106055, 0.02829685, 0.00331126,
-                                           0.17769831, 0.73891626, 0.44502766, 0.0205952, 0.00991649],
-                                     "A": [5.91596800e-03, 2.47713860e-02, 8.07754000e-04, 2.57842700e-03,
-                                           5.73248410e-02, 2.81505000e-04, 2.94265860e-02, 1.30208300e-03,
-                                           0.00000000e+00, 5.81058000e-04, 0.00000000e+00, 2.40984740e-02,
-                                           0.00000000e+00, 1.73882190e-02, 1.32450330e-02, 4.26070900e-03,
-                                           4.36681200e-03, 1.05055810e-02, 3.87205400e-03,
-                                           0.00000000e+00, 2.21238900e-03, 7.28472800e-03, 5.78243384e-01,
-                                           3.44976300e-03, 6.21118000e-03, 1.47549949e-01, 2.45023000e-03,
-                                           2.35571300e-03, 1.83150200e-03, 5.82524300e-03, 6.35195600e-03,
-                                           2.58275740e-02, 9.73236000e-03, 3.11412300e-03, 2.04738490e-02,
-                                           8.06606500e-03, 1.65801967e-01, 3.69221700e-03, 9.25238150e-02,
-                                           1.78298090e-02, 4.81066290e-02, 1.92019670e-01, 1.76720338e-01,
-                                           5.81395300e-03, 7.06588200e-03, 2.38670690e-02, 6.47668400e-03,
-                                           3.65682100e-03, 2.01149430e-02, 1.07609500e-03, 2.01380900e-03,
-                                           2.88278490e-02, 1.34430727e-01, 0.00000000e+00, 1.10051400e-03,
-                                           1.25284740e-02, 8.30549680e-02, 1.63534550e-02, 1.29870130e-02,
-                                           7.54941230e-02, 6.80000000e-02, 1.35869600e-03, 1.81867290e-02,
-                                           2.24096189e-01, 2.89820764e-01, 9.19540000e-04, 0.00000000e+00,
-                                           0.00000000e+00, 2.25903600e-03, 0.00000000e+00, 7.76096000e-04,
-                                           3.72670800e-03, 0.00000000e+00, 5.37381000e-03, 1.09609668e-01,
-                                           1.76881837e-01, 1.22097753e-01, 4.25170100e-03, 8.01628690e-02,
-                                           0.00000000e+00, 4.15973400e-03, 5.07935840e-02, 1.42287842e-01,
-                                           8.31225200e-03, 7.28495400e-03, 1.79318600e-03, 4.84085060e-01,
-                                           5.32141300e-03, 0.00000000e+00, 1.04058300e-03, 8.02083800e-03,
-                                           1.72436150e-02, 6.05144038e-01, 0.00000000e+00, 5.80164900e-03,
-                                           1.23152700e-03, 3.12101010e-02, 4.73689600e-03, 9.91649300e-03],
-                                     "AI": [0.00289505, 0.00327419, 0.00080775, 0.00673256, 0.01910828,
-                                            0.00487942, 0.01291899, 0.00390625, 0.02341137, 0.00232423,
-                                            0.00693069, 0.00303398, 0.03125, 0.00638751, 0.00209132,
-                                            0.00644864, 0.00218341, 0.02462246, 0.01010101,
-                                            0., 0.00221239, 0.01130944, 0.00206634, 0.0064683,
-                                            0.00519801, 0.01611492, 0.00398162, 0.0010797, 0.0018315,
-                                            0.14368932, 0.00382561, 0.0088958, 0.0620438, 0.00604506,
-                                            0.01621219, 0.00384098, 0.00312494, 0.003003, 0.00368564,
-                                            0.00339776, 0.00123577, 0.01097577, 0.00234328, 0.00387597,
-                                            0.00404611, 0., 0.00647668, 0.00506329, 0.,
-                                            0.003505, 0.00143844, 0.00444203, 0.00068587, 0.,
-                                            0.00696992, 0.00949127, 0.00445032, 0.00566326, 0.00118064,
-                                            0.00356561, 0.004, 0.0013587, 0.00252093, 0.00836883,
-                                            0.00185999, 0.18528736, 0.00290698, 0.02507837, 0.00414157,
-                                            0., 0.0007761, 0.00248447, 0.01227831, 0.03516546,
-                                            0.00847458, 0.00365862, 0.0080731, 0.00113379, 0.00206,
-                                            0.00267857, 0., 0.00719417, 0.00434442, 0.0084026,
-                                            0.00168114, 0.01165571, 0.00040634, 0.00229885, 0.00424628,
-                                            0.0062435, 0.00124034, 0.00570465, 0.00241417, 0.01655629,
-                                            0.00229877, 0.00246305, 0.00305008, 0.00308928, 0.00156576],
-                                     "O": [0.08065856, 0.00486167, 0.00323102, 0.12304827, 0.02547771,
-                                           0.11663695, 0.11456059, 0.01041667, 0., 0.00348635,
-                                           0.0029703, 0.00684813, 0., 0.05125216, 0.00464738,
-                                           0.0040304, 0.0014556, 0.00902823, 0.00841751,
-                                           0., 0.00884956, 0.00444731, 0.00890973, 0.00043122,
-                                           0.00110127, 0.0441155, 0., 0.00284649, 0.,
-                                           0.00194175, 0.00512487, 0.03941929, 0.00121655, 0.08976003,
-                                           0.20229474, 0.04321106, 0.05801166, 0.00379068, 0.0443553,
-                                           0.02915006, 0.01694766, 0.12696857, 0.04009095, 0.05813953,
-                                           0.00588166, 0.00966767, 0.00043178, 0.00421941, 0.00862069,
-                                           0.13346656, 0.00575374, 0.14241682, 0.00205761, 0.,
-                                           0.00403522, 0.02923311, 0.07679704, 0.07582828, 0.00354191,
-                                           0.08619096, 0.057, 0.0013587, 0.02755019, 0.22448029,
-                                           0.02908353, 0.00367816, 0.00290698, 0.01253918, 0.0060241,
-                                           0.01550388, 0.08731083, 0.01428571, 0.01500682, 0.27840106,
-                                           0.04434192, 0.09237122, 0.0574504, 0.00113379, 0.02941934,
-                                           0.01785714, 0.00540765, 0.15478587, 0.11465343, 0.13633899,
-                                           0.02129448, 0.04542738, 0.01029392, 0.01217539, 0.00424628,
-                                           0.00104058, 0.00372101, 0.1730844, 0.06462546, 0.,
-                                           0.01091002, 0.00738916, 0.02291105, 0.00926784, 0.00104384],
-                                     "T": [0.01568361, 0.02404379, 0.00646204, 0.02707349, 0.08917198,
-                                           0.01379375, 0.02956402, 0.01649306, 0.03344482, 0.00522952,
-                                           0.01188119, 0.01829057, 0.025, 0.02113961, 0.01673057,
-                                           0.02510364, 0.01164483, 0.02314511, 0.01464646,
-                                           0.00636943, 0.01548673, 0.02253839, 0.17288422, 0.01940492,
-                                           0.0120259, 0.06303777, 0.00735069, 0.0073616, 0.00549451,
-                                           0.05436893, 0.01761224, 0.03217699, 0.04075426, 0.02601209,
-                                           0.05197437, 0.01267524, 0.03299213, 0.00841825, 0.03002381,
-                                           0.02274142, 0.01266661, 0.06953461, 0.04236462, 0.00968992,
-                                           0.02465164, 0.0102719, 0.01122625, 0.01940928, 0.01149425,
-                                           0.01580323, 0.00920598, 0.01831203, 0.02743484, 0.00662252,
-                                           0.01504035, 0.05751708, 0.04391121, 0.02880414, 0.00826446,
-                                           0.0336312, 0.028, 0.00543478, 0.01278473, 0.04490537,
-                                           0.01961447, 0.10022989, 0.02180233, 0.0031348, 0.01204819,
-                                           0.01550388, 0.01629802, 0.00869565, 0.00682128, 0.02903743,
-                                           0.0541871, 0.03539086, 0.06952876, 0.0042517, 0.02393138,
-                                           0.01696429, 0.0203827, 0.0434193, 0.04125563, 0.01924467,
-                                           0.01148781, 0.02301255, 0.02153596, 0.01243082, 0.02335457,
-                                           0.00832466, 0.00698722, 0.01905873, 0.03549293, 0.01986755,
-                                           0.01926585, 0., 0.02709604, 0.00978272, 0.0026096]})
+        input_df = pd.DataFrame({"surrogate": list(range(0, 99)),
+                                 "count": [83, 103, 96, 96, 102, 117, 95, 107, 106, 109, 92, 95, 105,
+                                           87, 114, 99, 99, 85, 119, 110, 97, 87, 123, 90, 90, 107,
+                                           85, 91, 111, 108, 89, 107, 91, 95, 119, 125, 86, 95, 121,
+                                           103, 99, 97, 88, 106, 96, 90, 101, 102, 99, 119, 102, 93,
+                                           105, 97, 100, 97, 88, 98, 93, 112, 91, 92, 93, 90, 109,
+                                           99, 98, 106, 115, 97, 110, 93, 85, 116, 92, 115, 88, 108,
+                                           106, 118, 114, 96, 97, 94, 96, 85, 96, 91, 101, 89, 97,
+                                           99, 86, 106, 112, 112, 114, 108, 104],
+                                 "W": [0.36137754, 0.83653862, 0.98303716, 0.52943704, 0.80254777,
+                                       0.86131181, 0.78572192, 0.79557292, 0.94314381, 0.98431145,
+                                       0.97623762, 0.93004508, 0.94375, 0.87960053, 0.9400488,
+                                       0.65223399, 0.97161572, 0.93023638, 0.95479798,
+                                       0.89171974, 0.97123894, 0.95230717, 0.22796454, 0.66407934,
+                                       0.97238007, 0.1840455, 0.98376723, 0.98458971, 0.98717949,
+                                       0.79029126, 0.91857947, 0.88296571, 0.88260341, 0.82066313,
+                                       0.64678885, 0.9261571, 0.45299573, 0.65396544, 0.75473463,
+                                       0.71911322, 0.91455557, 0.55873562, 0.68013085, 0.92248062,
+                                       0.90759089, 0.94984894, 0.97193437, 0.86554149, 0.8591954,
+                                       0.84304381, 0.94390104, 0.79376303, 0.79835391, 0.99337748,
+                                       0.97175349, 0.88572513, 0.64860465, 0.83355958, 0.97107438,
+                                       0.77651098, 0.712, 0.98913043, 0.49761412, 0.46572154,
+                                       0.57169428, 0.70574713, 0.96366279, 0.95924765, 0.94465361,
+                                       0.96124031, 0.89406286, 0.96956522, 0.96589359, 0.62571886,
+                                       0.75265434, 0.63236253, 0.51799237, 0.98781179, 0.7579503,
+                                       0.95535714, 0.96797005, 0.55753216, 0.45074149, 0.7496386,
+                                       0.76968338, 0.8861327, 0.44629554, 0.67914006, 0.96602972,
+                                       0.98126951, 0.31041469, 0.64384805, 0.26402656, 0.9602649,
+                                       0.7840254, 0.25, 0.47070506, 0.95252806, 0.97494781],
+                                 "B": [0.53346927, 0.10651034, 0.00565428, 0.31113021, 0.00636943,
+                                       0.00309656, 0.02780789, 0.17230903, 0., 0.0040674,
+                                       0.0019802, 0.01768377, 0., 0.02423198, 0.0232369,
+                                       0.30792262, 0.00873362, 0.00246225, 0.00816498,
+                                       0.10191083, 0., 0.00211297, 0.00993179, 0.30616645,
+                                       0.00308356, 0.54513636, 0.00245023, 0.00176678, 0.003663,
+                                       0.00388349, 0.04850585, 0.01071464, 0.00364964, 0.05440557,
+                                       0.062256, 0.00604955, 0.28707358, 0.32713041, 0.0746768,
+                                       0.20776774, 0.00648778, 0.04176577, 0.05834996, 0.,
+                                       0.05076383, 0.00634441, 0.00345423, 0.1021097, 0.10057471,
+                                       0.0031053, 0.037687, 0.01223824, 0.03703704, 0.,
+                                       0.00110051, 0.00550493, 0.14318182, 0.03979129, 0.00295159,
+                                       0.02460712, 0.131, 0.0013587, 0.4413433, 0.03242778,
+                                       0.08792695, 0.00413793, 0.00872093, 0., 0.03087349,
+                                       0.00775194, 0.0007761, 0.00124224, 0., 0.02630338,
+                                       0.0307324, 0.05933493, 0.22485763, 0.00141723, 0.10647612,
+                                       0.00714286, 0.00207987, 0.18627493, 0.24671719, 0.07806288,
+                                       0.18856823, 0.03197848, 0.03738318, 0.28863346, 0.00212314,
+                                       0.00208116, 0.66961591, 0.14106055, 0.02829685, 0.00331126,
+                                       0.17769831, 0.73891626, 0.44502766, 0.0205952, 0.00991649],
+                                 "A": [5.91596800e-03, 2.47713860e-02, 8.07754000e-04, 2.57842700e-03,
+                                       5.73248410e-02, 2.81505000e-04, 2.94265860e-02, 1.30208300e-03,
+                                       0.00000000e+00, 5.81058000e-04, 0.00000000e+00, 2.40984740e-02,
+                                       0.00000000e+00, 1.73882190e-02, 1.32450330e-02, 4.26070900e-03,
+                                       4.36681200e-03, 1.05055810e-02, 3.87205400e-03,
+                                       0.00000000e+00, 2.21238900e-03, 7.28472800e-03, 5.78243384e-01,
+                                       3.44976300e-03, 6.21118000e-03, 1.47549949e-01, 2.45023000e-03,
+                                       2.35571300e-03, 1.83150200e-03, 5.82524300e-03, 6.35195600e-03,
+                                       2.58275740e-02, 9.73236000e-03, 3.11412300e-03, 2.04738490e-02,
+                                       8.06606500e-03, 1.65801967e-01, 3.69221700e-03, 9.25238150e-02,
+                                       1.78298090e-02, 4.81066290e-02, 1.92019670e-01, 1.76720338e-01,
+                                       5.81395300e-03, 7.06588200e-03, 2.38670690e-02, 6.47668400e-03,
+                                       3.65682100e-03, 2.01149430e-02, 1.07609500e-03, 2.01380900e-03,
+                                       2.88278490e-02, 1.34430727e-01, 0.00000000e+00, 1.10051400e-03,
+                                       1.25284740e-02, 8.30549680e-02, 1.63534550e-02, 1.29870130e-02,
+                                       7.54941230e-02, 6.80000000e-02, 1.35869600e-03, 1.81867290e-02,
+                                       2.24096189e-01, 2.89820764e-01, 9.19540000e-04, 0.00000000e+00,
+                                       0.00000000e+00, 2.25903600e-03, 0.00000000e+00, 7.76096000e-04,
+                                       3.72670800e-03, 0.00000000e+00, 5.37381000e-03, 1.09609668e-01,
+                                       1.76881837e-01, 1.22097753e-01, 4.25170100e-03, 8.01628690e-02,
+                                       0.00000000e+00, 4.15973400e-03, 5.07935840e-02, 1.42287842e-01,
+                                       8.31225200e-03, 7.28495400e-03, 1.79318600e-03, 4.84085060e-01,
+                                       5.32141300e-03, 0.00000000e+00, 1.04058300e-03, 8.02083800e-03,
+                                       1.72436150e-02, 6.05144038e-01, 0.00000000e+00, 5.80164900e-03,
+                                       1.23152700e-03, 3.12101010e-02, 4.73689600e-03, 9.91649300e-03],
+                                 "AI": [0.00289505, 0.00327419, 0.00080775, 0.00673256, 0.01910828,
+                                        0.00487942, 0.01291899, 0.00390625, 0.02341137, 0.00232423,
+                                        0.00693069, 0.00303398, 0.03125, 0.00638751, 0.00209132,
+                                        0.00644864, 0.00218341, 0.02462246, 0.01010101,
+                                        0., 0.00221239, 0.01130944, 0.00206634, 0.0064683,
+                                        0.00519801, 0.01611492, 0.00398162, 0.0010797, 0.0018315,
+                                        0.14368932, 0.00382561, 0.0088958, 0.0620438, 0.00604506,
+                                        0.01621219, 0.00384098, 0.00312494, 0.003003, 0.00368564,
+                                        0.00339776, 0.00123577, 0.01097577, 0.00234328, 0.00387597,
+                                        0.00404611, 0., 0.00647668, 0.00506329, 0.,
+                                        0.003505, 0.00143844, 0.00444203, 0.00068587, 0.,
+                                        0.00696992, 0.00949127, 0.00445032, 0.00566326, 0.00118064,
+                                        0.00356561, 0.004, 0.0013587, 0.00252093, 0.00836883,
+                                        0.00185999, 0.18528736, 0.00290698, 0.02507837, 0.00414157,
+                                        0., 0.0007761, 0.00248447, 0.01227831, 0.03516546,
+                                        0.00847458, 0.00365862, 0.0080731, 0.00113379, 0.00206,
+                                        0.00267857, 0., 0.00719417, 0.00434442, 0.0084026,
+                                        0.00168114, 0.01165571, 0.00040634, 0.00229885, 0.00424628,
+                                        0.0062435, 0.00124034, 0.00570465, 0.00241417, 0.01655629,
+                                        0.00229877, 0.00246305, 0.00305008, 0.00308928, 0.00156576],
+                                 "O": [0.08065856, 0.00486167, 0.00323102, 0.12304827, 0.02547771,
+                                       0.11663695, 0.11456059, 0.01041667, 0., 0.00348635,
+                                       0.0029703, 0.00684813, 0., 0.05125216, 0.00464738,
+                                       0.0040304, 0.0014556, 0.00902823, 0.00841751,
+                                       0., 0.00884956, 0.00444731, 0.00890973, 0.00043122,
+                                       0.00110127, 0.0441155, 0., 0.00284649, 0.,
+                                       0.00194175, 0.00512487, 0.03941929, 0.00121655, 0.08976003,
+                                       0.20229474, 0.04321106, 0.05801166, 0.00379068, 0.0443553,
+                                       0.02915006, 0.01694766, 0.12696857, 0.04009095, 0.05813953,
+                                       0.00588166, 0.00966767, 0.00043178, 0.00421941, 0.00862069,
+                                       0.13346656, 0.00575374, 0.14241682, 0.00205761, 0.,
+                                       0.00403522, 0.02923311, 0.07679704, 0.07582828, 0.00354191,
+                                       0.08619096, 0.057, 0.0013587, 0.02755019, 0.22448029,
+                                       0.02908353, 0.00367816, 0.00290698, 0.01253918, 0.0060241,
+                                       0.01550388, 0.08731083, 0.01428571, 0.01500682, 0.27840106,
+                                       0.04434192, 0.09237122, 0.0574504, 0.00113379, 0.02941934,
+                                       0.01785714, 0.00540765, 0.15478587, 0.11465343, 0.13633899,
+                                       0.02129448, 0.04542738, 0.01029392, 0.01217539, 0.00424628,
+                                       0.00104058, 0.00372101, 0.1730844, 0.06462546, 0.,
+                                       0.01091002, 0.00738916, 0.02291105, 0.00926784, 0.00104384],
+                                 "T": [0.01568361, 0.02404379, 0.00646204, 0.02707349, 0.08917198,
+                                       0.01379375, 0.02956402, 0.01649306, 0.03344482, 0.00522952,
+                                       0.01188119, 0.01829057, 0.025, 0.02113961, 0.01673057,
+                                       0.02510364, 0.01164483, 0.02314511, 0.01464646,
+                                       0.00636943, 0.01548673, 0.02253839, 0.17288422, 0.01940492,
+                                       0.0120259, 0.06303777, 0.00735069, 0.0073616, 0.00549451,
+                                       0.05436893, 0.01761224, 0.03217699, 0.04075426, 0.02601209,
+                                       0.05197437, 0.01267524, 0.03299213, 0.00841825, 0.03002381,
+                                       0.02274142, 0.01266661, 0.06953461, 0.04236462, 0.00968992,
+                                       0.02465164, 0.0102719, 0.01122625, 0.01940928, 0.01149425,
+                                       0.01580323, 0.00920598, 0.01831203, 0.02743484, 0.00662252,
+                                       0.01504035, 0.05751708, 0.04391121, 0.02880414, 0.00826446,
+                                       0.0336312, 0.028, 0.00543478, 0.01278473, 0.04490537,
+                                       0.01961447, 0.10022989, 0.02180233, 0.0031348, 0.01204819,
+                                       0.01550388, 0.01629802, 0.00869565, 0.00682128, 0.02903743,
+                                       0.0541871, 0.03539086, 0.06952876, 0.0042517, 0.02393138,
+                                       0.01696429, 0.0203827, 0.0434193, 0.04125563, 0.01924467,
+                                       0.01148781, 0.02301255, 0.02153596, 0.01243082, 0.02335457,
+                                       0.00832466, 0.00698722, 0.01905873, 0.03549293, 0.01986755,
+                                       0.01926585, 0., 0.02709604, 0.00978272, 0.0026096]})
 
-        one = cls.surrogate_df['W'] + cls.surrogate_df['B'] + cls.surrogate_df['A'] + cls.surrogate_df['AI'] + cls.surrogate_df['O'] + \
-              cls.surrogate_df['T']
-        diff = 1 - one
-        #Probabilities are off by a few decimals. Make sure they sum to 1
-        cls.surrogate_df["W"] = cls.surrogate_df["W"] + diff
+        # Small groups are too unstable for unit tests. Summarize to W,B,O
+        input_df["O"] = input_df["O"] + input_df['A'] + input_df['AI'] + input_df['T']
+        input_df = input_df.drop(["A", "AI", "T"], axis=1)
+        # Numerical errors can make it so np.choice fails, make sure all categories sum to 1.
+        input_df["W"] = 1 - (input_df['B'] + input_df['O'])
 
         cls.rates_dict = {"W": {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1},
-                            "B": {"pct_positive": 0.2, "fpr": 0.2, "fnr": 0.35},
-                            'A': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1},
-                            'AI': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1},
-                            'O': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1},
-                            'T': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1}}
-        cls.rng=np.random.default_rng(347123)
-        cls.test_data=cls.explode_dataframe(cls.surrogate_df)
+                          "B": {"pct_positive": 0.2, "fpr": 0.2, "fnr": 0.35},
+                          'O': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1}}
 
+        cls.rng = np.random.default_rng(347123)
+        cls.test_data = cls.explode_dataframe(input_df[["surrogate", "count", "W", "B", "O"]])
+        cls.surrogate_df = input_df[["surrogate", "W", "B", "O"]]
+        summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df,
+                                           cls.test_data["surrogate"], cls.test_data["label"])
+
+        cls.bc = BiasCalculator.from_df(summary_df, [1, 2], ["W", "B", "O"])
 
     # For the simulation, build "True" protected groups based on population
     # Note; The census data names the columns as follows:
@@ -445,7 +462,7 @@ class TestWithSimulation(unittest.TestCase):
     # TODO: REMOVE race terminology
 
     @classmethod
-    def assign_protected(cls,population_data, generator, surrogate_name='surrogate',
+    def assign_protected(cls, population_data, generator, surrogate_name='surrogate',
                          membership_values=["W", "O", "B", "T", "A", "AI"]):
         # Passing in the global random number generator
         # Lets us make sure that we're not accidentally resetting the seed
@@ -459,10 +476,11 @@ class TestWithSimulation(unittest.TestCase):
         return out_data
 
     @classmethod
-    def assign_protected_and_accuracy(cls,input_data, rates_by_protected, generator,
+    def assign_protected_and_accuracy(cls, input_data, rates_by_protected, generator,
                                       protected_name="class"):
         # Assign everyone a "true" race for simulation purposes
-        protected_assignments = cls.assign_protected(input_data, generator)
+        protected_assignments = cls.assign_protected(input_data, generator,
+                                                     membership_values=list(rates_by_protected.keys()))
         # Current simulation only handles 2 categories: white or not.
         # protected_assignments["w"] = np.where(protected_assignments[protected_col_name] == protected_group, protected_group, "unprotected")
         # Assign each individual a quadrant in the confusion matrix based on:
@@ -472,11 +490,11 @@ class TestWithSimulation(unittest.TestCase):
         # These are different by race and fed into the simulation through indexes
         # Index keys are the values in the race column, e.g. "White" and "Non-White"
         model_outcomes = cls.model_outcome_by_protected(protected_assignments, rates_by_protected,
-                                                    protected_col_name=protected_name)
+                                                        protected_col_name=protected_name)
         return model_outcomes
 
     @classmethod
-    def confusion_matrix_prob(cls,percent_positive, fpr, fnr, verbose=False):
+    def confusion_matrix_prob(cls, percent_positive, fpr, fnr, verbose=False):
         """
         # This is the probability that the person is labeled as positive in the data
         Calculate the % of False Positive, False Negative, True Negative, and True Positive in total based on predefined inputs.
@@ -496,7 +514,7 @@ class TestWithSimulation(unittest.TestCase):
         return probs
 
     @classmethod
-    def model_outcome_by_protected(cls,surrogate_protected_assignment, rates_by_protected, protected_col_name="class"):
+    def model_outcome_by_protected(cls, surrogate_protected_assignment, rates_by_protected, protected_col_name="class"):
         # Assign true positive, true negative, etc by race
         surrogate_protected_prob_grouped = surrogate_protected_assignment.groupby(protected_col_name)
 
@@ -513,48 +531,104 @@ class TestWithSimulation(unittest.TestCase):
 
     @classmethod
     # Add columns to a pandas dataframe flagging each row as false positive, etc.
-    def accuracy_columns(cls,test_data, pred_col, label_col):
+    def accuracy_columns(cls, test_data, pred_col, label_col):
+        """
+        Add indicators for each confusion matrix qudrant. Simplifies calculating rates.
+        """
         test_data["correct"] = (test_data[pred_col] == test_data[label_col]).astype(int)
         test_data["true_positive"] = (test_data["correct"] & (test_data[label_col] == 1)).astype(int)
         test_data["true_negative"] = (test_data["correct"] & (test_data[label_col] == 0)).astype(int)
         test_data["false_negative"] = (~(test_data["correct"]) & (test_data[pred_col] == 0)).astype(int)
         test_data["false_positive"] = (~(test_data["correct"]) & (test_data[pred_col] == 1)).astype(int)
         return test_data
+
     @classmethod
-    def explode_dataframe(cls,df, count_name="count"):
+    def explode_dataframe(cls, df, count_name="count"):
         """
         Given a dataframe that has a count, produce a number of identical rows equal to that count
         """
-        e_df = df.loc[df.index.repeat(df[count_name])].drop("count",axis=1)
-        return cls.assign_protected_and_accuracy(e_df,cls.rates_dict,cls.rng)
+        e_df = df.loc[df.index.repeat(df[count_name])].drop("count", axis=1)
+        return cls.assign_protected_and_accuracy(e_df, cls.rates_dict, cls.rng)
 
     def test_membership_as_df(self):
         """
-        Check output from get_bootstrap_results when inputs are a surrogate
+        Check output from get_bootstrap_results when inputs are a surrogate dataframe
         """
-        results=get_bootstrap_results(self.test_data["prediction"],self.surrogate_df.drop("count",axis=1).set_index("surrogate"),
-                                      self.test_data["surrogate"],[1,2],self.test_data["label"])
-        self.assertTrue(isinstance(results,pd.DataFrame),"get_bootstrap_results does not return a Pandas DataFrame.")
-        self.assertTrue({Constants.FPR,Constants.FNR,Constants.TNR,Constants.TPR,Constants.ACC}.issubset(set(results.columns)),
-                        "get_bootstrap_results does not return a dataframe with all expected binary metrics. Columns in DataFrame are:{0}".format(results.columns))
-        self.assertTrue(set(results.index.values)==set(self.surrogate_df.drop(["surrogate","count"],axis=1).columns),
-                    "get_bootstrap_results does not return a dataframe with rows index equal to the columns of input surrogate dataframe.\n"
-                    "returned rows are:{0}\n"
-                    "returned columns are: {1}\n".format(results.index.values,self.surrogate_df.columns))
+        results = get_bootstrap_results(self.test_data["prediction"], self.surrogate_df.set_index("surrogate"),
+                                        self.test_data["surrogate"], [1, 2], self.test_data["label"])
+        self.assertTrue(isinstance(results, pd.DataFrame), "get_bootstrap_results does not return a Pandas DataFrame.")
+        self.assertTrue(
+            {Constants.FPR, Constants.FNR, Constants.TNR, Constants.TPR, Constants.ACC}.issubset(set(results.columns)),
+            "get_bootstrap_results does not return a dataframe with all expected binary metrics. Columns in DataFrame are:{0}".format(
+                results.columns))
+        self.assertTrue(set(results.index.values) == set(self.surrogate_df.drop(["surrogate"], axis=1).columns),
+                        "get_bootstrap_results does not return a dataframe with rows index equal to the columns of input surrogate dataframe.\n"
+                        "returned rows are:{0}\n"
+                        "returned columns are: {1}\n".format(results.index.values, self.surrogate_df.columns))
 
-    def test_summarize_df(self):
-        "Means of BiasCalculator.Y() should be same as summarized df"
-        pass
-
-    def test_simulation_range(self):
-        "Test whether simulated data is within expected ranges based on input model rates"
-        pass
+    @classmethod
+    def boot_stats(self, n_boots, n_loops):
+        """
+        Run bootstrap a specified number of times and return mean and std_dev
+        """
+        all_boots = []
+        for i in range(0, n_loops):
+            b = self.bc.run_bootstrap(n_boots)
+            all_boots.append(self.bc.transform_bootstrap_results(b))
+        summary = pd.concat(all_boots, axis=0).groupby('class')
+        return summary.mean(), summary.std()
 
     def test_bootstrap_ranges(self):
-        "Test whether bootstrap returns values that are expected based on simulated data"
-        pass
+        """
+        Test whether bootstrap returns values that are expected based on simulated data
+        """
+        #Need to build a confidence interval where we expect values to be.
+        #This requires calculation of theoretical variance/covariance matrix based on linear regression
+        n_row = self.bc.X().shape[0]
+        x = np.hstack((np.ones((n_row, 1)), self.bc.X()))
+        # The variance-covariance matrix of a linear estimator based on input X is:
+        invxTx = np.linalg.inv(np.dot(x.T, x))
 
+        pred_matrix = np.array([[1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [1.0, 0.0, 1.0]])
+        # The variance-covariance matrix  of a linear calculation based on a prediction matrix is as follows.
+        # Only need the diagonal for this calculation
+        x_portion_variance = pd.Series(np.diag(np.dot(np.dot(pred_matrix, invxTx), pred_matrix.T)))
+        x_portion_variance.name = 'x_var'
+        x_portion_variance.index=self.bc.all_surrogate_labels()
 
+        #Get confusion matrix probabilities and variances from input rates_dict.
+        in_vars_dict = {}
+        in_means_dict = {}
+        for k, v in self.rates_dict.items():
+            a = self.confusion_matrix_prob(v['pct_positive'], v['fpr'], v['fnr'])
+            # These are based on variance of a proportion: p(1-p)
+            in_vars_dict[k] = [r * (1 - r) for r in a]
+            in_means_dict[k] = a
 
+        df_vars = pd.DataFrame.from_dict(in_vars_dict)
+        df_vars['stat_name'] = ['false_positive_var', 'false_negative_var', 'true_negative_var', 'true_positive_var']
+        var_y = df_vars.set_index('stat_name').T
 
+        df_in = pd.DataFrame.from_dict(in_means_dict)
+        df_in['stat_name'] = ['false_positive_in', 'false_negative_in', 'true_negative_in', 'true_positive_in']
+        in_y = df_in.set_index('stat_name').T
 
+        n_boots = 100
+        n_loops = 5
+        mean, std = self.boot_stats(n_boots, n_loops)
+        names = ['false_positive', 'false_negative', 'true_positive', 'true_negative']
+        ratio_names = [n + "_ratio" for n in names]
+        var_components = pd.concat([mean[ratio_names], in_y, var_y, x_portion_variance], axis=1)
+
+        z = 1.65  # from z-table, predictions are N(in_y,var_pred_y)
+        for n in names:
+            #Prediction variance is sigma_y*pred_matrix*inv(X'X)pred_matrix.T, where sigma_y is a scalar.
+            #Variance of the mean of n_boots predictions is prediction_variance/n_boots
+            var_components[n + '_st_err'] = np.sqrt(var_components[n + '_var']*var_components['x_var']/n_boots)
+            #Normal apprixmation confidence limit
+            check_series = (var_components[n + '_in'] - z * var_components[n + "_st_err"] <
+                            var_components[n + '_ratio']) & (
+                                       var_components[n + "_in"] + z * var_components[n + "_st_err"])
+            check_series.name = n + "_ok"
+            self.assertTrue(np.all(check_series.values),
+                            f"{n} is out of range, on mean of {n_loops}, of {n_boots} bootstraps.")

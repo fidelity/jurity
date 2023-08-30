@@ -409,7 +409,7 @@ def check_memberships_proba(memberships, len_predictions,unique_surrogate_list, 
 def check_memberships_proba_df(memberships_df: pd.DataFrame, unique_surrogate_list: set, membership_names:List[str]):
     if membership_names is None:
         membership_names = memberships_df.columns
-    sum_to_one = pd.Series(memberships_df.sum(axis=1)).apply(lambda x: np.isclose(x, 1.0))
+    sum_to_one = pd.Series(memberships_df.sum(axis=1)).apply(lambda x: math.isclose(x, 1.0))
     check_true(len(unique_surrogate_list) == memberships_df.shape[0],
                InputShapeError("","Memberships dataframe must have one row per surrogate class."))
     check_true(set(memberships_df.index.values) == unique_surrogate_list,

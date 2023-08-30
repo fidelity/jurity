@@ -1,5 +1,7 @@
 import numpy as np
 import warnings
+
+import pandas
 import pandas as pd
 import scipy.stats
 from sklearn.linear_model import LinearRegression
@@ -13,8 +15,32 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
                           labels: Union[List, np.ndarray, pd.Series] = None,
                           bootstrap_trials: int = Constants.bootstrap_trials,
                           membership_names: List[str] = None) -> pd.DataFrame:
-    # TODO add pydoc, add return type hint on what's returned from this call
+    """
+    Calculate bootstrap results for surrogate class analysis.
+    This function detects input types, checks them for correctness, and returns a Pandas dataframe with building blocks.
+    It is intended to be flexible with appropriate warnings
 
+    Parameters:
+        predictions: : Predictions from a binary classifier.
+            1-dimensional array, list or pandas.Series with length == n individuals predicted.
+        memberships: Class likelihoods based on surrogate membership.
+            pandas.DataFrame with shape=(n surrogate classes, n classes) and index=surrogate class, or
+            2-dimensional array with shape=(number of individuals predicted,n classes), or
+            pandas.Series of lists with length=n individuals predicted and each inner list having length=n classes
+            Each inner list must sum to 1.
+        surrogates: Surrogate class membership for each individual.
+            1-dimensional array, list, or pandasSeries with length=n individuals predicted.
+        membership_labels: Union[str, int, List[str], List[int]],
+            a list, array, or pandas Series listing which of the classes are considered protected
+            length must be less than the number of classes
+        labels: Union[List, np.ndarray, pd.Series] = None,
+            optional list, array, or pandas Series with ground truth labels for each individual.
+            length=number of individuals predicted.
+        bootstrap_trials: int = Constants.bootstrap_trials,
+            number of bootstraps to be run. Default is 100, which should be enough for most cases and run quickly
+        membership_names: List[str] = None) -> pd.DataFrame:
+            optional list of labels for class membership. Used to label output Dataframe
+"""
     # Z is the number of unique values for the surrogate variable.
     # p is the length of the interior vectors of memberships
 
@@ -61,6 +87,13 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
 
 
 def unpack_bootstrap(df: pd.DataFrame, stat_name: str, membership_labels: List[int]):
+    """
+    For Binary classifiers, take output from get_bootstrap_results and return the requested value.
+    Parameters
+    stat_name: Name of the requested statistic, e.g. FNR for false negative rate.
+    membership_labels: list of classes requesting membership for.
+    Currently only implemented for cases where there are two classes: Protected and unprotected.
+    """
     stats = df[[stat_name]]
     v = stats.index.values
     if len(v) != 2 or len(membership_labels) > 1:
@@ -70,17 +103,30 @@ def unpack_bootstrap(df: pd.DataFrame, stat_name: str, membership_labels: List[i
 
 class BiasCalculator:
     """
+    Encapsulates raw inputs for bootstrap calculations and classes to calculate and store bootstrap results
     Members:
     _y: measurements to be calculated
     _x: Input race percentages
     _w: Weights for weighted regression
+    _prediction_matrix: Matrix needed to predict different test values
     _surrogate_labels: Labels for race columns
     _test_labels: Labels for test columns
     """
 
     @classmethod
-    def from_df(cls, df, membership_labels, membership_names, test_names=None, weight_name="count",
-                weight_warnings=True):
+    def from_df(cls,
+                df: pandas.DataFrame,
+                membership_labels: list,
+                membership_names: list,
+                test_names:list =None,
+                weight_name: str="count",
+                weight_warnings: bool=True):
+        """
+        Reads an input dataframe and returns a BiasCalculator
+        Parameters:
+            df: a pandas DataFrame with shape=(surrogate_class,n classes).
+            Columns are class probabilities and summaries of test statistics for each surrogate class.
+        """
         if test_names is None:
             test_names = [Constants.true_positive_ratio, Constants.true_negative_ratio,
                           Constants.false_positive_ratio, Constants.false_negative_ratio,
@@ -146,6 +192,8 @@ class BiasCalculator:
     def X(self, value=None):
         """
         Get or set input x as a  numpy array that has 2 dimensions.
+        Arguments:
+            value: value to be set, matrix of membership probabilities, shape-(n surrogate classes, n classes-1)
         """
         if value is not None:
             try:
@@ -157,11 +205,14 @@ class BiasCalculator:
             elif not x.ndim == 2:
                 raise ValueError("Input X must have 1 or 2 dimensions")
             self._x = x
+            #If _x has been updated, re-create the prediction matrix.
         return self._x
 
     def W(self, value=None):
         """
-        Get or set input w as a numpy array that has 1 dimension
+        Get or set input weight vector w as a numpy array that has 1 dimension
+        Arguments:
+            value: np.ndarray with length==n currogate classes containing the count of individuals in each class
         """
         if value is not None:
             try:
@@ -175,7 +226,9 @@ class BiasCalculator:
 
     def surrogate_labels(self, value=None):
         """
-        Set and get labels for race statistics. Input value must be a 2D list
+        Set and get labels for class membership probabilities.
+        Arguments:
+            value: a 2D list of lists containing strings, form[["str1"],["str2","str3",...]]
         """
         r_form = "Surrogate labels list must be of form [[omitted category],[race_1, race_2,...]]"
         input_form = f"Input was of form {value}"
@@ -197,6 +250,12 @@ class BiasCalculator:
         return [[self._compare_label], self._non_compare_labels]
 
     def all_surrogate_labels(self, calculate=False):
+        """
+        Get or set all surrogate labels based on _compare_label and _non_compare_labels.
+        Used to index bootstrap output.
+        Arguments:
+            Calculate: whether labels should be re-created. If False uses already stored values.
+        """
         if calculate:
             l = [self._compare_label]
             for c in self._non_compare_labels:
@@ -204,7 +263,12 @@ class BiasCalculator:
             self._all_surrogate_labels = l
         return self._all_surrogate_labels
 
-    def test_labels(self, value=None):
+    def test_labels(self, value: list=None):
+        """
+        Get or set names of test columns.
+        Arguments:
+            value: list of strings equal to number of columns in _y
+        """
         if value is not None:
             if not isinstance(value, list):
                 raise ValueError(f"test_labels must be a list of strings. Input: {value}")
@@ -218,6 +282,8 @@ class BiasCalculator:
     def prediction_matrix(self, construct=False):
         """
         Build and Return the matrix used to calculate the predicted statistics for each class
+        Arguments:
+            construct: If True, re-creates prediction matrix. Called when _x is updated.
         """
         # Construct matrix of all possible values, corresponding to surrogate_labels()
         if construct:
@@ -248,12 +314,16 @@ class BiasCalculator:
         else:
             return True
 
-    def calc_one_bag(self, in_X, in_Y, in_W):
+    def calc_one_bag(self, in_X: np.ndarray,
+                     in_Y: np.ndarray,
+                     in_W: np.ndarray) ->dict:
         """
         Calculate the regression of all surrogate-based tests
         in_X: The sampled X for this bootstrap
         in_Y: The sampled Y for this bootstrap
         in_W: The sampled weights for this bootstrap
+        return: a dictionary {str: []}
+                where keys are equal to the tests calculated and values equal to the predicted value for each class
         """
         all_models = {}
         names_of_Ys = self.test_labels()
@@ -266,7 +336,7 @@ class BiasCalculator:
             all_models[names_of_Ys[i]] = m.predict(self._prediction_matrix)
         return all_models
 
-    def run_bootstrap(self, bootstrap_trials):
+    def run_bootstrap(self, bootstrap_trials: int)->pd.DataFrame:
         """
         Collect data for final calculation using the bootstrap
         Returns a dataframe with a column for each calculation and a row for bootstrap sample
@@ -294,7 +364,11 @@ class BiasCalculator:
         out_data = pd.concat(all_model_results, axis=0).reset_index().drop(["index"],axis=1)
         return out_data
 
-    def add_binary_metrics(self, df):
+    def add_binary_metrics(self, df: pd.DataFrame)->Union[pd.DataFrame,None]:
+        """
+        Add False Positive Rate, False Negative Rate, True Positive Rate and True Negative Rate to a set of bootstrap predictions.
+        These have to be added at the bootstrap level, before means are calculated so they have the right expected values
+        """
         tests_we_have = df.columns
         # For binary classifiers, if we know the true labels, we will probably want these tests.
         common_tests = ["false_positive_ratio", "false_negative_ratio", "true_positive_ratio", "true_negative_ratio"]
@@ -337,80 +411,11 @@ class BiasCalculator:
 
     def transform_bootstrap_results(self, df):
         """
-        Calculate TNR, TPR, FNR, FPR, and Accuracy
+        Takes means of inputs from raw bootstrap results.
         Input: Pandas Dataframe that is the result of self.run_bootstrap
-        Returns: Transposed version of input dataframe with added columns (if applicable)
+        Returns: means of all statistics grouped by class
         """
         return df.groupby("class").mean()
-
-
-    # TODO cannot we use sth from utils and/or merge with something in utils
-    # TODO I feel we are duplicating many such calculations (I can be wrong)
-    @staticmethod
-    def calc_rates(tp_ratio, fp_ratio, tn_ratio, fn_ratio):
-        """
-        Calculates false positive rate, false negative rate, ... rates given their ratios
-        """
-        return tp_ratio / (tp_ratio + fn_ratio), fp_ratio / (fp_ratio + tn_ratio), tn_ratio / (
-                tn_ratio + fp_ratio), fn_ratio / (fn_ratio + tp_ratio)
-
-    def calc_fairness_metrics(self, boot):
-        """
-        Takes untransformed bootstrap results and calculates fairness metrics
-        Bootstrap results are in the form of percentages; not counts
-        boot: untransformed bootstrap results
-        """
-        for name, group in boot.groupby("run_id"):
-            tp_ratio = group[group["stat_name"] == "true_positive_ratio"].iloc[0].to_numpy()[2:]
-            fp_ratio = group[group["stat_name"] == "false_positive_ratio"].iloc[0].to_numpy()[2:]
-            tn_ratio = group[group["stat_name"] == "true_negative_ratio"].iloc[0].to_numpy()[2:]
-            fn_ratio = group[group["stat_name"] == "false_negative_ratio"].iloc[0].to_numpy()[2:]
-
-            tp_ratio += tp_ratio[0]
-            tp_ratio[0] /= 2
-            fp_ratio += fp_ratio[0]
-            fp_ratio[0] /= 2
-            tn_ratio += tn_ratio[0]
-            tn_ratio[0] /= 2
-            fn_ratio += fn_ratio[0]
-            fn_ratio[0] /= 2
-            tpr, fpr, tnr, fnr = self.calc_rates(tp_ratio, fp_ratio, tn_ratio, fn_ratio)
-
-            stats = {}
-            stats["avg_odds"] = 0.5 * (fpr - fpr[0] + tpr - tpr[0])
-            stats["disparate_impact"] = (tpr + fnr) / (tpr[0] + fnr[0])
-            stats["equal_opportunity"] = tpr - tpr[0]
-            stats["fnr_test"] = fnr - fnr[0]
-            stats["predictive_equality"] = fpr - fpr[0]
-            stats["statistical_parity"] = tpr + fnr - tpr[0] - fnr[0]
-            boot = pd.concat(
-                [boot] + [pd.DataFrame([[name, k] + list(v)], columns=boot.columns) for (k, v) in stats.items()])
-        return boot
-
-    def transform_boot_linear_models(self, boot, cf=0.99):
-        """
-        Calculate 99% confidence limit for difference between mean residual for white and other races
-        Arguments
-        boot: Results from bootstrapped data
-        """
-        n = boot.shape[0]
-        means = boot.groupby("stat_name").mean()
-        std = boot.groupby("stat_name").std()
-        h = std * scipy.stats.t.ppf((1 + cf) / 2., n - 1)
-        lower_ci = means - h
-        upper_ci = means + h
-        del means["run_id"], std["run_id"], lower_ci["run_id"], upper_ci["run_id"]
-        comp_group = self._compare_label
-        del means[comp_group], std[comp_group], lower_ci[comp_group], upper_ci[comp_group]
-
-        pass_test = ((lower_ci < 0) & (upper_ci > 0))
-        # TODO no_diff is not used? Remove?
-        no_difference = (lower_ci > 0) & (upper_ci < 0)
-        means.columns = means.columns + "_means"
-        std.columns = std.columns + "_std"
-        upper_ci.columns = upper_ci.columns + "_upper_ci"
-        lower_ci.columns = lower_ci.columns + "_lower_ci"
-        return pd.concat([means, lower_ci, upper_ci], axis=1).T.sort_index(), pass_test
 
     def __str__(self):
         return "BiasCalculator(surrogate_labels=" + str(self.surrogate_labels()) + ", test_labels=" + str(
@@ -420,16 +425,24 @@ class BiasCalculator:
 class BiasCalcFromDataFrame:
     """
     Class that creates a bias calculator from a dataframe.
-    Class Variables:
-    _surrogate_names: Names of race percentages
+    Members:
+    _surrogate_names: Names of surrogate class labels
     _weight_name: Name of column with weights
     _compare_label: label of group that's comparison group from the regression
     _test_names: Names of tests to be calculated
     """
 
-    def __init__(self, membership_names, weight_name, membership_labels, test_names):
+    def __init__(self, membership_names: str,
+                 weight_name: str,
+                 membership_labels: List[int],
+                 test_names: List[str]):
         """
         Initialize names to be read and name of comparison category for regression.
+        Members:
+        _surrogate_names: Names of classes, should be columns in pandas dataframe
+        _compare_label: Name of comparison group, usually the unprotected class
+            if multiple unprotected classes, we use the first one.
+        _
         """
 
         omitted_string = None
@@ -590,12 +603,13 @@ class BiasCalcFromDataFrame:
 
 class SummaryData:
     """
-    Class that calculates summary data by surrogate class from input detailed data by surrogate class.
-    _tests: Names of tests to be calculated
-    _surrogate_perf_col_name: Name of zip variable in performance data
-    _surrogate_surrogate_col_name: Name of zip variable in zip code data
-    _pred_name: Name of column with predicted label
-    _true_name: Name of column with true label
+    Class that calculates summary data by surrogate class from input detailed data that has surrogate class columns.
+    Members:
+        _tests: Names of tests to be calculated
+        _surrogate_perf_col_name: Name of surrogate column in performance data
+        _surrogate_surrogate_col_name: Name of surrogate column in surrogate class data
+        _pred_name: Name of column with predicted label
+        _true_name: Name of column with true label (optional)
     """
 
     @classmethod
@@ -629,8 +643,9 @@ class SummaryData:
         # 2. A dataframe ttehat has a row for each surrogate class value and
         #   a column for each likelihood value. The dataframe must have surrogate class as an index.
         if isinstance(memberships, pd.DataFrame):
-            memberships["surrogates"] = memberships.index
-            likes_df = memberships
+            membership_surrogates = pd.Series(memberships.index.values)
+            membership_surrogates.name='surrogates'
+            likes_df = pd.concat([membership_surrogates,memberships],axis=1)
         else:
             if len(memberships) != df.shape[0]:
                 len_predictions = len(predictions)
@@ -653,9 +668,20 @@ class SummaryData:
         summarizer = cls("surrogates", "surrogates", "predictions", true_name=label_name, test_names=test_names)
         return summarizer.make_summary_data(perf_df=df, surrogate_df=likes_df)
 
-    def __init__(self, surrogate_surrogate_col_name, surrogate_perf_col_name, pred_name, true_name=None,
-                 max_shrinkage=0.5,
-                 test_names=None):
+    def __init__(self, surrogate_surrogate_col_name:str,
+                    surrogate_perf_col_name:str,
+                    pred_name: str,
+                 true_name:str = None,
+                 max_shrinkage: str =0.5,
+                 test_names: str = None):
+        """
+        Initialize names of input variables needed to calculate summaries.
+        Arguments:
+            surrogate_surrogate_col_name: Name of surrogate variable in surrogate dataframe
+            surrogate_perf_col_name: Name of surrogate variable in perfomance dataframe
+            max_shrinkage: Not all columns in surrogate data frame will be in prediction dataframe or vice versa. Tells how many rows we can lose before throwing an error.
+            test_names: Names of columns that will be come Ys in BiasCalculator. Usually confusion matrix columns.
+        """
         self.surrogate_surrogate_col_name(surrogate_surrogate_col_name)
         self.surrogate_perf_col_name(surrogate_perf_col_name)
         self.pred_name(pred_name)
@@ -666,30 +692,45 @@ class SummaryData:
         self.test_names(test_names)
 
     def surrogate_surrogate_col_name(self, value=None):
+        """
+        Get or set surrogate column name in surrogate dataframe
+        """
         if value:
             if self.col_name_checker(value):
                 self._surrogate_surrogate_col_name = value
         return self._surrogate_surrogate_col_name
 
     def surrogate_perf_col_name(self, value=None):
+        """
+        Get or set surrogate column name in performance dataframe
+        """
         if value:
             if self.col_name_checker(value):
                 self._surrogate_perf_col_name = value
         return self._surrogate_perf_col_name
 
     def pred_name(self, value=None):
+        """
+        Get or set name of column that has predicted values
+        """
         if value:
             if self.col_name_checker(value):
                 self._pred_name = value
         return self._pred_name
 
     def true_name(self, value=None):
+        """
+        get or set column name that has true labels
+        """
         if value:
             if self.col_name_checker(value):
                 self._true_name = value
         return self._true_name
 
     def max_shrinkage(self, value=None):
+        """
+        Get or set how many columns we can lose without throwing an error
+        """
         if value:
             if isinstance(value, float) and value < 1 and value > 0:
                 self._max_shrinkage = value
@@ -698,6 +739,9 @@ class SummaryData:
         return self._max_shrinkage
 
     def col_name_checker(self, value):
+        """
+        Helper function that makes sure column names have valid types
+        """
         if not isinstance(value, str):
             raise ValueError(f"Column names must be strings. {value} is not a string.")
             # return False
@@ -706,6 +750,8 @@ class SummaryData:
     def check_performance_data(self, df):
         """
         Checks specific to performance data.
+        Arguments:
+            df: dataframe with model performance data
         """
         if self.true_name() is not None:
             needed_names = [self.true_name()] + [self.pred_name()] + [self.surrogate_perf_col_name()]
@@ -730,7 +776,12 @@ class SummaryData:
                 set(needed_names) - set(names))))
         return all_good
 
-    def test_names(self, value=None):
+    def test_names(self, value:List[str]=None):
+        """
+        Get or set names for columns that have test statistics
+        Arguments:
+
+        """
         if value:
             if isinstance(value, list):
                 self._test_names = value
@@ -743,28 +794,31 @@ class SummaryData:
                 self._test_names = ["prediction_ratio"]
         return self._test_names
 
-    def check_surrogate_data(self, df):
+    def check_surrogate_data(self, df:pd.DataFrame):
         """
-        Checks specific to zip data.
+        Checks specific to surrogate class data.
         """
         all_good = True
         needed_names = [self._surrogate_surrogate_col_name]
-        if not self.check_read_data(df, needed_names, "zip data"):
+        if not self.check_read_data(df, needed_names, "surrogate data"):
             all_good = False
             return all_good
         else:
             all_good = (df[self._surrogate_surrogate_col_name].nunique() == df.shape[0])
             if not all_good:
-                print("Input Zip data has duplicates. Zip data must be de-duplicated by zip.")
+                print("Input Surrogate data has duplicates. Surrogate data must be de-duplicated by surrogate column.")
         return all_good
 
-    def check_merged_data(self, merged_df, surrogate_df, performance_df, print_warnings=True):
+    def check_merged_data(self, merged_df: pd.DataFrame,
+                          surrogate_df:pd.DataFrame,
+                          performance_df: pd.DataFrame,
+                          print_warnings: bool=True):
         """
         Make sure merged data hasn't lost too many rows due to inner join
-        And make sure it hasn't increased in rows due to zip code duplicates
+        And make sure it hasn't increased in rows due to surrogate values duplicates
         Arguments:
         merged_df: data frame resulting from merge between surrogate_df and performance_df
-        surrogate_df: zip code data frame
+        surrogate_df: surrogate data frame
         performance_df: Performance data frame
         """
 
@@ -809,7 +863,7 @@ class SummaryData:
         Function that merges two dfs to make a surrogate-based summary file.
         And has the needed accuracy.
         Arguments:
-        surrogate_df: a dataframe unique by zip code that has race percentages for the zip code.
+        surrogate_df: a dataframe unique by surrogate column that has class membership likelihoods for each surrogate class.
         perf_df: a dataframe that has zip code and performance columns
         """
         self.check_performance_data(perf_df)
