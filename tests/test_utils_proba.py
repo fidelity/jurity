@@ -284,6 +284,29 @@ class TestUtilsProba(unittest.TestCase):
                              bc.Y().shape[0], len(np.unique(surrogates))))
 
     def test_unpack_bootstrap(self):
+        """
+        Make sure unpack bootstrap can return all expected results
+        """
+        c = pd.Series(["W", "NW"], name="class")
+        answer_dict = {"FPR": [0.6, 0.689655],
+                       "FNR": [0.5, 0.985915],
+                       "TPR": [0.5, 0.014085],
+                       "TNR": [0.4, 0.310345],
+                       "ACC": [0.45, 0.10]}
+        raw_boot_results = pd.DataFrame({
+            "false_negative_ratio": [0.25, 0.7],
+            "false_positive_ratio": [0.3, 0.2],
+            "true_negative_ratio": [0.2, 0.09],
+            "true_positive_ratio": [0.25, 0.01],
+            "prediction_ratio": [0.55, 0.21]})
+        test_boot_results = pd.concat([pd.DataFrame.from_dict(answer_dict), raw_boot_results], axis=1).set_index(c)
+
+        for label, answer in answer_dict.items():
+            self.assertEqual(unpack_bootstrap(test_boot_results, label, [1]),
+                (answer[1], answer[0]),
+                f"unpack bootstrap returns unexpected answer for {label}\n" +
+                "expected {0}, got {1} instead.".format(unpack_bootstrap(test_boot_results,label,[1]),(answer[1],answer[0])))
+    def test_unpack_bootstrap_err(self):
         test_unpack = self.bc.transform_bootstrap_results(self.test_boot_results)
         self.assertRaises(ValueError, unpack_bootstrap, test_unpack, "FNR", [1, 2])
 
