@@ -78,7 +78,7 @@ class AverageOdds(_BaseBinaryFairness):
         """
 
         # Logic to check input types
-        if is_deterministic(memberships) or surrogates is None:
+        if is_deterministic(memberships) or (surrogates is None and bootstrap_results is None):
             check_inputs(predictions, memberships, membership_labels, must_have_labels=True, labels=labels)
             # Convert to numpy arrays
             is_member = calc_is_member(memberships, membership_labels, predictions)

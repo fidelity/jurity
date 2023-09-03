@@ -71,7 +71,7 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
         """
 
         # Standard deterministic calculation
-        if is_deterministic(memberships) or surrogates is None:
+        if is_deterministic(memberships) or (surrogates is None and bootstrap_results is None):
             # Check input types and determine protected class membership
             is_member=calc_is_member(memberships,membership_labels,predictions)
 

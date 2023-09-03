@@ -13,6 +13,9 @@ from jurity.utils import InputShapeError, Constants
 
 class TestBinaryProbFairness(unittest.TestCase):
     def run_one_score(self,instance, labels, predictions, memberships, surrogates, membership_labels):
+        """
+        Helper function to run the appropriate score metric, depending on inputs
+        """
         if labels is None:
             score = instance.get_score(predictions, memberships, surrogates, membership_labels, None)
         else:
@@ -22,8 +25,9 @@ class TestBinaryProbFairness(unittest.TestCase):
     def run_all_fairness(self,labels, predictions, memberships, surrogates, membership_labels, error_type=None,
                          error_msg=""):
         """
-        Run all probabilistic fairness metrics that are implemented according to Constants.bootstrap_implemented
-        Check for errors when error_type is not None
+        Helper function to run all probabilistic fairness metrics that are implemented according to Constants.bootstrap_implemented
+        Checks for errors when error_type is not None.
+        Otherwise ensures that scores are returned
         """
         fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
         for f in fairness_funcs:
@@ -55,7 +59,9 @@ class TestBinaryProbFairness(unittest.TestCase):
         self.run_all_fairness(labels, predictions, memberships, surrogates, membership_labels)
 
     def test_prob_df(self):
-        "All return a score when the inputs are from the same dataframe"
+        """
+        Ensure all return a score when the inputs are from the same dataframe
+        """
         # Data
         df = pd.DataFrame.from_dict({'labels': [1, 0, 1, 1],
                                      'predictions': [1, 1, 0, 1],
@@ -65,7 +71,9 @@ class TestBinaryProbFairness(unittest.TestCase):
         self.run_all_fairness(df["labels"], df["predictions"], df["memberships"], df["surrogates"], membership_labels)
 
     def test_prob_surrogate_size_invalid(self):
-
+        """
+        Ensure the errors are returned for invalid shape.
+        """
         # Data
         labels = [0, 1, 0, 1]
         predictions = np.array([1, 1, 0, 1, 0])
@@ -75,6 +83,9 @@ class TestBinaryProbFairness(unittest.TestCase):
         self.run_all_fairness(labels, predictions, memberships, surrogates, membership_labels,InputShapeError)
 
     def test_prob_df_size_invalid(self):
+        """
+        Ensure invalid inout dataframe for memberships returns an error
+        """
         # Data
         df = pd.DataFrame.from_dict({'predictions': [1, 1, 0, 1, 1]})
         df2 = pd.DataFrame.from_dict({'labels': [0, 1, 0, 1],
@@ -85,6 +96,9 @@ class TestBinaryProbFairness(unittest.TestCase):
                               InputShapeError,"does not raise InputShapeError on invalid predictions shape")
 
     def test_prob_likelihood_size_invalid_outer(self):
+        """
+        Ensure invalid outer shape for memberships returns an error
+        """
         # Data
         labels = [0, 1, 0, 1]
         predictions = np.array([1, 1, 0, 1])
@@ -95,6 +109,9 @@ class TestBinaryProbFairness(unittest.TestCase):
                               InputShapeError,"does not raise shape error on invalid likelihood outer shape")
 
     def test_prob_likelihood_size_invalid_inner(self):
+        """
+        Ensure invalid inner shape for memberhsips returns an error
+        """
         # Data
         labels = [0, 1, 0, 1]
         predictions = np.array([1, 1, 0, 1])
@@ -104,3 +121,42 @@ class TestBinaryProbFairness(unittest.TestCase):
         membership_labels = [1]
         self.run_all_fairness(labels, predictions, memberships, surrogates, membership_labels,
                               InputShapeError,"does not raise shape error on invalid inner likelihood shape")
+
+    def test_boot_results_input(self):
+        """
+        Make sure we can run bootstrap once and then unpack results for needed tests.
+        """
+        #Construct sample bootstrap dpandas.DataFrame
+        c = pd.Series(["W", "NW"], name="class")
+        answer_dict = {"FPR": [0.6, 0.689655],
+                       "FNR": [0.5, 0.985915],
+                       "TPR": [0.5, 0.014085],
+                       "TNR": [0.4, 0.310345],
+                       "ACC": [0.45, 0.10],
+                       "Prediction Rate":[0.55,0.21]}
+        raw_boot_results = pd.DataFrame({
+            "false_negative_ratio": [0.25, 0.7],
+            "false_positive_ratio": [0.3, 0.2],
+            "true_negative_ratio": [0.2, 0.09],
+            "true_positive_ratio": [0.25, 0.01],
+            "prediction_ratio": [0.55, 0.21]})
+        test_boot_results = pd.concat([pd.DataFrame.from_dict(answer_dict), raw_boot_results], axis=1).set_index(c)
+        tests=[("StatisticalParity","Prediction Rate"),
+               ("PredictiveEquality","FPR"),
+               ("EqualOpportunity","TPR"),
+               ("FNRDifference","FNR")]
+        for t in tests:
+            name=t[0]
+            answer=answer_dict[t[1]][1]-answer_dict[t[1]][0]
+            class_ = getattr(BinaryFairnessMetrics, t[0])  # grab a class which is a property of BinaryFairnessMetrics
+            instance = class_()  # dynamically instantiate such class
+            if name in Constants.no_labels:
+                score = instance.get_score(None, None, None, [1], test_boot_results)
+            else:
+                score = instance.get_score(None, None, None, None, [1], test_boot_results)
+
+            self.assertEqual(score, answer,
+                                   f"Score for returned for {name} from bootstrap dataframe is incorrect.\nexpected: {answer}, got: {score}")
+
+
+
