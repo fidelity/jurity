@@ -3,7 +3,6 @@ import warnings
 
 import pandas
 import pandas as pd
-import scipy.stats
 from sklearn.linear_model import LinearRegression
 from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants, check_inputs_proba
 
@@ -90,10 +89,10 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
 def unpack_bootstrap(df: pd.DataFrame, stat_name: str, membership_labels: List[int]):
     """
     For Binary classifiers, return the requested model performance statistics for each class.
-    Parameters
-    stat_name: Name of the requested statistic, e.g. FNR for false negative rate.
-    membership_labels: list of classes requesting membership for.
     Currently only implemented for cases where there are two classes: Protected and unprotected.
+    Arguments:
+        stat_name: Name of the requested statistic, e.g. FNR for false negative rate.
+        membership_labels: list of classes requesting membership for.
     """
     stats = df[[stat_name]]
     v = stats.index.values
@@ -117,16 +116,20 @@ class BiasCalculator:
     @classmethod
     def from_df(cls,
                 df: pandas.DataFrame,
-                membership_labels: list,
-                membership_names: list,
-                test_names:list =None,
+                membership_labels: List[int],
+                membership_names: List[str],
+                test_names:List[str] =None,
                 weight_name: str="count",
                 weight_warnings: bool=True):
         """
         Reads an input dataframe and returns a BiasCalculator
-        Parameters:
+        Arguments:
             df: a pandas DataFrame with shape=(surrogate_class,n classes).
-            Columns are class probabilities and summaries of test statistics for each surrogate class.
+                Columns are class probabilities and summaries of test statistics for each surrogate class.
+            membership_labels: List[int], which memership_names are in the protected group
+            membership_names: List[str], names of classes, should correspond to columns in input dataframe
+            weight_name: Name of column containing weight variable Default is "count".
+            weight_warnings: If false suppresses warnings about small counts for surrogate classes
         """
         if test_names is None:
             test_names = [Constants.true_positive_ratio, Constants.true_negative_ratio,
@@ -160,7 +163,6 @@ class BiasCalculator:
             self.surrogate_labels(surrogate_labels)
         if test_labels:
             self.test_labels(test_labels)
-        self.prediction_matrix(construct=True)
         self.check_dimensions()
         self.verbose(verbose)
 
@@ -171,9 +173,9 @@ class BiasCalculator:
 
     def Y(self, value=None):
         """
-        Get or set input y as a numpy array that has 2 dimensions.
+        Get or set input value as a numpy array that has 2 dimensions.
         Arguments:
-            value: Value to be set
+            value: 2-D numpy array to be set
         """
         if value is not None:
             try:
@@ -192,7 +194,7 @@ class BiasCalculator:
 
     def X(self, value=None):
         """
-        Get or set input x as a  numpy array that has 2 dimensions.
+        Get or set input x as a 2-D numpy array.
         Arguments:
             value: value to be set, matrix of membership probabilities, shape-(n surrogate classes, n classes-1)
         """
@@ -206,7 +208,7 @@ class BiasCalculator:
             elif not x.ndim == 2:
                 raise ValueError("Input X must have 1 or 2 dimensions")
             self._x = x
-            #If _x has been updated, re-create the prediction matrix.
+            self.prediction_matrix(construct=True)
         return self._x
 
     def W(self, value=None):
@@ -288,7 +290,7 @@ class BiasCalculator:
         """
         # Construct matrix of all possible values, corresponding to surrogate_labels()
         if construct:
-            n_xs = len(self.surrogate_labels()[1])
+            n_xs = self.X().shape[1]
             self._prediction_matrix = np.concatenate((np.zeros((1, n_xs)), np.identity(n_xs)))
         return self._prediction_matrix
 
