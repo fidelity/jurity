@@ -137,9 +137,8 @@ class TestUtilsProba(unittest.TestCase):
         """
         Test that transform_bootstrap_results gives the correct numbers
         """
-        # TODO: Add ACC and Prediction Rate
         test_these = [Constants.FNR, Constants.FPR, Constants.TNR, Constants.TPR, Constants.ACC,
-                      Constants.prediction_rate]
+                      Constants.prediction_rate,Constants.ACC]
         boot = self.bc.transform_bootstrap_results(self.test_boot_results)
         ratios_added = boot.groupby("class").mean()
         np.testing.assert_array_almost_equal(np.array(boot[test_these]), np.array(ratios_added[test_these]))
