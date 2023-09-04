@@ -109,7 +109,7 @@ class BiasCalculator:
     _x: Input race percentages
     _w: Weights for weighted regression
     _prediction_matrix: Matrix needed to predict model diagnostic values for different classes
-    _surrogate_labels: Labels for class membership likelihood columns
+    _class_labels: Labels for class membership likelihood columns
     _test_labels: Labels for model performance diagnostics
     """
 
@@ -155,12 +155,12 @@ class BiasCalculator:
                 bc = bcdf.get_bias_calculator(df, 1, weight_warnings=weight_warnings)
         return bc
 
-    def __init__(self, Y, X, W, surrogate_labels, test_labels, verbose=True):
+    def __init__(self, Y, X, W, class_labels, test_labels, verbose=True):
         self.Y(Y)
         self.X(X)
         self.W(W)
-        if surrogate_labels:
-            self.surrogate_labels(surrogate_labels)
+        if class_labels:
+            self.class_labels(class_labels)
         if test_labels:
             self.test_labels(test_labels)
         self.check_dimensions()
@@ -227,7 +227,7 @@ class BiasCalculator:
             self._w = w
         return self._w
 
-    def surrogate_labels(self, value=None):
+    def class_labels(self, value=None):
         """
         Set and get labels for class membership probabilities.
         Arguments:
@@ -249,10 +249,10 @@ class BiasCalculator:
                 else:
                     self._compare_label = value[0][0]
                     self._non_compare_labels=value[1]
-                    self.all_surrogate_labels(calculate=True)
+                    self.all_class_labels(calculate=True)
         return [[self._compare_label], self._non_compare_labels]
 
-    def all_surrogate_labels(self, calculate=False):
+    def all_class_labels(self, calculate=False):
         """
         Get or set all surrogate labels based on _compare_label and _non_compare_labels.
         Used to index bootstrap output.
@@ -263,8 +263,8 @@ class BiasCalculator:
             l = [self._compare_label]
             for c in self._non_compare_labels:
                 l.append(c)
-            self._all_surrogate_labels = l
-        return self._all_surrogate_labels
+            self._all_class_labels = l
+        return self._all_class_labels
 
     def test_labels(self, value: List[str]=None):
         """
@@ -288,7 +288,7 @@ class BiasCalculator:
         Arguments:
             construct: If True, re-creates prediction matrix. Called when _x is updated.
         """
-        # Construct matrix of all possible values, corresponding to surrogate_labels()
+        # Construct matrix of all possible values, corresponding to class_labels()
         if construct:
             n_xs = self.X().shape[1]
             self._prediction_matrix = np.concatenate((np.zeros((1, n_xs)), np.identity(n_xs)))
@@ -363,7 +363,7 @@ class BiasCalculator:
             if binary_metrics is not None:
                 all_model_results.append(pd.concat([binary_metrics,preds],axis=1))
             else:
-                preds['class']=self.surrogate_labels()
+                preds['class']=self.class_labels()
                 all_model_results.append(preds)
         out_data = pd.concat(all_model_results, axis=0).reset_index().drop(["index"],axis=1)
         return out_data
@@ -408,7 +408,7 @@ class BiasCalculator:
             out_cols.append(prediction_rate)
         if len(out_cols)>0:
             df=pd.concat(out_cols,axis=1)
-            df['class']=self.all_surrogate_labels()
+            df['class']=self.all_class_labels()
             return df
         else:
             return None
@@ -422,7 +422,7 @@ class BiasCalculator:
         return df.groupby("class").mean()
 
     def __str__(self):
-        return "BiasCalculator(surrogate_labels=" + str(self.surrogate_labels()) + ", test_labels=" + str(
+        return "BiasCalculator(class_labels=" + str(self.class_labels()) + ", test_labels=" + str(
             self.test_labels()) + ")"
 
 

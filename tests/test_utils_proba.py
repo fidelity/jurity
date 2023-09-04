@@ -190,10 +190,10 @@ class TestUtilsProba(unittest.TestCase):
         """
         Test to make certain make_bias_calculator has the correct class labels and omitted category
         """
-        self.assertTrue("B" in self.bc.surrogate_labels()[1])
-        self.assertTrue("O" in self.bc.surrogate_labels()[1])
-        self.assertFalse("W" in self.bc.surrogate_labels()[1])
-        self.assertEqual("W", self.bc.surrogate_labels()[0][0])
+        self.assertTrue("B" in self.bc.class_labels()[1])
+        self.assertTrue("O" in self.bc.class_labels()[1])
+        self.assertFalse("W" in self.bc.class_labels()[1])
+        self.assertEqual("W", self.bc.class_labels()[0][0])
 
     def test_bias_maker_bad_data(self):
         # not list
@@ -616,7 +616,7 @@ class TestWithSimulation(unittest.TestCase):
         # Only need the diagonal for this calculation
         x_portion_variance = pd.Series(np.diag(np.dot(np.dot(pred_matrix, invxTx), pred_matrix.T)))
         x_portion_variance.name = 'x_var'
-        x_portion_variance.index=self.bc.all_surrogate_labels()
+        x_portion_variance.index=self.bc.all_class_labels()
 
         #Get confusion matrix probabilities and variances from input rates_dict.
         in_vars_dict = {}
