@@ -49,7 +49,8 @@ class Constants(NamedTuple):
                              "FNRDifference"]
     no_labels = ["StatisticalParity", "DisparateImpact"]
     no_memberships = ["GeneralizedEntropyIndex", "TheilIndex"]
-
+    class_col_name="class"
+    weight_col_name="count"
 
 class Error(Exception):
     """

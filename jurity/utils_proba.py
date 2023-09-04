@@ -119,16 +119,16 @@ class BiasCalculator:
                 membership_labels: List[int],
                 membership_names: List[str],
                 test_names:List[str] =None,
-                weight_name: str="count",
+                weight_name: str=Constants.weight_col_name,
                 weight_warnings: bool=True):
         """
         Reads an input dataframe and returns a BiasCalculator
         Arguments:
             df: a pandas DataFrame with shape=(surrogate_class,n classes).
                 Columns are class probabilities and summaries of test statistics for each surrogate class.
-            membership_labels: List[int], which memership_names are in the protected group
+            membership_labels: List[int], which membership_names are in the protected group
             membership_names: List[str], names of classes, should correspond to columns in input dataframe
-            weight_name: Name of column containing weight variable Default is "count".
+            weight_name: Name of column containing weight variable Default is Constants.weight_col_name.
             weight_warnings: If false suppresses warnings about small counts for surrogate classes
         """
         if test_names is None:
@@ -375,35 +375,35 @@ class BiasCalculator:
         """
         tests_we_have = df.columns
         # For binary classifiers, if we know the true labels, we will probably want these tests.
-        common_tests = ["false_positive_ratio", "false_negative_ratio", "true_positive_ratio", "true_negative_ratio"]
+        common_tests = [Constants.false_positive_ratio, Constants.false_negative_ratio, Constants.true_positive_ratio, Constants.true_negative_ratio]
         out_cols = []
         if set(common_tests).issubset(set(tests_we_have)):
-            FPR = df["false_positive_ratio"] / (
-                    df["false_positive_ratio"] + df["true_negative_ratio"])
+            FPR = df[Constants.false_positive_ratio] / (
+                    df[Constants.false_positive_ratio] + df[Constants.true_negative_ratio])
             FPR.name = Constants.FPR
             out_cols.append(FPR)
 
-            FNR = df["false_negative_ratio"] / (
-                    df["false_negative_ratio"] + df["true_positive_ratio"])
+            FNR = df[Constants.false_negative_ratio] / (
+                    df[Constants.false_negative_ratio] + df[Constants.true_positive_ratio])
             FNR.name = Constants.FNR
             out_cols.append(FNR)
 
-            TPR = df["true_positive_ratio"] / (
-                    df["true_positive_ratio"] + df["false_negative_ratio"])
+            TPR = df[Constants.true_positive_ratio] / (
+                    df[Constants.true_positive_ratio] + df[Constants.false_negative_ratio])
             TPR.name = Constants.TPR
             out_cols.append(TPR)
 
-            TNR = df["true_negative_ratio"] / (
-                    df["true_negative_ratio"] + df["false_positive_ratio"])
+            TNR = df[Constants.true_negative_ratio] / (
+                    df[Constants.true_negative_ratio] + df[Constants.false_positive_ratio])
             TNR.name = Constants.TNR
             out_cols.append(TNR)
 
-            ACC = df["true_positive_ratio"] + df["true_negative_ratio"]
+            ACC = df[Constants.true_positive_ratio] + df[Constants.true_negative_ratio]
             ACC.name = Constants.ACC
             out_cols.append(ACC)
         # For binary classifiers we can always calculate the prediction_ratio, even if we don't have anything else
-        if "prediction_ratio" in tests_we_have:
-            prediction_rate = df["prediction_ratio"]
+        if Constants.prediction_ratio in tests_we_have:
+            prediction_rate = df[Constants.prediction_ratio]
             prediction_rate.name = Constants.prediction_rate
             out_cols.append(prediction_rate)
         if len(out_cols)>0:
@@ -419,7 +419,7 @@ class BiasCalculator:
         Input: Pandas Dataframe that is the result of self.run_bootstrap
         Returns: means of all statistics grouped by class
         """
-        return df.groupby("class").mean()
+        return df.groupby(Constants.class_col_name).mean()
 
     def __str__(self):
         return "BiasCalculator(class_labels=" + str(self.class_labels()) + ", test_labels=" + str(
@@ -430,7 +430,7 @@ class BiasCalcFromDataFrame:
     """
     Class that creates a bias calculator from a dataframe.
     Members:
-    _surrogate_names: Names of surrogate class labels
+    _class_names: Names of surrogate class labels
     _weight_name: Name of column with weights
     _compare_label: label of group that's comparison group from the regression
     _test_names: Names of tests to be calculated
@@ -443,7 +443,7 @@ class BiasCalcFromDataFrame:
         """
         Initialize names to be read and name of comparison category for regression.
         Members:
-        _surrogate_names: Names of classes, should be columns in pandas dataframe
+        _class_names: Names of classes, should be columns in pandas dataframe
         _compare_label: Name of comparison group, usually the unprotected class
             if multiple unprotected classes, we use the first one.
         _
@@ -459,13 +459,13 @@ class BiasCalcFromDataFrame:
             raise ValueError(
                 "All groups appear to be protected groups. Must designate at least one non-protected group.")
         self.compare_label(omitted_string)
-        self.surrogate_names(membership_names)
+        self.class_names(membership_names)
         if self._compare_label in membership_names:
-            self._surrogate_names.remove(self._compare_label)
+            self._class_names.remove(self._compare_label)
         self.test_names(test_names)
         self.weight_name(weight_name)
 
-    def surrogate_names(self, value: List[str]=None):
+    def class_names(self, value: List[str]=None):
         """
         Get or set surrogate class names. Make sure it is a list of strings
         """
@@ -476,10 +476,10 @@ class BiasCalcFromDataFrame:
             for l in v:
                 if not isinstance(l, str):
                     raise ValueError(f"Surrogate class name {l} is not a string.")
-            self._surrogate_names = value
-            if not len(self._surrogate_names) == len(v):
+            self._class_names = value
+            if not len(self._class_names) == len(v):
                 raise ValueError("Surrogate class name contains duplicates.")
-        return self._surrogate_names
+        return self._class_names
 
     def test_names(self, value: List[str]=None):
         """
@@ -553,10 +553,10 @@ class BiasCalcFromDataFrame:
         Arguments
             df: pd.DataFrame, summarized by surrogate class, that has class membership probabilities for each surrogate class.
         """
-        if not set(self.surrogate_names()).issubset(set(df.columns)):
+        if not set(self.class_names()).issubset(set(df.columns)):
             raise ValueError(
-                "Surrogate names: {0} are not in dataframe.".format(set(self._surrogate_names) - (set(df.columns))))
-        return df[self.surrogate_names()].to_numpy(dtype='f')
+                "Surrogate names: {0} are not in dataframe.".format(set(self._class_names) - (set(df.columns))))
+        return df[self.class_names()].to_numpy(dtype='f')
 
     def get_Y_matrix(self, df: pd.DataFrame)->np.ndarray:
         """
@@ -596,7 +596,7 @@ class BiasCalcFromDataFrame:
             if weight_warnings:
                 print("{0} rows removed from datafame for insufficient weight values" \
                       .format(df.shape[0] - subset.shape[0]))
-            if subset.shape[0] < len(self.surrogate_names()):
+            if subset.shape[0] < len(self.class_names()):
                 raise WeightTooLarge("Input dataframe does not have enough rows to estimate surrogate classes "
                                      "reduce minimum weight.")
         else:
@@ -606,12 +606,12 @@ class BiasCalcFromDataFrame:
         X = self.get_X_matrix(subset)
         Y = self.get_Y_matrix(subset)
         W = self.get_W_array(subset)
-        bc = BiasCalculator(Y, X, W, [[self.compare_label()], self.surrogate_names()], self.test_names())
+        bc = BiasCalculator(Y, X, W, [[self.compare_label()], self.class_names()], self.test_names())
 
         return bc
 
     def __str__(self):
-        return "BiasCalculatorFromDataFrame(surrogate_names=" + str(self.surrogate_names()) + ", test_names=" + str(
+        return "BiasCalculatorFromDataFrame(class_names=" + str(self.class_names()) + ", test_names=" + str(
             self.test_names()) + ")"
 
 
@@ -813,7 +813,7 @@ class SummaryData:
             if self.pred_name() and self.true_name():
                 self._test_names = ["true_positive", "true_negative", "false_positive", "false_negative"]
             else:
-                self._test_names = ["prediction_ratio"]
+                self._test_names = [Constants.prediction_ratio]
         return self._test_names
 
     def check_surrogate_data(self, df: pd.DataFrame)->bool:
@@ -944,17 +944,17 @@ class SummaryData:
         ac_cols = acc_cols + [self.pred_name()]
         for c in ac_cols:
             agg_dict[c] = "sum"
-        agg_dict[group_col[0]] = "count"
+        agg_dict[group_col[0]] = Constants.weight_col_name
         check_accuracy = test_df \
             .groupby(group_col) \
             .agg(agg_dict) \
-            .rename(columns={group_col[0]: "count"})
+            .rename(columns={group_col[0]: Constants.weight_col_name})
         for c in ac_cols:
-            check_accuracy[c + "_ratio"] = check_accuracy[c] / check_accuracy["count"]
+            check_accuracy[c + "_ratio"] = check_accuracy[c] / check_accuracy[Constants.weight_col_name]
         check_accuracy = check_accuracy.rename(
             columns={"_".join([self.pred_name(), "ratio"]): Constants.prediction_ratio})
 
-        out_cols = ["prediction_ratio", "count"]
+        out_cols = [Constants.prediction_ratio, Constants.weight_col_name]
 
         if {Constants.true_negative_ratio, Constants.true_positive_ratio, Constants.false_negative_ratio,
             Constants.false_positive_ratio}.issubset(
