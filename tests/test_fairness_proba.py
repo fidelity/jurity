@@ -124,7 +124,7 @@ class TestBinaryProbFairness(unittest.TestCase):
 
     def test_boot_results_input(self):
         """
-        Make sure we can run bootstrap once and then unpack results for needed tests.
+        Make all score functions unpack results correctly from pre-generated bootstrap.
         """
         #Construct sample bootstrap dpandas.DataFrame
         c = pd.Series(["W", "NW"], name="class")
@@ -147,6 +147,7 @@ class TestBinaryProbFairness(unittest.TestCase):
                ("FNRDifference","FNR")]
         for t in tests:
             name=t[0]
+            #There are all tests that are a simple subtraction
             answer=answer_dict[t[1]][1]-answer_dict[t[1]][0]
             class_ = getattr(BinaryFairnessMetrics, t[0])  # grab a class which is a property of BinaryFairnessMetrics
             instance = class_()  # dynamically instantiate such class
@@ -156,7 +157,13 @@ class TestBinaryProbFairness(unittest.TestCase):
                 score = instance.get_score(None, None, None, None, [1], test_boot_results)
 
             self.assertEqual(score, answer,
-                                   f"Score for returned for {name} from bootstrap dataframe is incorrect.\nexpected: {answer}, got: {score}")
+                                   f"Score for returned for {name} from bootstrap dataframe is incorrect.\nexpected: {answer}, got: {score}.")
+        name="AverageOdds"
+        answer=0.5*((answer_dict["FPR"][1]-answer_dict["FPR"][0])+(answer_dict["TPR"][1]-answer_dict["TPR"][0]))
+        class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
+        instance = class_()  # dynamically instantiate such class
+        score=instance.get_score(None,None,None,None,[1],test_boot_results)
+        self.assertEqual(score,answer,f"score function {name} give unexpected answer for pre-generated bootstrap. Expected: {answer}. Got {score}.")
 
 
 

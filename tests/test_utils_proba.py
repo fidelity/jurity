@@ -130,7 +130,7 @@ class TestUtilsProba(unittest.TestCase):
         """
         br = self.bc.transform_bootstrap_results(self.bc.run_bootstrap(5))
         self.assertEqual(br.shape, (3, 11), "Returned bootstrap has shape: {0}. Expected (3,11).".format(br.shape))
-        test_cols = [s in br.columns for s in ["FPR", "FNR", "TPR", "TNR", "ACC"]]
+        test_cols = [s in br.columns for s in [Constants.FPR, Constants.FNR, Constants.TPR, Constants.TNR, Constants.ACC,Constants.prediction_rate]]
         self.assertTrue(np.all(test_cols), "Not all tests are returned by bootstrap transform")
 
     def test_transform_bootstrap_results_answer(self):
@@ -189,7 +189,7 @@ class TestUtilsProba(unittest.TestCase):
 
     def test_make_bias_calculator_names(self):
         """
-        Test to make certain make_bias_calculator has the correct race labels and omitted category
+        Test to make certain make_bias_calculator has the correct class labels and omitted category
         """
         self.assertTrue("B" in self.bc.surrogate_labels()[1])
         self.assertTrue("O" in self.bc.surrogate_labels()[1])
