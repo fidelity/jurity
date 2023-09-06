@@ -3,7 +3,7 @@
 
 # Jurity: Fairness & Evaluation Library
 
-Jurity([LION'23](), [ICMLA'21](https://ieeexplore.ieee.org/document/9680169)) is a research library 
+Jurity ([LION'23](), [ICMLA'21](https://ieeexplore.ieee.org/document/9680169)) is a research library 
 that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. 
 The library adheres to PEP-8 standards and is tested heavily.
 
@@ -190,6 +190,32 @@ print('F1 score is', f1_score.get_score(predictions, labels))
 ## Installation
 
 Jurity requires **Python 3.7+** and can be installed from PyPI using ``pip install jurity`` or by building from source as shown in [installation instructions](https://fidelity.github.io/jurity/install.html).
+
+## Citation
+
+If you use MABWiser in a publication, please cite it as:
+
+```bibtex
+    @article{DBLP:conf/lion/Melinda23,
+      author    = {Melinda Thielbar, Serdar Kadioglu, Chenhui Zhang, Rick Pack, and Lukas Dannull},
+      title     = {Surrogate Membership for Inferred Metrics in Fairness Evaluation},
+      booktitle = {The 17th Learning and Intelligent Optimization Conference (LION)},
+      publisher = {{LION}},
+      year      = {2023}
+    }
+
+    @inproceedings{DBLP:conf/icmla/MichalskyK21,
+    author       = {Filip Michalsk{\'{y}} and Serdar Kadioglu},
+    title        = {Surrogate Ground Truth Generation to Enhance Binary Fairness Evaluation in Uplift Modeling},
+    booktitle    = {20th {IEEE} International Conference on Machine Learning and Applications, 
+    {ICMLA} 2021, Pasadena, CA, USA, December 13-16, 2021},
+    pages        = {1654--1659},
+    publisher    = {{IEEE}},
+    year         = {2021},
+    url          = {https://doi.org/10.1109/ICMLA52953.2021.00264},
+    doi          = {10.1109/ICMLA52953.2021.00264},
+}
+```
 
 ## Support
 Please submit bug reports and feature requests as [Issues](https://github.com/fidelity/jurity/issues).
