@@ -71,7 +71,7 @@ class BinaryFairnessMetrics(NamedTuple):
                 If the membership is probabilistic, a list or np.array of int is expected,
                                                     with the index of the protected groups in the memberships array,
                                                     e.g, [1, 2, 3], if 1-2-3 indexes are protected.
-                Default value is 1.
+                Default value is 1 for deterministic case or [1] for probabilistic case.
         Returns
         ----------
         Pandas data frame with all implemented binary fairness metrics.
@@ -80,9 +80,10 @@ class BinaryFairnessMetrics(NamedTuple):
         if is_deterministic(memberships):
             check_inputs(predictions, memberships, membership_labels, must_have_labels=True, labels=labels)
         elif surrogates is not None:
-            check_inputs_argmax(predictions,memberships, membership_labels, labels)
+            check_inputs_argmax(predictions, memberships, membership_labels, labels)
         else:
-            check_inputs_proba(predictions,memberships,surrogates,membership_labels,must_have_labels=True,labels=labels)
+            check_inputs_proba(predictions, memberships, surrogates, membership_labels, must_have_labels=True,
+                               labels=labels)
 
         fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
 
@@ -97,27 +98,34 @@ class BinaryFairnessMetrics(NamedTuple):
 
             name = fairness_func[0]
             class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
-            instance = class_()  # dynamically instantiate such class
+            metric = class_()  # dynamically instantiate such class
 
             if bootstrap_results is not None and name in Constants.bootstrap_implemented:
-                if name in ["PredictiveEquality", "AverageOdds","FNRDifference"]:
-                    score = instance.get_score(labels,predictions,memberships,membership_labels,bootstrap_results)
+
+                if membership_labels == 1:
+                    membership_labels = [1]
+
+                if name in ["PredictiveEquality", "AverageOdds", "FNRDifference"]:
+                    score = metric.get_score(labels, predictions, memberships, membership_labels, bootstrap_results)
                 elif name == "StatisticalParity":
-                    score = instance.get_score(predictions, memberships, membership_labels, bootstrap_results)
+                    score = metric.get_score(predictions, memberships, membership_labels, bootstrap_results)
                 else:
                     score = None
             elif name in ["DisparateImpact", "StatisticalParity"]:
-                score = instance.get_score(predictions, memberships, membership_labels)
+                score = metric.get_score(predictions, memberships, membership_labels)
             elif name in ["GeneralizedEntropyIndex", "TheilIndex"]:
-                score = instance.get_score(labels, predictions)
+                score = metric.get_score(labels, predictions)
             else:
-                score = instance.get_score(labels, predictions, memberships, membership_labels)
+                score = metric.get_score(labels, predictions, memberships, membership_labels)
 
             if score is None:
                 score = np.nan
             score = np.round(score, 3)
-            df = pd.concat([df, pd.DataFrame([[instance.name, score, instance.ideal_value, instance.lower_bound, instance.upper_bound]],
-                columns=df.columns)], axis=0, ignore_index=True)
+
+            df = pd.concat([df,
+                            pd.DataFrame([[metric.name, score, metric.ideal_value,
+                                           metric.lower_bound, metric.upper_bound]], columns=df.columns)],
+                           axis=0, ignore_index=True)
 
         df = df.set_index("Metric")
 

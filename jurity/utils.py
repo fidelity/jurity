@@ -45,8 +45,8 @@ class Constants(NamedTuple):
     false_positive_ratio = "false_positive_ratio"
     false_negative_ratio = "false_negative_ratio"
     prediction_ratio = "prediction_ratio"
-    bootstrap_implemented = ["StatisticalParity", "PredictiveEquality",
-                             "EqualOpportunity", "AverageOdds", "FNRDifference"]
+    bootstrap_implemented = ["AverageOdds", "EqualOpportunity",
+                             "FNRDifference", "StatisticalParity", "PredictiveEquality"]
     no_labels = ["StatisticalParity", "DisparateImpact"]
     class_col_name = "class"
     weight_col_name = "count"
