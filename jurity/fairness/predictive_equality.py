@@ -9,9 +9,11 @@ import numpy as np
 import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
-from jurity.utils import calc_is_member,check_inputs,is_deterministic,performance_measures,check_inputs_proba
-from jurity.utils import check_and_convert_list_types,split_array_based_on_membership_label
-from jurity.utils_proba import get_bootstrap_results,unpack_bootstrap
+from jurity.utils import calc_is_member, check_inputs, is_deterministic, performance_measures, Constants
+from jurity.utils import check_and_convert_list_types, split_array_based_on_membership_label
+from jurity.utils_proba import get_bootstrap_results, unpack_bootstrap
+
+
 class PredictiveEquality(_BaseBinaryFairness):
 
     def __init__(self):
@@ -62,10 +64,10 @@ class PredictiveEquality(_BaseBinaryFairness):
             Default is None.
         membership_labels: Union[int, float, str, List[int] np.array[int]]
             Labels indicating group membership.
-                If the membership is deterministic, a single str/int is expected, e.g., 1. Default is 1.
+                If the membership is deterministic, a single str/int is expected, e.g., 1.
                 If the membership is probabilistic, a list of int or np.array of int is expected,
-                    with the positions of the protected groups in the memberships vectors (e.g, [1, 2, 3])
-                Default value is 1.
+                    with the index of the protected groups in the memberships vectors (e.g, [1, 2, 3])
+                Default value is 1 for deterministic case or [1] for probabilistic case.
         bootstrap_results: Optional[pd.DataFrame]
             A Pandas dataframe with inferred scores based surrogate class memberships.
             Default value is None.
@@ -94,9 +96,12 @@ class PredictiveEquality(_BaseBinaryFairness):
             fpr_group_2 = performance_measures(labels, predictions, group_2_group_idx, group_membership=True)["FPR"]
 
         else:
-            if bootstrap_results is None:
-                bootstrap_results=get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
+            if membership_labels == 1:
+                membership_labels = [1]
 
-            fpr_group_1,fpr_group_2 = unpack_bootstrap(bootstrap_results,"FPR",membership_labels)
+            if bootstrap_results is None:
+                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
+
+            fpr_group_1,fpr_group_2 = unpack_bootstrap(bootstrap_results, Constants.FPR, membership_labels)
 
         return fpr_group_1 - fpr_group_2

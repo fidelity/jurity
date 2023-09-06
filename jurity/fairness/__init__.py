@@ -11,8 +11,8 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.fairness.base import _BaseMultiClassMetric
-from jurity.utils import check_inputs, check_inputs_argmax,is_deterministic, check_inputs_proba
 from jurity.utils import Constants
+from jurity.utils import check_inputs, check_inputs_argmax, is_deterministic, check_inputs_proba
 from jurity.utils_proba import get_bootstrap_results
 from .average_odds import AverageOdds
 from .disparate_impact import BinaryDisparateImpact, MultiDisparateImpact
@@ -42,31 +42,35 @@ class BinaryFairnessMetrics(NamedTuple):
     def get_all_scores(labels: Union[List, np.ndarray, pd.Series],
                        predictions: Union[List, np.ndarray, pd.Series],
                        memberships: Union[List, np.ndarray, pd.Series],
-                       surrogates: Union[List, np.ndarray, pd.Series]=None,
+                       surrogates: Union[List, np.ndarray, pd.Series] = None,
                        membership_labels: Union[str, float, int, List, np.array] = 1) -> pd.DataFrame:
         """
-        Calculates and tabulates all of the fairness metric scores.
+        Calculates and tabulates all fairness metric scores.
         Parameters
         ----------
+        labels: Union[List, np.ndarray, pd.Series]
+            Binary ground truth labels for each sample.
         predictions: Union[List, np.ndarray, pd.Series]
-            Binary predictions from some black-box classifier (0/1).
-            Binary prediction for each sample from a binary (0/1) lack-box classifier.
-        memberships: Union[List, np.ndarray, pd.Series, List[List], pd.DataFrame],
+            Binary prediction for each sample from a black-box classifier binary (0/1).
+        memberships: Union[List, np.ndarray, pd.Series, List[List], pd.DataFrame]
             Membership attribute for each sample.
-                If deterministic, it is a binary label for each sample [0, 1, 0, .., 1]
-                If probabilistic, it is the likelihoods array of membership labels for each sample. [[0.6, 0.2, 0.2], .., [..]]
+                If deterministic, it is the binary label for each sample [0, 1, 0, ..., 1]
+                If probabilistic, it is the likelihoods array of membership labels
+                                  for each sample, i.e., a two-dim array [[0.6, 0.2, 0.2], ..., [..]]
         surrogates: Union[List, np.ndarray, pd.Series]
             Surrogate class attribute for each sample.
                 If the membership is deterministic, surrogates are not needed.
                 If the membership is probabilistic,
-                    - if surrogates are given, inferred metrics are used to calculate the fairness metric as proposed in [1]_.
-                    - when surrogates are not given, the arg max likelihood is considered as the membership for each sample.
+                    - if surrogates are given, inferred metrics are used
+                                               to calculate the fairness metric as proposed in [1]_.
+                    - when surrogates are not given, the arg max likelihood is used as the membership for each sample.
             Default is None.
         membership_labels: Union[int, float, str, List[int],np.array[int]]
             Labels indicating group membership.
-                If the membership is deterministic, a single str/int is expected, e.g., 1. Default is 1.
+                If the membership is deterministic, a single str/int is expected, e.g., 1.
                 If the membership is probabilistic, a list or np.array of int is expected,
-                    with the positions of the protected groups in the memberships vectors (e.g, [1, 2, 3]
+                                                    with the index of the protected groups in the memberships array,
+                                                    e.g, [1, 2, 3], if 1-2-3 indexes are protected.
                 Default value is 1.
         Returns
         ----------
@@ -85,10 +89,9 @@ class BinaryFairnessMetrics(NamedTuple):
         df = pd.DataFrame(columns=["Metric", "Value", "Ideal Value", "Lower Bound", "Upper Bound"])
 
         if not is_deterministic(memberships) and surrogates is not None:
-            bootstrap_results=get_bootstrap_results(predictions,memberships,surrogates,
-                          membership_labels, labels)
+            bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
         else:
-            bootstrap_results=None
+            bootstrap_results = None
 
         for fairness_func in fairness_funcs:
 
@@ -97,12 +100,12 @@ class BinaryFairnessMetrics(NamedTuple):
             instance = class_()  # dynamically instantiate such class
 
             if bootstrap_results is not None and name in Constants.bootstrap_implemented:
-                if name in ["PredictiveEquality","AverageOdds","FNRDifference"]:
-                    score=instance.get_score(labels,predictions,memberships,membership_labels,bootstrap_results)
-                elif name=="StatisticalParity":
+                if name in ["PredictiveEquality", "AverageOdds","FNRDifference"]:
+                    score = instance.get_score(labels,predictions,memberships,membership_labels,bootstrap_results)
+                elif name == "StatisticalParity":
                     score = instance.get_score(predictions, memberships, membership_labels, bootstrap_results)
                 else:
-                    score=None
+                    score = None
             elif name in ["DisparateImpact", "StatisticalParity"]:
                 score = instance.get_score(predictions, memberships, membership_labels)
             elif name in ["GeneralizedEntropyIndex", "TheilIndex"]:
@@ -113,8 +116,7 @@ class BinaryFairnessMetrics(NamedTuple):
             if score is None:
                 score = np.nan
             score = np.round(score, 3)
-            df = pd.concat([df, pd.DataFrame(
-                [[instance.name, score, instance.ideal_value, instance.lower_bound, instance.upper_bound]],
+            df = pd.concat([df, pd.DataFrame([[instance.name, score, instance.ideal_value, instance.lower_bound, instance.upper_bound]],
                 columns=df.columns)], axis=0, ignore_index=True)
 
         df = df.set_index("Metric")

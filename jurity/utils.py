@@ -2,10 +2,10 @@
 # Copyright FMR LLC <opensource@fidelity.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import math
 import warnings
 from typing import List, NamedTuple, NoReturn, Optional, Union
 
-import math
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
@@ -45,12 +45,12 @@ class Constants(NamedTuple):
     false_positive_ratio = "false_positive_ratio"
     false_negative_ratio = "false_negative_ratio"
     prediction_ratio = "prediction_ratio"
-    bootstrap_implemented = ["StatisticalParity", "PredictiveEquality", "EqualOpportunity", "AverageOdds",
-                             "FNRDifference"]
+    bootstrap_implemented = ["StatisticalParity", "PredictiveEquality",
+                             "EqualOpportunity", "AverageOdds", "FNRDifference"]
     no_labels = ["StatisticalParity", "DisparateImpact"]
-    no_memberships = ["GeneralizedEntropyIndex", "TheilIndex"]
-    class_col_name="class"
-    weight_col_name="count"
+    class_col_name = "class"
+    weight_col_name = "count"
+
 
 class Error(Exception):
     """
@@ -377,18 +377,20 @@ def check_inputs_argmax(predictions: Union[List, np.ndarray, pd.Series],
                                    f"predictions: {len(predictions)}, is_member: {len(memberships)}."))
 
 
-def check_memberships_proba(memberships, len_predictions,unique_surrogate_list, membership_names):
+def check_memberships_proba(memberships, len_predictions, unique_surrogate_list, membership_names):
     """
-    Make sure proabilistic memberships are a 2D list or array with the right dimensions
+    Make sure probabilistic memberships are a 2D list or array with the right dimensions
     """
     check_input_type(memberships)
     len_likelihoods = len(memberships[0])
-    check_true(len(memberships)==len_predictions,
-               InputShapeError("",f"Likelihoods outer array/list must be same length as predictions array."
-                "Likelihood array is:{len_likelihoods}. Predictions array is: {len_predictions}"))
+    check_true(len(memberships) == len_predictions,
+               InputShapeError("", f"Likelihoods outer array/list must be same length as predictions array. "
+                                   f"Likelihood array is:{len_likelihoods}. Predictions array is: {len_predictions}"))
+
     for i, likelihood in enumerate(memberships):
         check_true(type(likelihood) in [np.ndarray, list],
-                   TypeError(f"Membership likelihoods need to be 2D lists or arrays. Likelihood at {i} is not array or list."))
+                   TypeError(f"Membership likelihoods need to be 2D lists or arrays. "
+                             f"Likelihood at {i} is not array or list."))
 
         # Size match, for inner array (all arrays should be same size)
         len_this_like = len(likelihood)
@@ -399,13 +401,18 @@ def check_memberships_proba(memberships, len_predictions,unique_surrogate_list, 
                                    f"You supplied array lengths "
                                    f"size: {len_likelihoods}, at index: {i}."))
         check_true(math.isclose(np.sum(likelihood),1.0),
-                   InputShapeError("","Membership likelihood does not sum to 1.0. Sums to {0} at index {0}.".format(np.sum(likelihood),i)))
+                   InputShapeError("", "Membership likelihood does not sum to 1.0. "
+                                       "Sums to {0} at index {0}.".format(np.sum(likelihood),i)))
+
     if membership_names is not None:
-        errormsg="Shapes of inputs do not match. {0} is the likelihood length. Membership names is {1}".format(len_likelihoods, len(membership_names))
-        check_true(len(membership_names) == len_likelihoods,InputShapeError("",errormsg))
+        error_msg = ("Shapes of inputs do not match. {0} is the likelihood length. "
+                     "Membership names is {1}").format(len_likelihoods, len(membership_names))
+
+        check_true(len(membership_names) == len_likelihoods,InputShapeError("", error_msg))
 
     # Likelihoods must either match the length of the predictions vector
     # or be a pandas dataframe with a unique index for the surrogate classes
+
 
 def check_memberships_proba_df(memberships_df: pd.DataFrame, unique_surrogate_list: set, membership_names:List[str]):
     if membership_names is None:
@@ -419,6 +426,7 @@ def check_memberships_proba_df(memberships_df: pd.DataFrame, unique_surrogate_li
                InputShapeError("","Memberships dataframe must have one column per protected class name."))
     #Make sure each row in the input dataframe sums to 1.
     check_true(np.all(sum_to_one),ValueError("Each row in membership dataframe must sum to 1."))
+
 
 def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
                        memberships: Union[List[List], np.ndarray, pd.Series, pd.DataFrame],
@@ -452,6 +460,7 @@ def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
     if isinstance(membership_labels, list):
         check_true(len(membership_labels) < len_likelihoods,
                    ValueError("Protected label must be less than number of classes"))
+
 
 def performance_measures(ground_truth: np.ndarray,
                          predictions: np.ndarray,

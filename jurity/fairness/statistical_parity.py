@@ -2,15 +2,15 @@
 # Copyright FMR LLC <opensource@fidelity.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Union, Optional
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness, _BaseMultiClassMetric
-from jurity.utils import calc_is_member, check_inputs_proba, check_and_convert_list_types,Union
-from jurity.utils import split_array_based_on_membership_label, is_deterministic, get_argmax_membership
-from jurity.utils_proba import get_bootstrap_results,unpack_bootstrap
+from jurity.utils import calc_is_member, check_inputs_proba, check_and_convert_list_types, Union
+from jurity.utils import split_array_based_on_membership_label, is_deterministic
+from jurity.utils_proba import get_bootstrap_results, unpack_bootstrap
 
 
 class BinaryStatisticalParity(_BaseBinaryFairness):
@@ -53,10 +53,10 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
             Default is None.
         membership_labels: Union[int, float, str, List[int] np.array[int]]
             Labels indicating group membership.
-                If the membership is deterministic, a single str/int is expected, e.g., 1. Default is 1.
+                If the membership is deterministic, a single str/int is expected, e.g., 1.
                 If the membership is probabilistic, a list of int or np.array of int is expected,
-                    with the positions of the protected groups in the memberships vectors (e.g, [1, 2, 3])
-                Default value is 1.
+                    with the index of the protected groups in the memberships vectors (e.g, [1, 2, 3])
+                Default value is 1 for deterministic case or [1] for probabilistic case.
         bootstrap_results: Optional[pd.DataFrame]
             A Pandas dataframe with inferred scores based surrogate class memberships.
             Default value is None.
@@ -73,7 +73,7 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
         # Standard deterministic calculation
         if is_deterministic(memberships) or (surrogates is None and bootstrap_results is None):
             # Check input types and determine protected class membership
-            is_member=calc_is_member(memberships,membership_labels,predictions)
+            is_member = calc_is_member(memberships, membership_labels, predictions)
 
             predictions = check_and_convert_list_types(predictions)
             # Identify the group 2 and group 1 group based on specified group label
@@ -85,13 +85,17 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
 
         # Probabilistic calculation with inferred metrics from bootstrap
         else:
+            if membership_labels == 1:
+                membership_labels = [1]
+
             if bootstrap_results is None:
                 check_inputs_proba(predictions, memberships, surrogates, membership_labels, None)
-                bootstrap_results = get_bootstrap_results(predictions,memberships,surrogates,membership_labels)
+                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels)
 
-            group_1_predictions_pct,group_2_predictions_pct= \
-                unpack_bootstrap(bootstrap_results,"Prediction Rate",membership_labels)
+            group_1_predictions_pct, group_2_predictions_pct = \
+                unpack_bootstrap(bootstrap_results, "Prediction Rate", membership_labels)
         return group_1_predictions_pct - group_2_predictions_pct
+
 
 class MultiStatisticalParity(_BaseMultiClassMetric):
 

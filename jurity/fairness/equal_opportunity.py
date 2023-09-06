@@ -9,11 +9,11 @@ import numpy as np
 import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
-from jurity.utils import check_and_convert_list_types,calc_is_member
-from jurity.utils import check_inputs,is_deterministic
+from jurity.utils import check_and_convert_list_types, calc_is_member, Constants
+from jurity.utils import check_inputs, is_deterministic
 from jurity.utils import performance_measures
 from jurity.utils import split_array_based_on_membership_label
-from jurity.utils_proba import get_bootstrap_results,unpack_bootstrap
+from jurity.utils_proba import get_bootstrap_results, unpack_bootstrap
 
 
 class EqualOpportunity(_BaseBinaryFairness):
@@ -56,10 +56,10 @@ class EqualOpportunity(_BaseBinaryFairness):
             Default is None.
         membership_labels: Union[int, float, str, List[int] np.array[int]]
             Labels indicating group membership.
-                If the membership is deterministic, a single str/int is expected, e.g., 1. Default is 1.
+                If the membership is deterministic, a single str/int is expected, e.g., 1.
                 If the membership is probabilistic, a list of int or np.array of int is expected,
-                    with the positions of the protected groups in the memberships vectors (e.g, [1, 2, 3])
-                Default value is 1.
+                    with the index of the protected groups in the memberships vectors (e.g, [1, 2, 3])
+                Default value is 1 for deterministic case or [1] for probabilistic case.
         bootstrap_results: Optional[pd.DataFrame]
             A Pandas dataframe with inferred scores based surrogate class memberships.
             Default value is None.
@@ -70,7 +70,7 @@ class EqualOpportunity(_BaseBinaryFairness):
         """
 
         # Logic to check input types.
-        if is_deterministic(memberships)  or (surrogates is None and bootstrap_results is None):
+        if is_deterministic(memberships) or (surrogates is None and bootstrap_results is None):
             check_inputs(predictions, memberships, membership_labels, must_have_labels=True, labels=labels)
             # Convert to numpy arrays
             is_member = calc_is_member(memberships, membership_labels, predictions)
@@ -82,18 +82,21 @@ class EqualOpportunity(_BaseBinaryFairness):
                 split_array_based_on_membership_label(labels, is_member, membership_labels)
 
             if np.unique(labels[group_1_group_idx]).shape[0] == 1 or np.unique(labels[group_2_group_idx]).shape[0] == 1:
-                warnings.warn("Encountered homogeneous unary ground truth either in group 2/group 1 group. \
-                Equal Opportunity will be calculated but numpy will raise division by zero.")
-            elif np.unique(labels[group_1_group_idx]).shape[0] == 1 and \
-                np.unique(labels[group_2_group_idx]).shape[0] == 1:
-                warnings.warn("Encountered homogeneous unary ground truth in both group 1/group 2. \
-                          Equal Opportunity cannot be calculated.")
+                warnings.warn("Encountered homogeneous unary ground truth either in group 2/group 1 group. "
+                              "Equal Opportunity will be calculated but numpy will raise division by zero.")
+            elif (np.unique(labels[group_1_group_idx]).shape[0] == 1 and
+                  np.unique(labels[group_2_group_idx]).shape[0] == 1):
+                warnings.warn("Encountered homogeneous unary ground truth in both group 1/group 2. "
+                              "Equal Opportunity cannot be calculated.")
 
             tpr_group_1 = performance_measures(labels, predictions, group_1_group_idx, group_membership=True)["TPR"]
             tpr_group_2 = performance_measures(labels, predictions, group_2_group_idx, group_membership=True)["TPR"]
         else:
+            if membership_labels == 1:
+                membership_labels = [1]
+
             if bootstrap_results is None:
-                bootstrap_results=get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
-            tpr=bootstrap_results["TPR"]
-            tpr_group_1,tpr_group_2=unpack_bootstrap(bootstrap_results,"TPR",membership_labels)
+                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
+            tpr_group_1, tpr_group_2=unpack_bootstrap(bootstrap_results, Constants.TPR, membership_labels)
+
         return tpr_group_1 - tpr_group_2

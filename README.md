@@ -3,9 +3,12 @@
 
 # Jurity: Fairness & Evaluation Library
 
-Jurity is a research library that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. The library adheres to PEP-8 standards and is tested heavily.
+Jurity([LION'23](), [ICMLA'21](https://ieeexplore.ieee.org/document/9680169)) is a research library 
+that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. 
+The library adheres to PEP-8 standards and is tested heavily.
 
-Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments. Documentation is available at [fidelity.github.io/jurity](https://fidelity.github.io/jurity).
+Jurity is developed by the Artificial Intelligence Center of Excellence at Fidelity Investments. 
+Documentation is available at [fidelity.github.io/jurity](https://fidelity.github.io/jurity).
 
 ## Fairness Metrics
 * [Average Odds](https://fidelity.github.io/jurity/about_fairness.html#average-odds)
@@ -50,7 +53,7 @@ from jurity.fairness import BinaryFairnessMetrics, MultiClassFairnessMetrics
 binary_predictions = [1, 1, 0, 1, 0, 0]
 multi_class_predictions = ["a", "b", "c", "b", "a", "a"]
 multi_class_multi_label_predictions = [["a", "b"], ["b", "c"], ["b"], ["a", "b"], ["c", "a"], ["c"]]
-is_member = [0, 0, 0, 1, 1, 1]
+memberships = [0, 0, 0, 1, 1, 1]
 classes = ["a", "b", "c"]
 
 # Metrics (see also other available metrics)
@@ -62,10 +65,45 @@ print("Metric:", metric.description)
 print("Lower Bound: ", metric.lower_bound)
 print("Upper Bound: ", metric.upper_bound)
 print("Ideal Value: ", metric.ideal_value)
-print("Binary Fairness score: ", metric.get_score(binary_predictions, is_member))
-print("Multi-class Fairness scores: ", multi_metric.get_scores(multi_class_predictions, is_member))
-print("Multi-class multi-label Fairness scores: ", multi_metric.get_scores(multi_class_multi_label_predictions, is_member))
+print("Binary Fairness score: ", metric.get_score(binary_predictions, memberships))
+print("Multi-class Fairness scores: ", multi_metric.get_scores(multi_class_predictions, memberships))
+print("Multi-class multi-label Fairness scores: ", multi_metric.get_scores(multi_class_multi_label_predictions, memberships))
 ```
+
+## Quick Start: Probabilistic Fairness Evaluation
+
+What if we do not know the protected membership attribute of each sample? 
+This is the case for _probabilistic_ fairness evaluation that we studied in 
+[Surrogate Membership for Inferred Metrics in Fairness Evaluation (LION 2023)](). 
+Instead of deterministic membership at individual level, 
+we assume access to its surrogate at the group level. 
+This surrogate information provides the probability of membership to each protected group. 
+We can then _infer_ the fairness metrics using a bootstrapping technique as follows: 
+
+```python
+# Import binary and multi-class fairness metrics
+from jurity.fairness import BinaryFairnessMetrics
+
+# Data
+binary_predictions = [1, 1, 0, 1]
+# We do not have access to "deterministic" 0/1 membership of each sample/individual, as before.
+# Instead, we have access to surrogate membership of each sample at the group level.
+# Within each surrogate group, we know the "probability" of membership to each protected class
+# Then, we have probabilistic membership for each sample and can calculate fairness metrics
+surrogates = [0, 2, 0, 1]
+memberships = [[0.2, 0.8], [0.4, 0.6], [0.2, 0.8], [0.9, 0.1]]
+
+# Metrics (see also other available metrics)
+metric = BinaryFairnessMetrics.StatisticalParity()
+
+# Scores
+print("Metric:", metric.description)
+print("Lower Bound: ", metric.lower_bound)
+print("Upper Bound: ", metric.upper_bound)
+print("Ideal Value: ", metric.ideal_value)
+print("Binary Fairness score: ", metric.get_score(binary_predictions, memberships))
+```
+
 
 ## Quick Start: Bias Mitigation
 

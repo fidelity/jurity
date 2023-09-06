@@ -11,7 +11,6 @@ from jurity.recommenders.base import _BaseRecommenders
 from jurity.recommenders.diversity import InterListDiversity
 
 
-
 class CombinedMetrics(_BaseRecommenders):
     """Combined Metric Evaluator
 
