@@ -11,9 +11,8 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.fairness.base import _BaseMultiClassMetric
-from jurity.utils import Constants, is_one_dimensional
-from jurity.utils import check_inputs
-from jurity.utils_proba import check_inputs_proba, get_argmax_memberships
+from jurity.utils import is_one_dimensional
+from jurity.utils_proba import get_argmax_memberships
 from jurity.utils_proba import get_bootstrap_results
 from .average_odds import AverageOdds
 from .disparate_impact import BinaryDisparateImpact, MultiDisparateImpact
