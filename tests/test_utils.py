@@ -12,7 +12,7 @@ from jurity.utils import Constants
 from jurity.utils import InputShapeError
 from jurity.utils import check_and_convert_list_types, split_array_based_on_membership_label
 from jurity.utils import check_binary, check_inputs, check_or_convert_numpy_array
-from jurity.utils import check_elementwise_input_type, check_input_type, check_input_shape
+from jurity.utils import check_elementwise_input_type, check_input_type, check_input_1d
 from jurity.utils import performance_measures
 from jurity.utils import convert_one_vs_rest
 
@@ -41,25 +41,25 @@ class TestUtils(unittest.TestCase):
 
     def test_check_input_shape_list(self):
         my_list = [1, 1, 2]
-        check_input_shape(my_list)
+        check_input_1d(my_list)
 
     def test_check_input_shape_np_arr_valid(self):
         my_arr = np.array([1, 2])
-        check_input_shape(my_arr)
+        check_input_1d(my_arr)
 
     def test_check_input_shape_np_arr_invalid(self):
         error_numpy_arr = np.array([[1, 2], [1, 2]])
         with self.assertRaises(InputShapeError):
-            check_input_shape(error_numpy_arr)
+            check_input_1d(error_numpy_arr)
 
     def test_check_input_shape_df_valid(self):
         my_df = pd.DataFrame.from_dict({'a': [1, 2, 2]})
-        check_input_shape(my_df['a'])
+        check_input_1d(my_df['a'])
 
     def test_check_input_shape_df_invalid(self):
         my_df = pd.DataFrame.from_dict({'a': [1, 2, 2]})
         with self.assertRaises(InputShapeError):
-            check_input_shape(my_df)
+            check_input_1d(my_df)
 
     def test_check_binary_valid(self):
         arr = np.array([1, 2, 1, 2])

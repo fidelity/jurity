@@ -1,13 +1,127 @@
 # import warnings filter and ignore future warning due to pandas.loc
 import warnings
 from warnings import simplefilter
+
 simplefilter(action='ignore', category=FutureWarning)
 
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+import math
+from jurity.constants import Constants
+from jurity.utils import InputShapeError, WeightTooLarge
+from jurity.utils import check_true, check_binary, check_input_type, check_input_1d, check_elementwise_input_type
+from typing import List, Union
 
-from jurity.utils import Union, List, InputShapeError, WeightTooLarge, Constants, check_inputs_proba
+
+def get_argmax_memberships(memberships, membership_labels):
+    is_member = []
+    for likelihoods in memberships:
+        max_index = likelihoods.index(max(likelihoods))
+        is_protected = 1 if max_index in membership_labels else 0
+        is_member.append(is_protected)
+    return is_member
+
+
+def check_memberships_proba(memberships, len_predictions, unique_surrogate_list):
+    """
+    Make sure probabilistic memberships are a 2D list or array with the right dimensions
+    """
+    check_input_type(memberships)
+    len_likelihoods = len(memberships[0])
+    check_true(len(memberships) == len_predictions,
+               InputShapeError("", f"Likelihoods outer array/list must be same length as predictions array. "
+                                   f"Likelihood array is:{len_likelihoods}. Predictions array is: {len_predictions}"))
+
+    for i, likelihood in enumerate(memberships):
+        check_true(type(likelihood) in [np.ndarray, list],
+                   TypeError(f"Membership likelihoods need to be 2D lists or arrays. "
+                             f"Likelihood at {i} is not array or list."))
+
+        # Size match, for inner array (all arrays should be same size)
+        len_this_like = len(likelihood)
+        check_true(len_likelihoods == len_this_like,
+                   InputShapeError("",
+                                   f"Shapes of inputs do not match. "
+                                   f"Number of classes: {len_this_like}"
+                                   f"You supplied array lengths "
+                                   f"size: {len_likelihoods}, at index: {i}."))
+        check_true(math.isclose(np.sum(likelihood), 1.0),
+                   InputShapeError("", "Membership likelihood does not sum to 1.0. "
+                                       "Sums to {0} at index {0}.".format(np.sum(likelihood), i)))
+
+    # Likelihoods must either match the length of the predictions vector
+    # or be a pandas dataframe with a unique index for the surrogate classes
+
+
+def check_memberships_proba_df(memberships_df: pd.DataFrame, unique_surrogate_list: set, membership_names: List[str]):
+    if membership_names is None:
+        membership_names = memberships_df.columns
+    sum_to_one = pd.Series(memberships_df.sum(axis=1)).apply(lambda x: math.isclose(x, 1.0))
+    check_true(len(unique_surrogate_list) == memberships_df.shape[0],
+               InputShapeError("", "Memberships dataframe must have one row per surrogate class."))
+    check_true(set(memberships_df.index.values) == unique_surrogate_list,
+               InputShapeError("", "Memberships dataframe must have an index with surrogate values"))
+    check_true(memberships_df.shape[1] == len(membership_names),
+               InputShapeError("", "Memberships dataframe must have one column per protected class name."))
+    # Make sure each row in the input dataframe sums to 1.
+    check_true(np.all(sum_to_one), ValueError("Each row in membership dataframe must sum to 1."))
+
+
+def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
+                       memberships: Union[List[List], np.ndarray, pd.Series, pd.DataFrame],
+                       surrogates: Union[List, np.ndarray, pd.Series],
+                       membership_labels: Union[int, float, str, List[int]],
+                       must_have_labels: bool = False,
+                       labels: Union[List, np.ndarray, pd.Series] = None,
+                       membership_names = None):
+    check_input_type(surrogates)
+
+    len_surrogate_class = len(surrogates)
+    len_predictions = len(predictions)
+    check_true(len_predictions == len(surrogates),
+               InputShapeError("", f"Shapes of inputs do not match. "
+                                   f"You supplied array lengths "
+                                   f" predictions: {len_predictions}."
+                                   f"surrogate_class: {len_surrogate_class}"))
+
+    # Need protected class likelihoods for non-binary/surrogate membership
+    check_true(memberships is not None,
+               ValueError("For non-binary membership, need to provide membership likelihoods"))
+
+    if isinstance(memberships, pd.DataFrame):
+        check_memberships_proba_df(memberships, set(surrogates), membership_names)
+        len_likelihoods = memberships.shape[1]
+    else:
+        check_memberships_proba(memberships, len_predictions, set(surrogates))
+        len_likelihoods = len(memberships[0])
+
+    # Protected label is bounded by the number of protected
+    if isinstance(membership_labels, list):
+        check_true(len(membership_labels) < len_likelihoods,
+                   ValueError("Protected label must be less than number of classes"))
+
+    # Check that our arrays are all the same length
+    if must_have_labels:
+        check_true(labels is not None, ValueError("Metric must have labels"))
+
+        check_input_type(labels)
+        check_input_1d(labels)
+        check_binary(labels)
+        check_elementwise_input_type(labels)
+
+        check_true(len(labels) == len(predictions) == len(memberships),
+                   InputShapeError("",
+                                   f"Shapes of inputs do not match. "
+                                   f"you supplied lengths of labels: "
+                                   f"{len(labels)}, predictions: {len(predictions)}"
+                                   f", is_member: {len(memberships)}."))
+    else:
+        check_true(len(predictions) == len(memberships),
+                   InputShapeError("",
+                                   f"Shapes of inputs do not match. "
+                                   f"You supplied array lengths "
+                                   f"predictions: {len(predictions)}, is_member: {len(memberships)}."))
 
 
 def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
@@ -58,13 +172,16 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
     # Right now, these are returned as a single dataframe
     if membership_names is None:
         if isinstance(memberships, pd.DataFrame):
-            membership_names = list(memberships.columns.values)
+            membership_names = memberships.columns.to_list()
         else:
             membership_names = ["A", "B"]
-    if labels is not None:
-        check_inputs_proba(predictions, memberships, surrogates, membership_labels, membership_names, True, labels)
+
+    if labels is None:
+        check_inputs_proba(predictions, memberships, surrogates, membership_labels)
     else:
-        check_inputs_proba(predictions, memberships, surrogates, membership_labels, membership_names, False)
+        check_inputs_proba(predictions, memberships, surrogates, membership_labels,
+                           must_have_labels=True, labels=labels)
+
     summary_df = SummaryData.summarize(predictions, memberships, surrogates, labels, membership_names)
 
     # Add X, Y, and W matricies to the BiasCalculator

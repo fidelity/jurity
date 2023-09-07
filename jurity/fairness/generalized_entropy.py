@@ -9,7 +9,7 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.utils import check_and_convert_list_types, check_binary, check_elementwise_input_type
-from jurity.utils import check_input_shape, check_input_type
+from jurity.utils import check_input_1d, check_input_type
 from jurity.utils import check_true
 
 
@@ -71,8 +71,8 @@ class GeneralizedEntropyIndex(_BaseBinaryFairness):
         check_input_type(predictions)
 
         # Check input shapes
-        check_input_shape(labels)
-        check_input_shape(predictions)
+        check_input_1d(labels)
+        check_input_1d(predictions)
 
         # Check input content
         check_binary(labels)

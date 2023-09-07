@@ -26,7 +26,7 @@ class BinaryDisparateImpact(_BaseBinaryFairness):
 
     @staticmethod
     def get_score(predictions: Union[List, np.ndarray, pd.DataFrame],
-                  is_member: Union[List, np.ndarray, pd.DataFrame],
+                  memberships: Union[List, np.ndarray, pd.DataFrame],
                   membership_label: Union[str, float, int] = 1) -> float:
         """
         Disparate Impact is the ratio of predictions for a "positive" outcome in a binary classification task
@@ -41,7 +41,7 @@ class BinaryDisparateImpact(_BaseBinaryFairness):
         ----------
         predictions: Union[List, np.ndarray, pd.Series]
             Binary predictions from some black-box classifier (0/1).
-        is_member: Union[List, np.ndarray, pd.Series]
+        memberships: Union[List, np.ndarray, pd.Series]
             Binary membership labels (0/1).
         membership_label: Union[str, float, int]
             Value indicating group membership.
@@ -53,15 +53,15 @@ class BinaryDisparateImpact(_BaseBinaryFairness):
         """
 
         # Logic to check input types
-        check_inputs(predictions, is_member, membership_label)
+        check_inputs(predictions, memberships, membership_label)
 
         # List needs to be converted to numpy for indexing
-        is_member = check_and_convert_list_types(is_member)
+        memberships = check_and_convert_list_types(memberships)
         predictions = check_and_convert_list_types(predictions)
 
         # Identify groups based on membership label
         group_2_predictions, group_1_predictions, group_2_group, group_1_group = \
-            split_array_based_on_membership_label(predictions, is_member, membership_label)
+            split_array_based_on_membership_label(predictions, memberships, membership_label)
 
         if (group_1_predictions == 1).sum() == 0 and (group_2_predictions == 1).sum() == 0:
             warnings.warn("No positive predictions in the dataset, cannot calculate Disparate Impact.")

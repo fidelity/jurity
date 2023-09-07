@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import inspect
-from typing import List, Union
+from typing import List, Union, Optional
 from typing import NamedTuple
 
 import numpy as np
@@ -11,8 +11,9 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.fairness.base import _BaseMultiClassMetric
-from jurity.utils import Constants
-from jurity.utils import check_inputs, is_one_dimensional, check_inputs_proba
+from jurity.utils import Constants, is_one_dimensional
+from jurity.utils import check_inputs
+from jurity.utils_proba import check_inputs_proba, get_argmax_memberships
 from jurity.utils_proba import get_bootstrap_results
 from .average_odds import AverageOdds
 from .disparate_impact import BinaryDisparateImpact, MultiDisparateImpact
@@ -43,7 +44,8 @@ class BinaryFairnessMetrics(NamedTuple):
                        predictions: Union[List, np.ndarray, pd.Series],
                        memberships: Union[List, np.ndarray, pd.Series],
                        surrogates: Union[List, np.ndarray, pd.Series] = None,
-                       membership_labels: Union[str, float, int, List, np.array] = 1) -> pd.DataFrame:
+                       membership_labels: Union[str, float, int, List, np.array] = 1,
+                       bootstrap_results: Optional[pd.DataFrame] = None) -> pd.DataFrame:
         """
         Calculates and tabulates all fairness metric scores.
         Parameters
@@ -72,55 +74,51 @@ class BinaryFairnessMetrics(NamedTuple):
                                                     with the index of the protected groups in the memberships array,
                                                     e.g, [1, 2, 3], if 1-2-3 indexes are protected.
                 Default value is 1 for deterministic case or [1] for probabilistic case.
+        bootstrap_results: Optional[pd.DataFrame]
+            A Pandas dataframe with inferred scores based surrogate class memberships.
+            Default value is None.
+            When given, other parameters will be discarded and bootstrap results will be used.
         Returns
         ----------
         Pandas data frame with all implemented binary fairness metrics.
         """
-        # Logic to check input types
-        if is_one_dimensional(memberships):
-            check_inputs(predictions, memberships, membership_labels, must_have_labels=True, labels=labels)
-        elif surrogates is not None:
-            check_inputs_argmax(predictions, memberships, membership_labels, labels)
-        else:
-            check_inputs_proba(predictions, memberships, surrogates, membership_labels, must_have_labels=True, labels=labels)
 
-        fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
+        # if memberships is given as likelihoods WITHOUT any surrogates, then revise it to deterministic case
+        is_memberships_1d = is_one_dimensional(memberships)
+        if not is_memberships_1d and surrogates is None and bootstrap_results is None:
+            # Subtle point: membership_labels need to be an array when membership is 2d
+            # if the user didn't specify, which defaults to 1, convert 1 -> [1] automatically
+            # BUT do not overwrite membership_labels, we are still in "deterministic" mode via argmax
+            # In deterministic mode, we need a single primitive label like 1
+            memberships = get_argmax_memberships(memberships, [1] if membership_labels == 1 else membership_labels)
+            # We now converted 2d likelihoods memberships into deterministic 1d membership, set flag to true
+            is_memberships_1d = True
 
+        # Probabilistic version
+        if not is_memberships_1d or bootstrap_results is not None:
+            if membership_labels == 1:
+                membership_labels = [1]
+
+            if bootstrap_results is None:
+                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels)
+
+        # Output df
         df = pd.DataFrame(columns=["Metric", "Value", "Ideal Value", "Lower Bound", "Upper Bound"])
 
-        if not is_one_dimensional(memberships) and surrogates is not None:
-            bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
-        else:
-            bootstrap_results = None
-
+        fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
         for fairness_func in fairness_funcs:
 
+            # Get metric
             name = fairness_func[0]
             class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
             metric = class_()  # dynamically instantiate such class
 
-            if bootstrap_results is not None and name in Constants.bootstrap_implemented:
+            # Get score
+            score = BinaryFairnessMetrics._get_score_logic(metric, name,
+                                                           labels, predictions, memberships, surrogates,
+                                                           membership_labels, bootstrap_results)
 
-                if membership_labels == 1:
-                    membership_labels = [1]
-
-                if name in ["PredictiveEquality", "AverageOdds", "FNRDifference"]:
-                    score = metric.get_score(labels, predictions, memberships, membership_labels, bootstrap_results)
-                elif name == "StatisticalParity":
-                    score = metric.get_score(predictions, memberships, membership_labels, bootstrap_results)
-                else:
-                    score = None
-            elif name in ["DisparateImpact", "StatisticalParity"]:
-                score = metric.get_score(predictions, memberships, membership_labels)
-            elif name in ["GeneralizedEntropyIndex", "TheilIndex"]:
-                score = metric.get_score(labels, predictions)
-            else:
-                score = metric.get_score(labels, predictions, memberships, membership_labels)
-
-            if score is None:
-                score = np.nan
-            score = np.round(score, 3)
-
+            # Add score
             df = pd.concat([df,
                             pd.DataFrame([[metric.name, score, metric.ideal_value,
                                            metric.lower_bound, metric.upper_bound]], columns=df.columns)],
@@ -129,6 +127,34 @@ class BinaryFairnessMetrics(NamedTuple):
         df = df.set_index("Metric")
 
         return df
+
+    @staticmethod
+    def _get_score_logic(metric, name,
+                         labels, predictions,
+                         memberships, surrogates,
+                         membership_labels, bootstrap_results):
+
+        # Standard deterministic calculation
+        if bootstrap_results is None:
+            if name in ["DisparateImpact", "StatisticalParity"]:
+                score = metric.get_score(predictions, memberships, membership_labels)
+            elif name in ["GeneralizedEntropyIndex", "TheilIndex"]:
+                score = metric.get_score(labels, predictions)
+            else:
+                score = metric.get_score(labels, predictions, memberships, membership_labels)
+        else:
+            if name == "StatisticalParity":
+                score = metric.get_score(predictions, memberships, membership_labels, bootstrap_results)
+            elif name in ["AverageOdds", "EqualOpportunity", "FNRDifference", "PredictiveEquality"]:
+                score = metric.get_score(labels, predictions, memberships, surrogates,
+                                         membership_labels, bootstrap_results)
+            else:
+                score = None
+
+        # pretty score
+        score = np.nan if score is None else np.round(score, 3)
+
+        return score
 
 
 class MultiClassFairnessMetrics(NamedTuple):

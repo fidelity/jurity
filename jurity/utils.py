@@ -2,54 +2,16 @@
 # Copyright FMR LLC <opensource@fidelity.com>
 # SPDX-License-Identifier: Apache-2.0
 
-import math
 import warnings
-from typing import List, NamedTuple, NoReturn, Optional, Union
+from typing import List, NoReturn, Optional, Union
 
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 from sklearn.metrics import confusion_matrix
 
+from jurity.constants import Constants
 from .utils_hash import lru_cache_df
-
-
-class Constants(NamedTuple):
-    """
-    Constant values used by the modules.
-    """
-
-    default_seed = 1
-    float_null = np.float64(0.0)
-    bootstrap_trials = 100
-
-    TPR = "TPR"
-    TNR = "TNR"
-    FPR = "FPR"
-    FNR = "FNR"
-    PPV = "PPV"
-    NPV = "NPV"
-    FDR = "FDR"
-    FOR = "FOR"
-    ACC = "ACC"
-    PRED_RATE = "Prediction Rate"
-
-    user_id = "user_id"
-    item_id = "item_id"
-    estimate = "estimate"
-    inverse_propensity = "inverse_propensity"
-    ips_correction = "ips_correction"
-    propensity = "propensity"
-    true_positive_ratio = "true_positive_ratio"
-    true_negative_ratio = "true_negative_ratio"
-    false_positive_ratio = "false_positive_ratio"
-    false_negative_ratio = "false_negative_ratio"
-    prediction_ratio = "prediction_ratio"
-    bootstrap_implemented = ["AverageOdds", "EqualOpportunity",
-                             "FNRDifference", "StatisticalParity", "PredictiveEquality"]
-    no_labels = ["StatisticalParity", "DisparateImpact"]
-    class_col_name = "class"
-    weight_col_name = "count"
 
 
 class Error(Exception):
@@ -87,11 +49,41 @@ class WeightTooLarge(Error):
         self.message = message
 
 
+def check_false(expression: bool, exception: Exception) -> NoReturn:
+    """
+    Checks that given expression is false, otherwise raises the given exception.
+    """
+    if expression:
+        raise exception
+
+
+def check_true(expression: bool, exception: Exception) -> NoReturn:
+    """
+    Checks that given expression is true, otherwise raises the given exception.
+    """
+    if not expression:
+        raise exception
+
+
 def check_and_convert_list_types(arr: Union[List, np.ndarray, pd.Series]) -> Union[np.ndarray, pd.Series]:
     """
     Checks if input is a list and converts it to numpy array if so.
     """
     return np.array(arr) if isinstance(arr, list) else arr
+
+
+def check_or_convert_numpy_array(arr: Union[List, np.ndarray, pd.Series], error_message=""):
+    """
+    Convert input list, array, series to numpy array.
+    """
+    if isinstance(arr, np.ndarray):
+        return arr
+    elif isinstance(arr, pd.Series):
+        return arr.to_numpy()
+    elif isinstance(arr, list):
+        return np.array(arr)
+    else:
+        raise TypeError(error_message)
 
 
 def split_array_based_on_membership_label(arr_to_split: Union[List, np.ndarray, pd.Series],
@@ -130,22 +122,6 @@ def split_array_based_on_membership_label(arr_to_split: Union[List, np.ndarray, 
     return nonmember_values, member_values, nonmember_indices, member_indices
 
 
-def check_false(expression: bool, exception: Exception) -> NoReturn:
-    """
-    Checks that given expression is false, otherwise raises the given exception.
-    """
-    if expression:
-        raise exception
-
-
-def check_true(expression: bool, exception: Exception) -> NoReturn:
-    """
-    Checks that given expression is true, otherwise raises the given exception.
-    """
-    if not expression:
-        raise exception
-
-
 def check_input_type(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
     """
     Checks that input is a list, numpy array or pandas series, otherwise raises the given exception.
@@ -156,7 +132,7 @@ def check_input_type(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
                TypeError("Incorrect input type."))
 
 
-def check_input_shape(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
+def check_input_1d(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
     """
     Checks that input shape is 1d.
     """
@@ -237,6 +213,72 @@ def check_elementwise_input_type(input_: Union[List, np.ndarray, pd.Series], is_
     check_true(all_checks, TypeError("Non uniform/unsupported data types"))
 
 
+def is_one_dimensional(array):
+    # If pd series, or 1d np array, or 1d list, than it is one dimensional
+    if isinstance(array, pd.Series) and array.dtype != 'object':
+        return True
+    elif type(array) == list:
+        print(array[0])
+        print(type(array[0]))
+        print(isinstance(array[0], np.ndarray))
+        if type(array[0]) != list and (not isinstance(array[0], np.ndarray)):
+            return True
+        else:
+            return False
+    elif isinstance(array, np.ndarray):
+        if not type(array[0]) == list and array.ndim == 1:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+def performance_measures(ground_truth: np.ndarray,
+                         predictions: np.ndarray,
+                         group_idx: Optional[Union[np.ndarray, List]] = None,
+                         group_membership: bool = False) -> dict:
+    """Compute various performance measures, optionally conditioned on protected attribute.
+    Assume that positive label is encoded as 1 and negative label as 0.
+
+    Parameters
+    ---------
+    ground_truth: np.ndarray
+        Ground truth labels (1/0).
+    predictions: np.ndarray
+        Predicted values.
+    group_idx: Union[np.ndarray, List]
+        Indices of the group to consider. Optional.
+    group_membership: bool
+        Restrict performance measures to members of a certain group.
+        If None, the whole population is used.
+        Default value is False.
+
+    Returns
+    ---------
+    Dictionary with performance measure identifiers as keys and their corresponding values.
+    """
+
+    if group_membership:
+        ground_truth = ground_truth[group_idx]
+        predictions = predictions[group_idx]
+
+    tn, fp, fn, tp = confusion_matrix(ground_truth, predictions).ravel()
+
+    p = np.sum(ground_truth == 1)
+    n = np.sum(ground_truth == 0)
+
+    return {Constants.TPR: tp / p,
+            Constants.TNR: tn / n,
+            Constants.FPR: fp / n,
+            Constants.FNR: fn / p,
+            Constants.PPV: tp / (tp + fp) if (tp + fp) > 0.0 else Constants.float_null,
+            Constants.NPV: tn / (tn + fn) if (tn + fn) > 0.0 else Constants.float_null,
+            Constants.FDR: fp / (fp + tp) if (fp + tp) > 0.0 else Constants.float_null,
+            Constants.FOR: fn / (fn + tn) if (fn + tn) > 0.0 else Constants.float_null,
+            Constants.ACC: (tp + tn) / (p + n) if (p + n) > 0.0 else Constants.float_null}
+
+
 def check_inputs(predictions: Union[List, np.ndarray, pd.Series],
                  memberships: Union[List, np.ndarray, pd.Series],
                  membership_labels: Union[int, float, str, List[int]],
@@ -276,8 +318,8 @@ def check_inputs(predictions: Union[List, np.ndarray, pd.Series],
                TypeError("Membership label type should be a single int/str primitive"))
 
     # Check input shapes are 1D
-    check_input_shape(predictions)
-    check_input_shape(memberships)
+    check_input_1d(predictions)
+    check_input_1d(memberships)
 
     # Check input content - only binary allowed
     # TODO not sure if this is used/called as False, ever
@@ -293,7 +335,7 @@ def check_inputs(predictions: Union[List, np.ndarray, pd.Series],
         check_true(labels is not None, ValueError("Metric must have labels"))
 
         check_input_type(labels)
-        check_input_shape(labels)
+        check_input_1d(labels)
         check_binary(labels)
         check_elementwise_input_type(labels)
 
@@ -309,174 +351,6 @@ def check_inputs(predictions: Union[List, np.ndarray, pd.Series],
                                    f"Shapes of inputs do not match. "
                                    f"You supplied array lengths "
                                    f"predictions: {len(predictions)}, is_member: {len(memberships)}."))
-
-
-def check_memberships_proba(memberships, len_predictions, unique_surrogate_list, membership_names):
-    """
-    Make sure probabilistic memberships are a 2D list or array with the right dimensions
-    """
-    check_input_type(memberships)
-    len_likelihoods = len(memberships[0])
-    check_true(len(memberships) == len_predictions,
-               InputShapeError("", f"Likelihoods outer array/list must be same length as predictions array. "
-                                   f"Likelihood array is:{len_likelihoods}. Predictions array is: {len_predictions}"))
-
-    for i, likelihood in enumerate(memberships):
-        check_true(type(likelihood) in [np.ndarray, list],
-                   TypeError(f"Membership likelihoods need to be 2D lists or arrays. "
-                             f"Likelihood at {i} is not array or list."))
-
-        # Size match, for inner array (all arrays should be same size)
-        len_this_like = len(likelihood)
-        check_true(len_likelihoods == len_this_like,
-                   InputShapeError("",
-                                   f"Shapes of inputs do not match. "
-                                   f"Number of classes: {len_this_like}"
-                                   f"You supplied array lengths "
-                                   f"size: {len_likelihoods}, at index: {i}."))
-        check_true(math.isclose(np.sum(likelihood), 1.0),
-                   InputShapeError("", "Membership likelihood does not sum to 1.0. "
-                                       "Sums to {0} at index {0}.".format(np.sum(likelihood), i)))
-
-    if membership_names is not None:
-        error_msg = ("Shapes of inputs do not match. {0} is the likelihood length. "
-                     "Membership names is {1}").format(len_likelihoods, len(membership_names))
-
-        check_true(len(membership_names) == len_likelihoods, InputShapeError("", error_msg))
-
-    # Likelihoods must either match the length of the predictions vector
-    # or be a pandas dataframe with a unique index for the surrogate classes
-
-
-def check_memberships_proba_df(memberships_df: pd.DataFrame, unique_surrogate_list: set, membership_names: List[str]):
-    if membership_names is None:
-        membership_names = memberships_df.columns
-    sum_to_one = pd.Series(memberships_df.sum(axis=1)).apply(lambda x: math.isclose(x, 1.0))
-    check_true(len(unique_surrogate_list) == memberships_df.shape[0],
-               InputShapeError("", "Memberships dataframe must have one row per surrogate class."))
-    check_true(set(memberships_df.index.values) == unique_surrogate_list,
-               InputShapeError("", "Memberships dataframe must have an index with surrogate values"))
-    check_true(memberships_df.shape[1] == len(membership_names),
-               InputShapeError("", "Memberships dataframe must have one column per protected class name."))
-    # Make sure each row in the input dataframe sums to 1.
-    check_true(np.all(sum_to_one), ValueError("Each row in membership dataframe must sum to 1."))
-
-
-def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
-                       memberships: Union[List[List], np.ndarray, pd.Series, pd.DataFrame],
-                       surrogates: Union[List, np.ndarray, pd.Series],
-                       membership_labels: Union[int, float, str, List[int]],
-                       membership_names: List,
-                       must_have_labels: bool = False,
-                       labels: Union[List, np.ndarray, pd.Series] = None):
-    check_input_type(surrogates)
-
-    len_surrogate_class = len(surrogates)
-    len_predictions = len(predictions)
-    check_true(len_predictions == len(surrogates),
-               InputShapeError("", f"Shapes of inputs do not match. "
-                                   f"You supplied array lengths "
-                                   f" predictions: {len_predictions}."
-                                   f"surrogate_class: {len_surrogate_class}"))
-
-    # Need protected class likelihoods for non-binary/surrogate membership
-    check_true(memberships is not None,
-               ValueError("For non-binary membership, need to provide membership likelihoods"))
-
-    if isinstance(memberships, pd.DataFrame):
-        check_memberships_proba_df(memberships, set(surrogates), membership_names)
-        len_likelihoods = memberships.shape[1]
-    else:
-        check_memberships_proba(memberships, len_predictions, set(surrogates), membership_names)
-        len_likelihoods = len(memberships[0])
-
-    # Protected label is bounded by the number of protected
-    if isinstance(membership_labels, list):
-        check_true(len(membership_labels) < len_likelihoods,
-                   ValueError("Protected label must be less than number of classes"))
-
-
-def performance_measures(ground_truth: np.ndarray,
-                         predictions: np.ndarray,
-                         group_idx: Optional[Union[np.ndarray, List]] = None,
-                         group_membership: bool = False) -> dict:
-    """Compute various performance measures, optionally conditioned on protected attribute.
-    Assume that positive label is encoded as 1 and negative label as 0.
-
-    Parameters
-    ---------
-    ground_truth: np.ndarray
-        Ground truth labels (1/0).
-    predictions: np.ndarray
-        Predicted values.
-    group_idx: Union[np.ndarray, List]
-        Indices of the group to consider. Optional.
-    group_membership: bool
-        Restrict performance measures to members of a certain group.
-        If None, the whole population is used.
-        Default value is False.
-
-    Returns
-    ---------
-    Dictionary with performance measure identifiers as keys and their corresponding values.
-    """
-
-    if group_membership:
-        ground_truth = ground_truth[group_idx]
-        predictions = predictions[group_idx]
-
-    tn, fp, fn, tp = confusion_matrix(ground_truth, predictions).ravel()
-
-    p = np.sum(ground_truth == 1)
-    n = np.sum(ground_truth == 0)
-    constants = Constants()
-
-    return {constants.TPR: tp / p,
-            constants.TNR: tn / n,
-            constants.FPR: fp / n,
-            constants.FNR: fn / p,
-            constants.PPV: tp / (tp + fp) if (tp + fp) > 0.0 else Constants.float_null,
-            constants.NPV: tn / (tn + fn) if (tn + fn) > 0.0 else Constants.float_null,
-            constants.FDR: fp / (fp + tp) if (fp + tp) > 0.0 else Constants.float_null,
-            constants.FOR: fn / (fn + tn) if (fn + tn) > 0.0 else Constants.float_null,
-            constants.ACC: (tp + tn) / (p + n) if (p + n) > 0.0 else Constants.float_null}
-
-
-def check_or_convert_numpy_array(arr: Union[List, np.ndarray, pd.Series], error_message=""):
-    """
-    Convert input list, array, series to numpy array.
-    """
-    if isinstance(arr, np.ndarray):
-        return arr
-    elif isinstance(arr, pd.Series):
-        return arr.to_numpy()
-    elif isinstance(arr, list):
-        return np.array(arr)
-    else:
-        raise TypeError(error_message)
-
-
-def is_one_dimensional(memberships):
-    # If pd series, or 1d np array, or 1d list, than it is one dimensional
-    if isinstance(memberships, pd.Series) and memberships.dtype != 'object':
-        return True
-    elif type(memberships) == list:
-        if type(memberships[0]) != list and (not isinstance(memberships[0], np.ndarray)):
-            return True
-    elif isinstance(memberships, np.ndarray):
-        if not type(memberships[0]) == list and memberships.ndim == 1:
-            return True
-    else:
-        return False
-
-
-def get_argmax_memberships(memberships, membership_labels):
-    is_member = []
-    for likelihoods in memberships:
-        max_index = likelihoods.index(max(likelihoods))
-        is_protected = 1 if max_index in membership_labels else 0
-        is_member.append(is_protected)
-    return is_member
 
 
 @lru_cache_df(maxsize=5)

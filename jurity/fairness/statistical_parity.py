@@ -7,9 +7,11 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 
+from jurity.constants import Constants
 from jurity.fairness.base import _BaseBinaryFairness, _BaseMultiClassMetric
-from jurity.utils import get_argmax_memberships, check_inputs_proba, check_and_convert_list_types, Union, Constants
-from jurity.utils import split_array_based_on_membership_label, is_one_dimensional, check_inputs
+from jurity.utils import check_and_convert_list_types, Union, is_one_dimensional
+from jurity.utils import split_array_based_on_membership_label, check_inputs
+from jurity.utils_proba import check_inputs_proba, get_argmax_memberships
 from jurity.utils_proba import get_bootstrap_results, unpack_bootstrap
 
 
@@ -104,7 +106,7 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
                 membership_labels = [1]
 
             if bootstrap_results is None:
-                check_inputs_proba(predictions, memberships, surrogates, membership_labels, None)
+                check_inputs_proba(predictions, memberships, surrogates, membership_labels)
                 bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels)
 
             group_1_predictions_pct, group_2_predictions_pct = unpack_bootstrap(bootstrap_results,

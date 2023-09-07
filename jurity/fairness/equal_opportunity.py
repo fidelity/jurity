@@ -8,11 +8,12 @@ from typing import List, Union
 import numpy as np
 import pandas as pd
 
+from jurity.constants import Constants
 from jurity.fairness.base import _BaseBinaryFairness
-from jurity.utils import check_and_convert_list_types, Constants, get_argmax_memberships
-from jurity.utils import check_inputs, check_inputs_proba, is_one_dimensional
+from jurity.utils import check_and_convert_list_types, check_inputs, is_one_dimensional
 from jurity.utils import performance_measures
 from jurity.utils import split_array_based_on_membership_label
+from jurity.utils_proba import check_inputs_proba, get_argmax_memberships
 from jurity.utils_proba import get_bootstrap_results, unpack_bootstrap
 
 
@@ -106,7 +107,8 @@ class EqualOpportunity(_BaseBinaryFairness):
                 membership_labels = [1]
 
             if bootstrap_results is None:
-                check_inputs_proba(predictions, memberships, surrogates, membership_labels, None)
+                check_inputs_proba(predictions, memberships, surrogates, membership_labels,
+                                   must_have_labels=True, labels=labels)
                 bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels,
                                                           labels)
 

@@ -23,6 +23,16 @@ class TestBinaryProbFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.StatisticalParity()
         score = metric.get_score(predictions, memberships, surrogates)
 
+    def test_all_scores(self):
+        labels = [1, 1, 1, 0, 1, 0, 1, 1, 1, 1]
+        predictions = [0, 0, 0, 1, 0, 0, 0, 0, 0, 1]
+        memberships = [[0.2, 0.8], [0.4, 0.6], [0.2, 0.8], [0.9, 0.1], [0.3, 0.7],
+                       [0.8, 0.2], [0.6, 0.4], [0.8, 0.2], [0.1, 0.9], [0.7, 0.3]]
+        surrogates = [0, 2, 0, 1, 3, 0, 0, 1, 1, 2]
+
+        df = BinaryFairnessMetrics.get_all_scores(labels, predictions, memberships, surrogates)
+        print(df)
+
     def test_arg_max(self):
         # Data
         predictions = [1, 1, 0, 1]
@@ -152,7 +162,7 @@ class TestBinaryProbFairness(unittest.TestCase):
             answer = answer_dict[t[1]][1] - answer_dict[t[1]][0]
             class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
             metric = class_()  # dynamically instantiate such class
-            if name in Constants.no_labels:
+            if name in Constants.no_label_metrics:
                 score = metric.get_score(None, None, None, [1], test_boot_results)
             else:
                 score = metric.get_score(None, None, None, None, [1], test_boot_results)
@@ -192,12 +202,12 @@ class TestBinaryProbFairness(unittest.TestCase):
         fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
         for f in fairness_funcs:
             name = f[0]
-            if name not in Constants.bootstrap_implemented:
+            if name not in Constants.probabilistic_metrics:
                 continue
             class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
             metric = class_()  # dynamically instantiate such class
 
-            if name in Constants.no_labels:  # handle cases where there are no labels
+            if name in Constants.no_label_metrics:  # handle cases where there are no labels
                 labels = None
 
             if error_type is not None:

@@ -855,7 +855,6 @@ class TestBinaryFairness(unittest.TestCase):
 
     def test_all_scores_valid(self):
 
-        # test standard pandas table creation
         y_true = np.array([1, 1, 1, 0, 1, 0, 1, 1, 1, 1])
         y_pred = np.array([0, 0, 0, 1, 0, 0, 0, 0, 0, 1])
         is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
