@@ -73,35 +73,36 @@ print("Multi-class multi-label Fairness scores: ", multi_metric.get_scores(multi
 ## Quick Start: Probabilistic Fairness Evaluation
 
 What if we do not know the protected membership attribute of each sample? 
-This is the case for _probabilistic_ fairness evaluation that we studied in 
-[Surrogate Membership for Inferred Metrics in Fairness Evaluation (LION 2023)](). 
-Instead of deterministic membership at individual level, 
-we assume access to its surrogate at the group level. 
-This surrogate information provides the probability of membership to each protected group. 
-We can then _infer_ the fairness metrics using a bootstrapping technique as follows: 
+This is very practical scenario, that we refer to as _probabilistic_ fairness evaluation.  
+
+At a high-level, instead of strict 0/1 deterministic membership at individual level, 
+consider likelihoods of membership to protected classes.
+An easy baseline is to convert the probabilities into deterministic setting  
+by taking the maximum likelihood as the protected membership. 
+This is problematic as our goal is not predict membership but evaluate fairness. 
+Taking this a step further, while we don't have membership information at the individual level, 
+consider having access to _surrogate membership_ at the _group level_. 
+We can then infor the fairness metrics using this surrogate information.  
+Jurity offers both options to address the scenario where membership data is missing.
+
+We provide an in-depth study and formal treatment of this setting in 
+[Surrogate Membership for Inferred Metrics in Fairness Evaluation (LION 2023)]().
 
 ```python
-# Import binary and multi-class fairness metrics
 from jurity.fairness import BinaryFairnessMetrics
 
-# Data
+# Instead of 0/1 deterministic membership at individual level 
+# consider likelihoods of membership to protected classes for each sample 
 binary_predictions = [1, 1, 0, 1]
-# We do not have access to "deterministic" 0/1 membership of each sample/individual, as before.
-# Instead, we have access to surrogate membership of each sample at the group level.
-# Within each surrogate group, we know the "probability" of membership to each protected class
-# Then, we have probabilistic membership for each sample and can calculate fairness metrics
-surrogates = [0, 2, 0, 1]
 memberships = [[0.2, 0.8], [0.4, 0.6], [0.2, 0.8], [0.9, 0.1]]
 
-# Metrics (see also other available metrics)
+# Metric
 metric = BinaryFairnessMetrics.StatisticalParity()
-
-# Scores
-print("Metric:", metric.description)
-print("Lower Bound: ", metric.lower_bound)
-print("Upper Bound: ", metric.upper_bound)
-print("Ideal Value: ", metric.ideal_value)
 print("Binary Fairness score: ", metric.get_score(binary_predictions, memberships))
+
+# Surrogate membership: consider access to surrogate membership at the group level. 
+surrogates = [0, 2, 0, 1]
+print("Binary Fairness score: ", metric.get_score(binary_predictions, memberships, surrogates))
 ```
 
 

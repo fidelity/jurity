@@ -49,10 +49,10 @@ class TestBinaryProbFairness(unittest.TestCase):
         # Data
         predictions = [1, 1, 0, 1]
         memberships = [[0.2, 0.8], [0.6, 0.4], [0.2, 0.8], [0.9, 0.1]]
-        surrogates = None
+        # surrogates = None
         # membership_labels = [1]
         metric = BinaryFairnessMetrics.StatisticalParity()
-        score_proba = metric.get_score(predictions, memberships, surrogates)
+        score_proba = metric.get_score(predictions, memberships)
         # print(score_proba)
 
         predictions = [1, 1, 0, 1]
@@ -60,7 +60,7 @@ class TestBinaryProbFairness(unittest.TestCase):
         # surrogates = None
         # membership_labels = [1]
         metric = BinaryFairnessMetrics.StatisticalParity()
-        score_deterministic = metric.get_score(predictions, memberships, surrogates)
+        score_deterministic = metric.get_score(predictions, memberships)
         # print(score_deterministic)
         self.assertEqual(score_proba, score_deterministic)
 
