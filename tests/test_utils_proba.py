@@ -578,6 +578,9 @@ class TestWithSimulation(unittest.TestCase):
         """
         results = get_bootstrap_results(self.test_data["prediction"], self.surrogate_df.set_index("surrogate"),
                                         self.test_data["surrogate"], [1, 2], self.test_data["label"])
+
+        print(results)
+
         self.assertTrue(isinstance(results, pd.DataFrame), "get_bootstrap_results does not return a Pandas DataFrame.")
         self.assertTrue(
             {Constants.FPR, Constants.FNR, Constants.TNR, Constants.TPR, Constants.ACC}.issubset(set(results.columns)),

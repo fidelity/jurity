@@ -72,9 +72,9 @@ def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
                        memberships: Union[List[List], np.ndarray, pd.Series, pd.DataFrame],
                        surrogates: Union[List, np.ndarray, pd.Series],
                        membership_labels: Union[int, float, str, List[int]],
+                       membership_names: List[str] = None,
                        must_have_labels: bool = False,
-                       labels: Union[List, np.ndarray, pd.Series] = None,
-                       membership_names = None):
+                       labels: Union[List, np.ndarray, pd.Series] = None):
     check_input_type(surrogates)
 
     len_surrogate_class = len(surrogates)
@@ -100,28 +100,6 @@ def check_inputs_proba(predictions: Union[List, np.ndarray, pd.Series],
     if isinstance(membership_labels, list):
         check_true(len(membership_labels) < len_likelihoods,
                    ValueError("Protected label must be less than number of classes"))
-
-    # Check that our arrays are all the same length
-    if must_have_labels:
-        check_true(labels is not None, ValueError("Metric must have labels"))
-
-        check_input_type(labels)
-        check_input_1d(labels)
-        check_binary(labels)
-        check_elementwise_input_type(labels)
-
-        check_true(len(labels) == len(predictions) == len(memberships),
-                   InputShapeError("",
-                                   f"Shapes of inputs do not match. "
-                                   f"you supplied lengths of labels: "
-                                   f"{len(labels)}, predictions: {len(predictions)}"
-                                   f", is_member: {len(memberships)}."))
-    else:
-        check_true(len(predictions) == len(memberships),
-                   InputShapeError("",
-                                   f"Shapes of inputs do not match. "
-                                   f"You supplied array lengths "
-                                   f"predictions: {len(predictions)}, is_member: {len(memberships)}."))
 
 
 def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
@@ -177,10 +155,11 @@ def get_bootstrap_results(predictions: Union[List, np.ndarray, pd.Series],
             membership_names = ["A", "B"]
 
     if labels is None:
-        check_inputs_proba(predictions, memberships, surrogates, membership_labels)
+        check_inputs_proba(predictions, memberships, surrogates, membership_labels,
+                           membership_names=membership_names)
     else:
         check_inputs_proba(predictions, memberships, surrogates, membership_labels,
-                           must_have_labels=True, labels=labels)
+                           membership_names=membership_names, must_have_labels=True, labels=labels)
 
     summary_df = SummaryData.summarize(predictions, memberships, surrogates, labels, membership_names)
 
