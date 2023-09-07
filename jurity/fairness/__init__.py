@@ -147,7 +147,7 @@ class BinaryFairnessMetrics(NamedTuple):
         else:
             if name == "StatisticalParity":
                 score = metric.get_score(predictions, memberships, surrogates, membership_labels, bootstrap_results)
-            elif name in ["AverageOdds", "EqualOpportunity", "FNRDifference", "PredictiveEquality"]:
+            elif name in ["AverageOdds", "EqualOpportunity", "FNRDifference", "PredictiveEquality","EqualOpportunity"]:
                 score = metric.get_score(labels, predictions, memberships, surrogates,
                                          membership_labels, bootstrap_results)
             else:

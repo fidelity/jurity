@@ -678,7 +678,7 @@ class TestWithSimulation(unittest.TestCase):
             class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
             instance = class_()  # dynamically instantiate such class
             v = output_df.loc[instance.name]["Value"]
-            if name in ["AverageOdds", "EqualOpportunity", "FNRDifference", "PredictiveEquality","StatisticalParity"]:
+            if name in ["AverageOdds", "EqualOpportunity", "FNRDifference", "PredictiveEquality","StatisticalParity","EqualOpportunity"]:
                 self.assertFalse(np.isnan(v),f"Bootstrap returns np.nan for {name}.")
             else:
                 self.assertTrue(np.isnan(v),f"Bootstrap not implemented for {name} but returns a value.")
