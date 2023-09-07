@@ -33,7 +33,7 @@ class TestBinaryProbFairness(unittest.TestCase):
         # membership_labels = [1]
         metric = BinaryFairnessMetrics.AverageOdds()
         score = metric.get_score(labels, predictions, memberships, surrogates)
-        print(score)
+        # print(score)
 
     def test_all_scores(self):
         labels = [1, 1, 1, 0, 1, 0, 1, 1, 1, 1]
@@ -43,7 +43,7 @@ class TestBinaryProbFairness(unittest.TestCase):
         surrogates = [0, 2, 0, 1, 3, 0, 0, 1, 1, 2]
 
         df = BinaryFairnessMetrics.get_all_scores(labels, predictions, memberships, surrogates)
-        print(df)
+        # print(df)
 
     def test_arg_max(self):
         # Data

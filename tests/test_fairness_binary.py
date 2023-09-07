@@ -17,107 +17,107 @@ class TestBinaryFairness(unittest.TestCase):
     def test_stat_parity_normal_np(self):
 
         # Data
-        y_pred = np.array([1, 1, 0, 1, 0, 0])
-        is_member = np.array([0, 0, 0, 1, 1, 1])
+        predictions = np.array([1, 1, 0, 1, 0, 0])
+        memberships = np.array([0, 0, 0, 1, 1, 1])
 
         # Metric
         metric = BinaryFairnessMetrics.StatisticalParity()
 
         # Score
-        score = metric.get_score(y_pred, is_member)
+        score = metric.get_score(predictions, memberships)
 
         assert np.isclose(score, -0.3333, atol=0.001)
 
     def test_stat_parity_normal_df(self):
 
         # Data
-        my_df = pd.DataFrame.from_dict({'y_pred': [1, 1, 0, 1, 0, 0],
-                                        'is_member': [0, 0, 0, 1, 1, 1]})
+        my_df = pd.DataFrame.from_dict({'predictions': [1, 1, 0, 1, 0, 0],
+                                        'memberships': [0, 0, 0, 1, 1, 1]})
 
         # Metric
         metric = BinaryFairnessMetrics.StatisticalParity()
 
         # Score
-        score = metric.get_score(my_df['y_pred'], my_df['is_member'])
+        score = metric.get_score(my_df['predictions'], my_df['memberships'])
 
         assert np.isclose(score, -0.3333, atol=0.001)
 
     def test_stat_parity_normal_list(self):
 
         # Data
-        y_pred = [1, 1, 0, 1, 0, 0]
-        is_member = [0, 0, 0, 1, 1, 1]
+        predictions = [1, 1, 0, 1, 0, 0]
+        memberships = [0, 0, 0, 1, 1, 1]
 
         # Metric
         metric = BinaryFairnessMetrics.StatisticalParity()
 
         # Score
-        score = metric.get_score(y_pred, is_member)
+        score = metric.get_score(predictions, memberships)
 
         assert np.isclose(score, -0.3333, atol=0.001)
 
     def test_stat_parity_invalid_list(self):
 
         # Data
-        y_pred = [1, 1, 0, 1, 0]
-        is_member = [0, 0, 0, 1, 1, 1]
+        predictions = [1, 1, 0, 1, 0]
+        memberships = [0, 0, 0, 1, 1, 1]
 
         # Metric
         metric = BinaryFairnessMetrics.StatisticalParity()
 
         # Score
         with self.assertRaises(InputShapeError):
-            metric.get_score(y_pred, is_member)
+            metric.get_score(predictions, memberships)
 
     def test_stat_parity_invalid_df(self):
 
         # Data
-        my_df = pd.DataFrame.from_dict({'y_pred': [1, 1, 0, 1, 0, 2],
-                                        'is_member': [0, 0, 0, 1, 1, 1]})
+        my_df = pd.DataFrame.from_dict({'predictions': [1, 1, 0, 1, 0, 2],
+                                        'memberships': [0, 0, 0, 1, 1, 1]})
 
         # Metric
         metric = BinaryFairnessMetrics.StatisticalParity()
 
         # Score
         with self.assertRaises(ValueError):
-            metric.get_score(my_df['y_pred'], my_df['is_member'])
+            metric.get_score(my_df['predictions'], my_df['memberships'])
 
     def test_stat_parity_invalid_np(self):
 
         # Data
-        y_pred = np.array([1, 1, 0, 1, 0])
-        is_member = np.array([0, 0, 0, 1, 1, 1])
+        predictions = np.array([1, 1, 0, 1, 0])
+        memberships = np.array([0, 0, 0, 1, 1, 1])
 
         # Metric
         metric = BinaryFairnessMetrics.StatisticalParity()
 
         # Score
         with self.assertRaises(InputShapeError):
-            metric.get_score(y_pred, is_member)
+            metric.get_score(predictions, memberships)
 
     def test_stat_parity_edge_1(self):
 
         # Data: edge cases stat parity == 1
-        y_pred = np.array([1, 1, 1, 1, 0, 0, 0, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        predictions = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.StatisticalParity()
 
         # Score
-        stat_parity = metric.get_score(y_pred, is_member)
+        stat_parity = metric.get_score(predictions, memberships)
 
         assert stat_parity == 1
 
     def test_stat_parity_edge_2(self):
 
         # Data: edge case stat parity == -1
-        y_pred = np.array([1, 1, 1, 1, 0, 0, 0, 0])
-        is_member = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        predictions = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        memberships = np.array([0, 0, 0, 0, 1, 1, 1, 1])
 
         # Metric
         metric = BinaryFairnessMetrics.StatisticalParity()
-        score = metric.get_score(y_pred, is_member)
+        score = metric.get_score(predictions, memberships)
 
         assert score == -1
 
@@ -125,243 +125,243 @@ class TestBinaryFairness(unittest.TestCase):
 
         # Data: edge case - homogeneous ground truth within group - returns None
         # unprivileged homogeneous
-        y_true = np.array([0, 0, 0, 1, 1, 1, 1, 1])
-        y_pred = np.array([0, 0, 0, 0, 0, 0, 0, 0])
-        is_member = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        labels = np.array([0, 0, 0, 1, 1, 1, 1, 1])
+        predictions = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        memberships = np.array([0, 0, 0, 0, 1, 1, 1, 1])
 
         # Metric
         metric = BinaryFairnessMetrics.AverageOdds()
 
         # Score
         with self.assertWarns(UserWarning):
-            assert isnan(metric.get_score(y_true, y_pred, is_member))
+            assert isnan(metric.get_score(labels, predictions, memberships))
 
     def test_avg_odds_diff_edge_2(self):
 
         # Data
-        y_pred = np.array([0, 0, 0, 0, 0, 0, 0, 0])
-        is_member = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        predictions = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        memberships = np.array([0, 0, 0, 0, 1, 1, 1, 1])
         # privileged homogeneous
-        y_true = np.array([0, 0, 0, 0, 0, 1, 1, 1])
+        labels = np.array([0, 0, 0, 0, 0, 1, 1, 1])
 
         # Metric
         metric = BinaryFairnessMetrics.AverageOdds()
 
         # Score
         with self.assertWarns(UserWarning):
-            assert isnan(metric.get_score(y_true, y_pred, is_member))
+            assert isnan(metric.get_score(labels, predictions, memberships))
 
     def test_avg_odds_diff_edge_3(self):
 
         # Data
-        y_pred = np.array([0, 0, 0, 0, 0, 0, 0, 0])
-        is_member = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        predictions = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        memberships = np.array([0, 0, 0, 0, 1, 1, 1, 1])
         # both homogeneous
-        y_true = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        labels = np.array([0, 0, 0, 0, 1, 1, 1, 1])
 
         # Metric
         metric = BinaryFairnessMetrics.AverageOdds()
 
         # Score
         with self.assertWarns(UserWarning):
-            assert isnan(metric.get_score(y_true, y_pred, is_member))
+            assert isnan(metric.get_score(labels, predictions, memberships))
 
     def test_avg_odds_diff_edge_4(self):
 
         # Data: edge case of 1
-        y_true = np.array([0, 0, 0, 1, 1, 1, 1, 0])
-        y_pred = np.array([1, 1, 1, 1, 0, 0, 0, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([0, 0, 0, 1, 1, 1, 1, 0])
+        predictions = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.AverageOdds()
 
         # Score
-        assert metric.get_score(y_true, y_pred, is_member) == 1
+        assert metric.get_score(labels, predictions, memberships) == 1
 
     def test_avg_odds_diff_edge_5(self):
 
         # Data
-        y_true = np.array([0, 0, 0, 1, 1, 1, 1, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([0, 0, 0, 1, 1, 1, 1, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
         # edge case of - 1
-        y_pred = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        predictions = np.array([0, 0, 0, 0, 1, 1, 1, 1])
 
         # Metric
         metric = BinaryFairnessMetrics.AverageOdds()
 
         # Score
-        assert metric.get_score(y_true, y_pred, is_member) == -1
+        assert metric.get_score(labels, predictions, memberships) == -1
 
     def test_avg_odds_diff_normal_np(self):
 
         # Data: medium number
-        y_true = np.array([0, 1, 0, 1, 1, 1, 1, 0])
-        y_pred = np.array([0, 0, 1, 0, 0, 1, 1, 1])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([0, 1, 0, 1, 1, 1, 1, 0])
+        predictions = np.array([0, 0, 1, 0, 0, 1, 1, 1])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.AverageOdds()
 
         # Score
-        score = metric.get_score(y_true, y_pred, is_member)
+        score = metric.get_score(labels, predictions, memberships)
 
         assert np.isclose(score, -0.5833, atol=0.01)
 
     def test_avg_odds_diff_normal_list(self):
 
         # Data: medium number
-        y_true = [0, 1, 0, 1, 1, 1, 1, 0]
-        y_pred = [0, 0, 1, 0, 0, 1, 1, 1]
-        is_member = [1, 1, 1, 1, 0, 0, 0, 0]
+        labels = [0, 1, 0, 1, 1, 1, 1, 0]
+        predictions = [0, 0, 1, 0, 0, 1, 1, 1]
+        memberships = [1, 1, 1, 1, 0, 0, 0, 0]
 
         # Metric
         metric = BinaryFairnessMetrics.AverageOdds()
 
         # Score
-        score = metric.get_score(y_true, y_pred, is_member)
+        score = metric.get_score(labels, predictions, memberships)
 
         assert np.isclose(score, -0.5833, atol=0.01)
 
     def test_avg_odds_diff_normal_df(self):
         # Data: medium number
-        my_df = pd.DataFrame.from_dict({'y_true': [0, 1, 0, 1, 1, 1, 1, 0],
-                                        'y_pred': [0, 0, 1, 0, 0, 1, 1, 1],
-                                        'is_member': [1, 1, 1, 1, 0, 0, 0, 0]})
+        my_df = pd.DataFrame.from_dict({'labels': [0, 1, 0, 1, 1, 1, 1, 0],
+                                        'predictions': [0, 0, 1, 0, 0, 1, 1, 1],
+                                        'memberships': [1, 1, 1, 1, 0, 0, 0, 0]})
 
         # Metric
         metric = BinaryFairnessMetrics.AverageOdds()
 
         # Score
-        score = metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member'])
+        score = metric.get_score(my_df['labels'], my_df['predictions'], my_df['memberships'])
 
         assert np.isclose(score, -0.5833, atol=0.01)
 
     def test_avg_odds_diff_normal_invalid(self):
         # Data: medium number
-        my_df = pd.DataFrame.from_dict({'y_true': [0, 1, 0, 1, 1, 1, 1, 0],
-                                        'y_pred': [0, 0, 1, 0, 0, 1, 1, -1],
-                                        'is_member': [1, 1, 1, 1, 0, 0, 0, 0]})
+        my_df = pd.DataFrame.from_dict({'labels': [0, 1, 0, 1, 1, 1, 1, 0],
+                                        'predictions': [0, 0, 1, 0, 0, 1, 1, -1],
+                                        'memberships': [1, 1, 1, 1, 0, 0, 0, 0]})
 
         # Metric
         metric = BinaryFairnessMetrics.AverageOdds()
 
         # Score
         with self.assertRaises(ValueError):
-            metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member'])
+            metric.get_score(my_df['labels'], my_df['predictions'], my_df['memberships'])
 
     def test_pred_equality_edge_1(self):
 
         # Data: edge case - homogeneous ground truth within group - returns None
         # unprivileged homogeneous
-        y_true = np.array([0, 0, 0, 1, 1, 1, 1, 1])
-        y_pred = np.array([0, 0, 0, 0, 0, 0, 0, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([0, 0, 0, 1, 1, 1, 1, 1])
+        predictions = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.PredictiveEquality()
 
         with self.assertWarns(UserWarning):
-            assert metric.get_score(y_true, y_pred, is_member) is None
+            assert metric.get_score(labels, predictions, memberships) is None
 
     def test_pred_equality_edge_2(self):
 
         # Data: edge case - homogeneous ground truth within group - returns None
-        y_pred = np.array([0, 0, 0, 0, 0, 0, 0, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        predictions = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
         # privileged homogeneous
-        y_true = np.array([0, 0, 0, 0, 0, 1, 1, 1])
+        labels = np.array([0, 0, 0, 0, 0, 1, 1, 1])
 
         # Metric
         pred_eq_fun = BinaryFairnessMetrics.PredictiveEquality()
 
         # Score
         with self.assertWarns(UserWarning):
-            assert pred_eq_fun.get_score(y_true, y_pred, is_member) is None
+            assert pred_eq_fun.get_score(labels, predictions, memberships) is None
 
     def test_pred_equality_edge_3(self):
 
         # Data: edge case - homogeneous ground truth within group - returns None
         # both homogeneous
-        y_true = np.array([0, 0, 0, 0, 1, 1, 1, 1])
-        y_pred = np.array([0, 0, 0, 0, 0, 0, 0, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        predictions = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.PredictiveEquality()
 
         # Score
         with self.assertWarns(UserWarning):
-            assert metric.get_score(y_true, y_pred, is_member) is None
+            assert metric.get_score(labels, predictions, memberships) is None
 
     def test_pred_equality_edge_4(self):
 
         # Data: edge case - homogeneous ground truth within group - returns None
         # edge case of 1
-        y_true = np.array([0, 0, 0, 1, 1, 1, 1, 0])
-        y_pred = np.array([1, 1, 1, 1, 0, 0, 0, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([0, 0, 0, 1, 1, 1, 1, 0])
+        predictions = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.PredictiveEquality()
 
         # Score
-        assert metric.get_score(y_true, y_pred, is_member) == 1
+        assert metric.get_score(labels, predictions, memberships) == 1
 
     def test_pred_equality_edge_5(self):
 
         # edge case of - 1
-        y_pred = np.array([0, 0, 0, 0, 1, 1, 1, 1])
-        y_true = np.array([0, 0, 0, 1, 1, 1, 1, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        predictions = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        labels = np.array([0, 0, 0, 1, 1, 1, 1, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         metric = BinaryFairnessMetrics.PredictiveEquality()
 
-        assert metric.get_score(y_true, y_pred, is_member) == -1
+        assert metric.get_score(labels, predictions, memberships) == -1
 
     def test_pred_equality_normal_invalid(self):
 
         # Data: edge case - homogeneous ground truth within group - returns None
         # medium number
-        y_true = np.array([0, 1, 0, 1, 1, 1, 1])
-        y_pred = np.array([0, 0, 1, 0, 0, 1, 1, 1])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([0, 1, 0, 1, 1, 1, 1])
+        predictions = np.array([0, 0, 1, 0, 0, 1, 1, 1])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.PredictiveEquality()
 
         # Score
         with self.assertRaises(InputShapeError):
-            metric.get_score(y_true, y_pred, is_member)
+            metric.get_score(labels, predictions, memberships)
 
     def test_pred_equality_normal_np(self):
 
         # Data: edge case - homogeneous ground truth within group - returns None
         # medium number
-        y_true = np.array([0, 1, 0, 1, 1, 1, 1, 0])
-        y_pred = np.array([0, 0, 1, 0, 0, 1, 1, 1])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([0, 1, 0, 1, 1, 1, 1, 0])
+        predictions = np.array([0, 0, 1, 0, 0, 1, 1, 1])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.PredictiveEquality()
 
         # Score
-        score = metric.get_score(y_true, y_pred, is_member)
+        score = metric.get_score(labels, predictions, memberships)
 
         assert np.isclose(score, -0.5, atol=0.001)
 
     def test_pred_equality_normal_df(self):
 
         # medium number
-        my_df = pd.DataFrame.from_dict({'y_true': [0, 1, 0, 1, 1, 1, 1, 0],
-                                        'y_pred': [0, 0, 1, 0, 0, 1, 1, 1],
-                                        'is_member': [1, 1, 1, 1, 0, 0, 0, 0]})
+        my_df = pd.DataFrame.from_dict({'labels': [0, 1, 0, 1, 1, 1, 1, 0],
+                                        'predictions': [0, 0, 1, 0, 0, 1, 1, 1],
+                                        'memberships': [1, 1, 1, 1, 0, 0, 0, 0]})
 
         # Metric
         metric = BinaryFairnessMetrics.PredictiveEquality()
 
         # Score
-        score = metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member'])
+        score = metric.get_score(my_df['labels'], my_df['predictions'], my_df['memberships'])
 
         assert np.isclose(score, -0.5, atol=0.001)
 
@@ -369,117 +369,117 @@ class TestBinaryFairness(unittest.TestCase):
 
         # Data: edge case - homogeneous ground truth within group - returns None
         # medium number
-        y_true = [0, 1, 0, 1, 1, 1, 1, 0]
-        y_pred = [0, 0, 1, 0, 0, 1, 1, 1]
-        is_member = [1, 1, 1, 1, 0, 0, 0, 0]
+        labels = [0, 1, 0, 1, 1, 1, 1, 0]
+        predictions = [0, 0, 1, 0, 0, 1, 1, 1]
+        memberships = [1, 1, 1, 1, 0, 0, 0, 0]
 
         # Metric
         metric = BinaryFairnessMetrics.PredictiveEquality()
 
         # Score
-        score = metric.get_score(y_true, y_pred, is_member)
+        score = metric.get_score(labels, predictions, memberships)
 
         assert np.isclose(score, -0.5, atol=0.001)
 
     def test_equal_opp_normal_invalid(self):
 
         # Data
-        y_true = np.array([1, 0, 0, 0, 1, 1, 0, 2])
-        y_pred = np.array([0, 1, 1, 1, 1, 1, 1, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([1, 0, 0, 0, 1, 1, 0, 2])
+        predictions = np.array([0, 1, 1, 1, 1, 1, 1, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.EqualOpportunity()
 
         # Score
         with self.assertRaises(ValueError):
-            metric.get_score(y_true, y_pred, is_member)
+            metric.get_score(labels, predictions, memberships)
 
     def test_equal_opp_normal_np(self):
 
         # Data
-        y_true = np.array([1, 0, 0, 0, 1, 1, 0, 1])
-        y_pred = np.array([0, 1, 1, 1, 1, 1, 1, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([1, 0, 0, 0, 1, 1, 0, 1])
+        predictions = np.array([0, 1, 1, 1, 1, 1, 1, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.EqualOpportunity()
 
         # Score
-        score = metric.get_score(y_true, y_pred, is_member)
+        score = metric.get_score(labels, predictions, memberships)
 
         assert np.isclose(score, -0.666, atol=0.001)
 
     def test_equal_opp_normal_list(self):
 
         # Data
-        y_true = [1, 0, 0, 0, 1, 1, 0, 1]
-        y_pred = [0, 1, 1, 1, 1, 1, 1, 0]
-        is_member = [1, 1, 1, 1, 0, 0, 0, 0]
+        labels = [1, 0, 0, 0, 1, 1, 0, 1]
+        predictions = [0, 1, 1, 1, 1, 1, 1, 0]
+        memberships = [1, 1, 1, 1, 0, 0, 0, 0]
 
         # Metric
         metric = BinaryFairnessMetrics.EqualOpportunity()
 
         # Score
-        score = metric.get_score(y_true, y_pred, is_member)
+        score = metric.get_score(labels, predictions, memberships)
 
         assert np.isclose(score, -0.666, atol=0.001)
 
     def test_equal_opp_normal_df(self):
 
         # medium number
-        my_df = pd.DataFrame.from_dict({'y_true': [1, 0, 0, 0, 1, 1, 0, 1],
-                                        'y_pred': [0, 1, 1, 1, 1, 1, 1, 0],
-                                        'is_member': [1, 1, 1, 1, 0, 0, 0, 0]})
+        my_df = pd.DataFrame.from_dict({'labels': [1, 0, 0, 0, 1, 1, 0, 1],
+                                        'predictions': [0, 1, 1, 1, 1, 1, 1, 0],
+                                        'memberships': [1, 1, 1, 1, 0, 0, 0, 0]})
 
         # Metric
         metric = BinaryFairnessMetrics.EqualOpportunity()
 
         # Score
-        score = metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member'])
+        score = metric.get_score(my_df['labels'], my_df['predictions'], my_df['memberships'])
 
         assert np.isclose(score, -0.666, atol=0.001)
 
     def test_equal_opp_edge_1(self):
 
         # Data: edge cases equal opp == 1
-        y_true = np.array([1, 0, 0, 0, 1, 1, 1, 1])
-        y_pred = np.array([1, 1, 1, 1, 0, 0, 0, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([1, 0, 0, 0, 1, 1, 1, 1])
+        predictions = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.EqualOpportunity()
 
         # Score
         with self.assertWarns(UserWarning):  # division by zero caught inside numpy
-            assert metric.get_score(y_true, y_pred, is_member) == 1
+            assert metric.get_score(labels, predictions, memberships) == 1
 
     def test_equal_opp_edge_2(self):
 
         # Data
-        y_true = np.array([1, 0, 0, 0, 1, 1, 1, 1])
-        y_pred = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([1, 0, 0, 0, 1, 1, 1, 1])
+        predictions = np.array([1, 1, 1, 1, 0, 0, 0, 0])
         # edge case equal opp == -1
-        is_member = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        memberships = np.array([0, 0, 0, 0, 1, 1, 1, 1])
 
         # Metric
         metric = BinaryFairnessMetrics.EqualOpportunity()
 
         with self.assertWarns(UserWarning):  # division by zero caught inside numpy
-            assert metric.get_score(y_true, y_pred, is_member) == -1
+            assert metric.get_score(labels, predictions, memberships) == -1
 
     def test_equal_opp_edge_3(self):
 
         # Data: homogeneous both groups in ground truth - returns nan
-        y_true = np.array([0, 0, 0, 0, 1, 1, 1, 1])
-        y_pred = np.array([0, 1, 1, 1, 1, 1, 1, 0])
-        is_member = np.array([1, 1, 1, 1, 0, 0, 0, 0])
+        labels = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        predictions = np.array([0, 1, 1, 1, 1, 1, 1, 0])
+        memberships = np.array([1, 1, 1, 1, 0, 0, 0, 0])
 
         # Metric
         metric = BinaryFairnessMetrics.EqualOpportunity()
 
         with self.assertWarns(UserWarning):  # division by zero caught inside numpy
-            metric.get_score(y_true, y_pred, is_member)
+            metric.get_score(labels, predictions, memberships)
 
     def test_disp_impact_edge1(self):
 
@@ -487,11 +487,11 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.DisparateImpact()
 
         # Data
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
         # test no positives in protected
-        y_pred = np.array([0, 0, 0, 0, 0, 1, 1, 0, 0, 0])
-        assert metric.get_score(y_pred, is_member) == 0
+        predictions = np.array([0, 0, 0, 0, 0, 1, 1, 0, 0, 0])
+        assert metric.get_score(predictions, memberships) == 0
 
     def test_disp_impact_edge2(self):
 
@@ -499,13 +499,13 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.DisparateImpact()
 
         # Data
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
         # test no positives in unprotected
-        y_pred = np.array([0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+        predictions = np.array([0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 
         with self.assertWarns(UserWarning):
-            assert metric.get_score(y_pred, is_member) == 1
+            assert metric.get_score(predictions, memberships) == 1
 
     def test_disp_impact_edge3(self):
 
@@ -513,11 +513,11 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.DisparateImpact()
 
         # Data
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
         # test 1
-        y_pred = np.array([0, 0, 0, 0, 1, 1, 0, 0, 0, 0])
-        assert metric.get_score(y_pred, is_member) == 1
+        predictions = np.array([0, 0, 0, 0, 1, 1, 0, 0, 0, 0])
+        assert metric.get_score(predictions, memberships) == 1
 
     def test_disp_impact_normal_np(self):
 
@@ -525,11 +525,11 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.DisparateImpact()
 
         # Data
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
         # test a medium number
-        y_pred = np.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0])
-        assert metric.get_score(y_pred, is_member) == 2
+        predictions = np.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0])
+        assert metric.get_score(predictions, memberships) == 2
 
     def test_disp_impact_normal_list(self):
 
@@ -537,11 +537,11 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.DisparateImpact()
 
         # Data
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
         # test a medium number
-        y_pred = np.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0])
-        assert metric.get_score(y_pred, is_member) == 2
+        predictions = np.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0])
+        assert metric.get_score(predictions, memberships) == 2
 
     def test_disp_impact_normal_df(self):
 
@@ -549,11 +549,11 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.DisparateImpact()
 
         # medium number
-        my_df = pd.DataFrame.from_dict({'y_pred': [0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-                                        'is_member': [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]})
+        my_df = pd.DataFrame.from_dict({'predictions': [0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+                                        'memberships': [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]})
 
         # Score
-        assert metric.get_score(my_df['y_pred'], my_df['is_member']) == 2
+        assert metric.get_score(my_df['predictions'], my_df['memberships']) == 2
 
     def test_disp_impact_normal_invalid(self):
 
@@ -561,12 +561,12 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.DisparateImpact()
 
         # medium number
-        my_df = pd.DataFrame.from_dict({'y_pred': ['0', '0', '0', 1, 1, 1, '0', '0', '0', '0'],
-                                        'is_member': [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]})
+        my_df = pd.DataFrame.from_dict({'predictions': ['0', '0', '0', 1, 1, 1, '0', '0', '0', '0'],
+                                        'memberships': [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]})
 
         # Score
         with self.assertRaises(TypeError):
-            metric.get_score(my_df['y_pred'], my_df['is_member'])
+            metric.get_score(my_df['predictions'], my_df['memberships'])
 
     def test_fnr_diff_normal_invalid(self):
 
@@ -574,12 +574,12 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.FNRDifference()
 
         # Data
-        y_true = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 2])
-        y_pred = np.array([0, 0, 1, 0, 0, 1, 1, 1, 0, 0])
+        labels = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 2])
+        predictions = np.array([0, 0, 1, 0, 0, 1, 1, 1, 0, 0])
 
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
         with self.assertRaises(ValueError):
-            metric.get_score(y_true, y_pred, is_member)
+            metric.get_score(labels, predictions, memberships)
 
     def test_fnr_diff_normal_np(self):
 
@@ -587,11 +587,11 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.FNRDifference()
 
         # Data
-        y_true = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
-        y_pred = np.array([0, 0, 1, 0, 0, 1, 1, 1, 0, 0])
+        labels = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
+        predictions = np.array([0, 0, 1, 0, 0, 1, 1, 1, 0, 0])
 
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
-        assert np.isclose(metric.get_score(y_true, y_pred, is_member), 0.333, atol=0.001)
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        assert np.isclose(metric.get_score(labels, predictions, memberships), 0.333, atol=0.001)
 
     def test_fnr_diff_normal_list(self):
 
@@ -599,22 +599,22 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.FNRDifference()
 
         # Data
-        y_true = [0, 1, 1, 0, 1, 1, 1, 0, 1, 0]
-        y_pred = [0, 0, 1, 0, 0, 1, 1, 1, 0, 0]
+        labels = [0, 1, 1, 0, 1, 1, 1, 0, 1, 0]
+        predictions = [0, 0, 1, 0, 0, 1, 1, 1, 0, 0]
 
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
-        assert np.isclose(metric.get_score(y_true, y_pred, is_member), 0.333, atol=0.001)
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        assert np.isclose(metric.get_score(labels, predictions, memberships), 0.333, atol=0.001)
 
     def test_fnr_diff_normal_df(self):
 
-        my_df = pd.DataFrame.from_dict({'y_true': [0, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-                                        'y_pred': [0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
-                                        'is_member': [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]})
+        my_df = pd.DataFrame.from_dict({'labels': [0, 1, 1, 0, 1, 1, 1, 0, 1, 0],
+                                        'predictions': [0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
+                                        'memberships': [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]})
         # Metric
         metric = BinaryFairnessMetrics.FNRDifference()
 
         # Score
-        score = metric.get_score(my_df['y_true'], my_df['y_pred'], my_df['is_member'])
+        score = metric.get_score(my_df['labels'], my_df['predictions'], my_df['memberships'])
 
         assert np.isclose(score, 0.333, atol=0.001)
 
@@ -624,12 +624,12 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.FNRDifference()
 
         # edge case of 1
-        y_true = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
-        y_pred = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+        labels = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
+        predictions = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
-        assert metric.get_score(y_true, y_pred, is_member) == 1
+        assert metric.get_score(labels, predictions, memberships) == 1
 
     def test_fnr_diff_edge2(self):
 
@@ -637,22 +637,22 @@ class TestBinaryFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.FNRDifference()
 
         # edge case of -1
-        y_true = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
-        y_pred = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+        labels = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
+        predictions = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 
-        is_member = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+        memberships = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 
-        assert metric.get_score(y_true, y_pred, is_member) == -1
+        assert metric.get_score(labels, predictions, memberships) == -1
 
     def test_gei_normal_np(self):
 
         # Metric
         metric = BinaryFairnessMetrics.GeneralizedEntropyIndex()
 
-        y_true = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
-        y_pred = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+        labels = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
+        predictions = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 
-        score = metric.get_score(y_true, y_pred)
+        score = metric.get_score(labels, predictions)
         assert isinstance(score, float)
         assert np.isclose(score, 0.302, atol=0.01)
 
@@ -661,22 +661,22 @@ class TestBinaryFairness(unittest.TestCase):
         # Metric
         metric = BinaryFairnessMetrics.GeneralizedEntropyIndex()
 
-        y_true = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, -1])
-        y_pred = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+        labels = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, -1])
+        predictions = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 
         with self.assertRaises(ValueError):
-            metric.get_score(y_true, y_pred)
+            metric.get_score(labels, predictions)
 
     def test_gei_normal_df(self):
 
-        my_df = pd.DataFrame.from_dict({'y_true': [0, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-                                        'y_pred': [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]})
+        my_df = pd.DataFrame.from_dict({'labels': [0, 1, 1, 0, 1, 1, 1, 0, 1, 0],
+                                        'predictions': [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]})
 
         # Metric
         metric = BinaryFairnessMetrics.GeneralizedEntropyIndex()
 
         # Score
-        score = metric.get_score(my_df['y_true'], my_df['y_pred'])
+        score = metric.get_score(my_df['labels'], my_df['predictions'])
 
         assert isinstance(score, float)
         assert np.isclose(score, 0.302, atol=0.01)
@@ -686,10 +686,10 @@ class TestBinaryFairness(unittest.TestCase):
         # Metric
         metric = BinaryFairnessMetrics.GeneralizedEntropyIndex()
 
-        y_true = [0, 1, 1, 0, 1, 1, 1, 0, 1, 0]
-        y_pred = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+        labels = [0, 1, 1, 0, 1, 1, 1, 0, 1, 0]
+        predictions = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
 
-        score = metric.get_score(y_true, y_pred)
+        score = metric.get_score(labels, predictions)
         assert isinstance(score, float)
         assert np.isclose(score, 0.302, atol=0.01)
 
@@ -714,9 +714,9 @@ class TestBinaryFairness(unittest.TestCase):
             results = []
             vals = []
 
-            for y_true, y_pred in my_dict.values():
-                vals.append([y_true, y_pred])
-                results.append(metric.get_score(y_true, y_pred, alpha=alpha))
+            for labels, predictions in my_dict.values():
+                vals.append([labels, predictions])
+                results.append(metric.get_score(labels, predictions, alpha=alpha))
 
             assert min(results) == 0
             assert max(results) == np.inf
@@ -743,9 +743,9 @@ class TestBinaryFairness(unittest.TestCase):
             results = []
             vals = []
 
-            for y_true, y_pred in my_dict.values():
-                vals.append([y_true, y_pred])
-                results.append(metric.get_score(y_true, y_pred, alpha=alpha))
+            for labels, predictions in my_dict.values():
+                vals.append([labels, predictions])
+                results.append(metric.get_score(labels, predictions, alpha=alpha))
 
             assert min(results) == 0
             assert max(results) == np.log(5)
@@ -769,9 +769,9 @@ class TestBinaryFairness(unittest.TestCase):
             alpha = 3
             results = []
             vals = []
-            for y_true, y_pred in my_dict.values():
-                vals.append([y_true, y_pred])
-                results.append(metric.get_score(y_true, y_pred, alpha=alpha))
+            for labels, predictions in my_dict.values():
+                vals.append([labels, predictions])
+                results.append(metric.get_score(labels, predictions, alpha=alpha))
 
             assert min(results) == 0
             assert max(results) == (np.power(5, alpha - 1) - 1) / (alpha * (alpha - 1))
@@ -781,22 +781,22 @@ class TestBinaryFairness(unittest.TestCase):
         # Metric
         metric = BinaryFairnessMetrics.TheilIndex()
 
-        y_true = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
-        y_pred = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+        labels = np.array([0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
+        predictions = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 
-        score = metric.get_score(y_true, y_pred)
+        score = metric.get_score(labels, predictions)
         assert isinstance(score, float)
         assert np.isclose(score, 0.413, atol=0.01)
 
     def test_theil_normal_df(self):
 
-        my_df = pd.DataFrame.from_dict({'y_true': [0, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-                                        'y_pred': [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]})
+        my_df = pd.DataFrame.from_dict({'labels': [0, 1, 1, 0, 1, 1, 1, 0, 1, 0],
+                                        'predictions': [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]})
 
         # Metric
         metric = BinaryFairnessMetrics.TheilIndex()
         # Score
-        score = metric.get_score(my_df['y_true'], my_df['y_pred'])
+        score = metric.get_score(my_df['labels'], my_df['predictions'])
 
         assert isinstance(score, float)
         assert np.isclose(score, 0.413, atol=0.01)
@@ -806,10 +806,10 @@ class TestBinaryFairness(unittest.TestCase):
         # Metric
         metric = BinaryFairnessMetrics.TheilIndex()
 
-        y_true = [0, 1, 1, 0, 1, 1, 1, 0, 1, 0]
-        y_pred = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+        labels = [0, 1, 1, 0, 1, 1, 1, 0, 1, 0]
+        predictions = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
 
-        score = metric.get_score(y_true, y_pred)
+        score = metric.get_score(labels, predictions)
         assert isinstance(score, float)
         assert np.isclose(score, 0.413, atol=0.01)
 
@@ -818,10 +818,10 @@ class TestBinaryFairness(unittest.TestCase):
         # Metric
         metric = BinaryFairnessMetrics.TheilIndex()
 
-        y_true = [0, 1, 1, 0, 1, 1, 1, 0, 1, -1]
-        y_pred = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+        labels = [0, 1, 1, 0, 1, 1, 1, 0, 1, -1]
+        predictions = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
         with self.assertRaises(ValueError):
-            metric.get_score(y_true, y_pred)
+            metric.get_score(labels, predictions)
 
     def test_theil_boundaries(self):
         np.random.seed(1)
@@ -842,9 +842,9 @@ class TestBinaryFairness(unittest.TestCase):
             results_thiel = []
             vals = []
 
-            for y_true, y_pred in my_dict.values():
-                vals.append([y_true, y_pred])
-                results_thiel.append(metric.get_score(y_true, y_pred))
+            for labels, predictions in my_dict.values():
+                vals.append([labels, predictions])
+                results_thiel.append(metric.get_score(labels, predictions))
 
             assert min(results_thiel) == 0
             assert max(results_thiel) == np.log(5)
@@ -855,11 +855,11 @@ class TestBinaryFairness(unittest.TestCase):
 
     def test_all_scores_valid(self):
 
-        y_true = np.array([1, 1, 1, 0, 1, 0, 1, 1, 1, 1])
-        y_pred = np.array([0, 0, 0, 1, 0, 0, 0, 0, 0, 1])
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        labels = np.array([1, 1, 1, 0, 1, 0, 1, 1, 1, 1])
+        predictions = np.array([0, 0, 0, 1, 0, 0, 0, 0, 0, 1])
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
-        df = BinaryFairnessMetrics.get_all_scores(y_true, y_pred, is_member)
+        df = BinaryFairnessMetrics.get_all_scores(labels, predictions, memberships)
         assert type(df) == pd.DataFrame
 
         assert self.extract_metric_from_df('Statistical Parity', df) == 0.
@@ -903,12 +903,12 @@ class TestBinaryFairness(unittest.TestCase):
     def test_all_scores_invalid(self):
 
         # test conversion of None
-        y_true = np.array([1, 1, 1, 0, 0, 1, 1, 1, 1, 1])
-        y_pred = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        is_member = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
+        labels = np.array([1, 1, 1, 0, 0, 1, 1, 1, 1, 1])
+        predictions = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        memberships = np.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0])
 
         with self.assertWarns(UserWarning):
-            df = BinaryFairnessMetrics.get_all_scores(y_true, y_pred, is_member)
+            df = BinaryFairnessMetrics.get_all_scores(labels, predictions, memberships)
         assert type(df) == pd.DataFrame
 
         assert self.extract_metric_from_df('Statistical Parity', df) == 0.
