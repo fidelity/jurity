@@ -100,7 +100,8 @@ class BinaryFairnessMetrics(NamedTuple):
                 membership_labels = [1]
 
             if bootstrap_results is None:
-                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels)
+                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates,
+                                                          membership_labels, labels)
 
         # Output df
         df = pd.DataFrame(columns=["Metric", "Value", "Ideal Value", "Lower Bound", "Upper Bound"])
@@ -144,7 +145,7 @@ class BinaryFairnessMetrics(NamedTuple):
                 score = metric.get_score(labels, predictions, memberships, membership_labels)
         else:
             if name == "StatisticalParity":
-                score = metric.get_score(predictions, memberships, membership_labels, bootstrap_results)
+                score = metric.get_score(predictions, memberships, surrogates, membership_labels, bootstrap_results)
             elif name in ["AverageOdds", "EqualOpportunity", "FNRDifference", "PredictiveEquality"]:
                 score = metric.get_score(labels, predictions, memberships, surrogates,
                                          membership_labels, bootstrap_results)

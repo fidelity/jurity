@@ -23,6 +23,18 @@ class TestBinaryProbFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.StatisticalParity()
         score = metric.get_score(predictions, memberships, surrogates)
 
+    def test_quick_start_avg_odds(self):
+        # Data
+        labels = [1, 1, 1, 0, 1, 0, 1, 1, 1, 1]
+        predictions = [0, 0, 0, 1, 0, 0, 0, 0, 0, 1]
+        memberships = [[0.2, 0.8], [0.4, 0.6], [0.2, 0.8], [0.9, 0.1], [0.3, 0.7],
+                       [0.8, 0.2], [0.6, 0.4], [0.8, 0.2], [0.1, 0.9], [0.7, 0.3]]
+        surrogates = [0, 2, 0, 1, 3, 0, 0, 1, 1, 2]
+        # membership_labels = [1]
+        metric = BinaryFairnessMetrics.AverageOdds()
+        score = metric.get_score(labels, predictions, memberships, surrogates)
+        print(score)
+
     def test_all_scores(self):
         labels = [1, 1, 1, 0, 1, 0, 1, 1, 1, 1]
         predictions = [0, 0, 0, 1, 0, 0, 0, 0, 0, 1]

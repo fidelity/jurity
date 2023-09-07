@@ -124,7 +124,6 @@ class AverageOdds(_BaseBinaryFairness):
                                    must_have_labels=True, labels=labels)
                 bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels,
                                                           labels)
-            print(bootstrap_results)
 
             tpr_group_1, tpr_group_2 = unpack_bootstrap(bootstrap_results, Constants.TPR, membership_labels)
             fpr_group_1, fpr_group_2 = unpack_bootstrap(bootstrap_results, Constants.FPR, membership_labels)
