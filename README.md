@@ -72,21 +72,15 @@ print("Multi-class multi-label Fairness scores: ", multi_metric.get_scores(multi
 
 ## Quick Start: Probabilistic Fairness Evaluation
 
-What if we do not know the protected membership attribute of each sample? 
-This is a practical scenario that we refer to as _probabilistic_ fairness evaluation.  
+What if we do not know the protected membership attribute of each sample? This is a practical scenario that we refer to as _probabilistic_ fairness evaluation.  
 
-At a high-level, instead of strict 0/1 deterministic membership at individual level, 
-consider the probability of membership to protected classes.
+At a high-level, instead of strict 0/1 deterministic membership at individual level, consider the probability of membership to protected classes for each sample.
 
-An easy baseline is to convert these probabilities back to the deterministic setting  
-by taking the maximum likelihood as the protected membership. 
-This is problematic as the goal is not to predict membership but to evaluate fairness.
+An easy baseline is to convert these probabilities back to the deterministic setting by taking the maximum likelihood as the protected membership. This is problematic as the goal is not to predict membership but to evaluate fairness.
 
-Taking this a step further, while we do not have membership information at the individual level, 
-consider access to _surrogate membership_ at _group level_. We can then infer the fairness metrics directly.   
+Taking this a step further, while we do not have membership information at the individual level, consider access to _surrogate membership_ at _group level_. We can then infer the fairness metrics directly.   
 
-Jurity offers both options to address the case where membership data is missing.
-We provide an in-depth study and formal treatment in [Surrogate Membership for Inferred Metrics in Fairness Evaluation (LION 2023)]().
+Jurity offers both options to address the case where membership data is missing. We provide an in-depth study and formal treatment in [Surrogate Membership for Inferred Metrics in Fairness Evaluation (LION 2023)]().
 
 ```python
 from jurity.fairness import BinaryFairnessMetrics
