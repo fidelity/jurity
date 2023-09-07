@@ -2,4 +2,4 @@
 # Copyright FMR LLC <opensource@fidelity.com>
 # SPDX-License-Identifier: Apache-2.0
 
-__version__ = "1.3.4"
+__version__ = "2.0.0"

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import inspect
-from typing import List, Union
+from typing import List, Union, Optional
 from typing import NamedTuple
 
 import numpy as np
@@ -11,7 +11,9 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.fairness.base import _BaseMultiClassMetric
-from jurity.utils import check_inputs_validity
+from jurity.utils import is_one_dimensional
+from jurity.utils_proba import get_argmax_memberships
+from jurity.utils_proba import get_bootstrap_results
 from .average_odds import AverageOdds
 from .disparate_impact import BinaryDisparateImpact, MultiDisparateImpact
 from .equal_opportunity import EqualOpportunity
@@ -41,56 +43,120 @@ class BinaryFairnessMetrics(NamedTuple):
     @staticmethod
     def get_all_scores(labels: Union[List, np.ndarray, pd.Series],
                        predictions: Union[List, np.ndarray, pd.Series],
-                       is_member: Union[List, np.ndarray, pd.Series],
-                       membership_label: Union[str, float, int] = 1) -> pd.DataFrame:
+                       memberships: Union[List, np.ndarray, pd.Series],
+                       surrogates: Union[List, np.ndarray, pd.Series] = None,
+                       membership_labels: Union[str, float, int, List, np.array] = 1,
+                       bootstrap_results: Optional[pd.DataFrame] = None) -> pd.DataFrame:
         """
-        Calculates and tabulates all of the fairness metric scores.
-
+        Calculates and tabulates all fairness metric scores.
         Parameters
         ----------
         labels: Union[List, np.ndarray, pd.Series]
-            Binary ground truth labels for the provided dataset (0/1).
+            Binary ground truth labels for each sample.
         predictions: Union[List, np.ndarray, pd.Series]
-            Binary predictions from some black-box classifier (0/1).
-        is_member: Union[List, np.ndarray, pd.Series]
-            Binary membership labels (0/1).
-        membership_label: Union[str, float, int]
-            Value indicating group membership.
-            Default value is 1.
-
+            Binary prediction for each sample from a black-box classifier binary (0/1).
+        memberships: Union[List, np.ndarray, pd.Series, List[List], pd.DataFrame]
+            Membership attribute for each sample.
+                If deterministic, it is the binary label for each sample [0, 1, 0, ..., 1]
+                If probabilistic, it is the likelihoods array of membership labels
+                                  for each sample, i.e., a two-dim array [[0.6, 0.2, 0.2], ..., [..]]
+        surrogates: Union[List, np.ndarray, pd.Series]
+            Surrogate class attribute for each sample.
+                If the membership is deterministic, surrogates are not needed.
+                If the membership is probabilistic,
+                    - if surrogates are given, inferred metrics are used
+                                               to calculate the fairness metric as proposed in [1]_.
+                    - when surrogates are not given, the arg max likelihood is used as the membership for each sample.
+            Default is None.
+        membership_labels: Union[int, float, str, List[int],np.array[int]]
+            Labels indicating group membership.
+                If the membership is deterministic, a single str/int is expected, e.g., 1.
+                If the membership is probabilistic, a list or np.array of int is expected,
+                                                    with the index of the protected groups in the memberships array,
+                                                    e.g, [1, 2, 3], if 1-2-3 indexes are protected.
+                Default value is 1 for deterministic case or [1] for probabilistic case.
+        bootstrap_results: Optional[pd.DataFrame]
+            A Pandas dataframe with inferred scores based surrogate class memberships.
+            Default value is None.
+            When given, other parameters will be discarded and bootstrap results will be used.
         Returns
         ----------
         Pandas data frame with all implemented binary fairness metrics.
         """
-        # Logic to check input types
-        check_inputs_validity(labels=labels, predictions=predictions, is_member=is_member, optional_labels=False)
+
+        # if memberships is given as likelihoods WITHOUT any surrogates, then revise it to deterministic case
+        is_memberships_1d = is_one_dimensional(memberships)
+        if not is_memberships_1d and surrogates is None and bootstrap_results is None:
+            # Subtle point: membership_labels need to be an array when membership is 2d
+            # if the user didn't specify, which defaults to 1, convert 1 -> [1] automatically
+            # BUT do not overwrite membership_labels, we are still in "deterministic" mode via argmax
+            # In deterministic mode, we need a single primitive label like 1
+            memberships = get_argmax_memberships(memberships, [1] if membership_labels == 1 else membership_labels)
+            # We now converted 2d likelihoods memberships into deterministic 1d membership, set flag to true
+            is_memberships_1d = True
+
+        # Probabilistic version
+        if not is_memberships_1d or bootstrap_results is not None:
+            if membership_labels == 1:
+                membership_labels = [1]
+
+            if bootstrap_results is None:
+                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates,
+                                                          membership_labels, labels)
+
+        # Output df
+        df = pd.DataFrame(columns=["Metric", "Value", "Ideal Value", "Lower Bound", "Upper Bound"])
 
         fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
-
-        df = pd.DataFrame(columns=["Metric", "Value", "Ideal Value", "Lower Bound", "Upper Bound"])
         for fairness_func in fairness_funcs:
 
+            # Get metric
             name = fairness_func[0]
             class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
-            instance = class_()  # dynamically instantiate such class
+            metric = class_()  # dynamically instantiate such class
 
-            if name in ["DisparateImpact", "StatisticalParity"]:
-                score = instance.get_score(predictions, is_member, membership_label)
-            elif name in ["GeneralizedEntropyIndex", "TheilIndex"]:
-                score = instance.get_score(labels, predictions)
-            else:
-                score = instance.get_score(labels, predictions, is_member, membership_label)
+            # Get score
+            score = BinaryFairnessMetrics._get_score_logic(metric, name,
+                                                           labels, predictions, memberships, surrogates,
+                                                           membership_labels, bootstrap_results)
 
-            if score is None:
-                score = np.nan
-            score = np.round(score, 3)
-            df = pd.concat([df, pd.DataFrame(
-                [[instance.name, score, instance.ideal_value, instance.lower_bound, instance.upper_bound]],
-                columns=df.columns)], axis=0, ignore_index=True)
+            # Add score
+            df = pd.concat([df,
+                            pd.DataFrame([[metric.name, score, metric.ideal_value,
+                                           metric.lower_bound, metric.upper_bound]], columns=df.columns)],
+                           axis=0, ignore_index=True)
 
         df = df.set_index("Metric")
 
         return df
+
+    @staticmethod
+    def _get_score_logic(metric, name,
+                         labels, predictions,
+                         memberships, surrogates,
+                         membership_labels, bootstrap_results):
+
+        # Standard deterministic calculation
+        if bootstrap_results is None:
+            if name in ["DisparateImpact", "StatisticalParity"]:
+                score = metric.get_score(predictions, memberships, membership_labels)
+            elif name in ["GeneralizedEntropyIndex", "TheilIndex"]:
+                score = metric.get_score(labels, predictions)
+            else:
+                score = metric.get_score(labels, predictions, memberships, membership_labels)
+        else:
+            if name == "StatisticalParity":
+                score = metric.get_score(predictions, memberships, surrogates, membership_labels, bootstrap_results)
+            elif name in ["AverageOdds", "EqualOpportunity", "FNRDifference", "PredictiveEquality"]:
+                score = metric.get_score(labels, predictions, memberships, surrogates,
+                                         membership_labels, bootstrap_results)
+            else:
+                score = None
+
+        # pretty score
+        score = np.nan if score is None else np.round(score, 3)
+
+        return score
 
 
 class MultiClassFairnessMetrics(NamedTuple):

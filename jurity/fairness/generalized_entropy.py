@@ -9,24 +9,23 @@ import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
 from jurity.utils import check_and_convert_list_types, check_binary, check_elementwise_input_type
-from jurity.utils import check_input_shape, check_input_type
+from jurity.utils import check_input_1d, check_input_type
 from jurity.utils import check_true
 
 
 class GeneralizedEntropyIndex(_BaseBinaryFairness):
 
-    def __init__(self, positive_label_name: float = 1):
+    def __init__(self):
         super().__init__("Generalized Entropy Index",
                          "Generalized entropy index is proposed as a unified individual and group fairness measure.",
                          lower_bound=0.0,
                          upper_bound=np.inf,
                          ideal_value=0)
 
-        self.positive_label_name = positive_label_name
-
     def get_score(self,
                   labels: Union[List, np.ndarray, pd.Series],
                   predictions: Union[List, np.ndarray, pd.Series],
+                  membership_label: Union[str, float, int] = 1,
                   alpha: float = 2) -> float:
         """Generalized entropy index is proposed as a unified individual and group fairness measure in [3]_.
         With :math:`b_i = \\hat{y}_i - y_i + 1`:
@@ -46,6 +45,9 @@ class GeneralizedEntropyIndex(_BaseBinaryFairness):
             Binary ground truth labels for the provided dataset (0/1).
         predictions: Union[List, np.ndarray, pd.Series]
             Binary predictions from some black-box classifier (0/1).
+        membership_label: Union[str, float, int]
+            Value indicating group membership.
+            Default value is 1.
         alpha: float
             Parameter that regulates weight given to distances between values at different parts of the distribution.
             Default value is 2.
@@ -61,13 +63,16 @@ class GeneralizedEntropyIndex(_BaseBinaryFairness):
              Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 2018.
         """
 
+        # This metric requires labels and predictions but not memberships
+        # Don't call check_inputs() and do it here manually
+
         # Check input types
         check_input_type(labels)
         check_input_type(predictions)
 
         # Check input shapes
-        check_input_shape(labels)
-        check_input_shape(predictions)
+        check_input_1d(labels)
+        check_input_1d(predictions)
 
         # Check input content
         check_binary(labels)
@@ -86,8 +91,8 @@ class GeneralizedEntropyIndex(_BaseBinaryFairness):
         y_pred = check_and_convert_list_types(predictions)
         y_true = check_and_convert_list_types(labels)
 
-        y_pred = (y_pred == self.positive_label_name).astype(np.float64)
-        y_true = (y_true == self.positive_label_name).astype(np.float64)
+        y_pred = (y_pred == membership_label).astype(np.float64)
+        y_true = (y_true == membership_label).astype(np.float64)
 
         b = 1 + y_pred - y_true
 

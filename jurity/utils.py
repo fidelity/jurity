@@ -3,39 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
-from typing import List, NamedTuple, NoReturn, Optional, Union
+from typing import List, NoReturn, Optional, Union
 
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 from sklearn.metrics import confusion_matrix
 
-from .hash_utils import lru_cache_df
-
-
-class Constants(NamedTuple):
-    """
-    Constant values used by the modules.
-    """
-
-    default_seed = 1
-    float_null = np.float64(0.0)
-    TPR = "TPR"
-    TNR = "TNR"
-    FPR = "FPR"
-    FNR = "FNR"
-    PPV = "PPV"
-    NPV = "NPV"
-    FDR = "FDR"
-    FOR = "FOR"
-    ACC = "ACC"
-
-    user_id = 'user_id'
-    item_id = 'item_id'
-    estimate = 'estimate'
-    inverse_propensity = 'inverse_propensity'
-    ips_correction = 'ips_correction'
-    propensity = 'propensity'
+from jurity.constants import Constants
+from .utils_hash import lru_cache_df
 
 
 class Error(Exception):
@@ -64,11 +40,50 @@ class NotFittedError(Error):
         self.message = message
 
 
+class WeightTooLarge(Error):
+    """
+    Exception for bootstrap calculations when input data is too small for weighted least squares
+    """
+
+    def __init__(self, message):
+        self.message = message
+
+
+def check_false(expression: bool, exception: Exception) -> NoReturn:
+    """
+    Checks that given expression is false, otherwise raises the given exception.
+    """
+    if expression:
+        raise exception
+
+
+def check_true(expression: bool, exception: Exception) -> NoReturn:
+    """
+    Checks that given expression is true, otherwise raises the given exception.
+    """
+    if not expression:
+        raise exception
+
+
 def check_and_convert_list_types(arr: Union[List, np.ndarray, pd.Series]) -> Union[np.ndarray, pd.Series]:
     """
     Checks if input is a list and converts it to numpy array if so.
     """
     return np.array(arr) if isinstance(arr, list) else arr
+
+
+def check_or_convert_numpy_array(arr: Union[List, np.ndarray, pd.Series], error_message=""):
+    """
+    Convert input list, array, series to numpy array.
+    """
+    if isinstance(arr, np.ndarray):
+        return arr
+    elif isinstance(arr, pd.Series):
+        return arr.to_numpy()
+    elif isinstance(arr, list):
+        return np.array(arr)
+    else:
+        raise TypeError(error_message)
 
 
 def split_array_based_on_membership_label(arr_to_split: Union[List, np.ndarray, pd.Series],
@@ -107,22 +122,6 @@ def split_array_based_on_membership_label(arr_to_split: Union[List, np.ndarray, 
     return nonmember_values, member_values, nonmember_indices, member_indices
 
 
-def check_false(expression: bool, exception: Exception) -> NoReturn:
-    """
-    Checks that given expression is false, otherwise raises the given exception.
-    """
-    if expression:
-        raise exception
-
-
-def check_true(expression: bool, exception: Exception) -> NoReturn:
-    """
-    Checks that given expression is true, otherwise raises the given exception.
-    """
-    if not expression:
-        raise exception
-
-
 def check_input_type(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
     """
     Checks that input is a list, numpy array or pandas series, otherwise raises the given exception.
@@ -133,7 +132,7 @@ def check_input_type(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
                TypeError("Incorrect input type."))
 
 
-def check_input_shape(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
+def check_input_1d(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
     """
     Checks that input shape is 1d.
     """
@@ -157,7 +156,7 @@ def check_binary(input_: Union[List, np.ndarray, pd.Series]) -> NoReturn:
                    ValueError(f"Only binary content allowed, you supplied: {np.unique(input_)}."))
     else:
         warnings.warn(
-            "Allowed data types (pandas df, list or numpy array) not passed in, cannot check for binary inputs.")
+            "Allowed data types (list, numpy array, or pandas series) not passed in, cannot check for binary inputs.")
         check_input_type(input_)
 
 
@@ -175,7 +174,7 @@ def check_likelihood_values(input_: Union[List, np.ndarray, pd.Series]):
         raise ValueError("Likelihoods must be between 0 and 1 (inclusive).")
 
 
-def check_elementwise_input_type(input_: Union[List, np.ndarray, pd.Series], binary_only: bool = True) -> NoReturn:
+def check_elementwise_input_type(input_: Union[List, np.ndarray, pd.Series], is_multi_class: bool = False) -> NoReturn:
     """
     Check that values in input array are all from same, allowable data type.
     """
@@ -204,7 +203,7 @@ def check_elementwise_input_type(input_: Union[List, np.ndarray, pd.Series], bin
               check_uint16,
               check_uint32]
 
-    if not binary_only:  # allow string as a class for multi-class
+    if is_multi_class:  # allow string as a class for multi-class
         check_str = all([isinstance(i, str) for i in input_]) is True
         check_list = all([isinstance(i, list) for i in input_]) is True
         checks.append(check_str)
@@ -214,72 +213,25 @@ def check_elementwise_input_type(input_: Union[List, np.ndarray, pd.Series], bin
     check_true(all_checks, TypeError("Non uniform/unsupported data types"))
 
 
-def check_inputs_validity(predictions: Union[List, np.ndarray, pd.Series],
-                          is_member: Union[List, np.ndarray, pd.Series],
-                          optional_labels: bool = True,
-                          labels: Union[List, np.ndarray, pd.Series] = None,
-                          binary_only: bool = True) -> NoReturn:
-    """Checks that all given inputs are valid.
-
-    Parameters
-    ---------
-    predictions: Union[List, np.ndarray, pd.Series]
-        Predicted values.
-    is_member: Union[List, np.ndarray, pd.Series]
-        Group membership.
-    optional_labels: bool
-        True if labels are optional, False otherwise
-    labels: Union[List, np.ndarray, pd.Series]
-        Ground truth labels.
-    binary_only: bool
-        True if binary only, False otherwise
-
-    Returns
-    ---------
-    None.
-    """
-
-    check_true(predictions is not None and is_member is not None,
-               ValueError("You need to specify model predictions and is_member attribute"))
-
-    # Check input types are in allowed types
-    check_input_type(predictions)
-    check_input_type(is_member)
-
-    # Check input shapes are 1D
-    check_input_shape(predictions)
-    check_input_shape(is_member)
-
-    # Check input content - only binary allowed
-    if binary_only:
-        check_binary(predictions)
-        check_binary(is_member)
-
-    check_elementwise_input_type(predictions, binary_only)
-    check_elementwise_input_type(is_member, binary_only)
-
-    # Check that our arrays are all the same length
-    if not optional_labels:
-        check_true(labels is not None,
-                   ValueError("Labels are not optional for this metric, they need to be " "specified."))
-
-        check_input_type(labels)
-        check_input_shape(labels)
-        check_binary(labels)
-        check_elementwise_input_type(labels)
-
-        check_true(len(labels) == len(predictions) == len(is_member),
-                   InputShapeError("",
-                                   f"Shapes of inputs do not match. "
-                                   f"you supplied lengths of labels: "
-                                   f"{len(labels)}, predictions: {len(predictions)}"
-                                   f", is_member: {len(is_member)}."))
+def is_one_dimensional(array):
+    # If pd series, or 1d np array, or 1d list, than it is one dimensional
+    if isinstance(array, pd.Series) and array.dtype != 'object':
+        return True
+    elif type(array) == list:
+        print(array[0])
+        print(type(array[0]))
+        print(isinstance(array[0], np.ndarray))
+        if type(array[0]) != list and (not isinstance(array[0], np.ndarray)):
+            return True
+        else:
+            return False
+    elif isinstance(array, np.ndarray):
+        if not type(array[0]) == list and array.ndim == 1:
+            return True
+        else:
+            return False
     else:
-        check_true(len(predictions) == len(is_member),
-                   InputShapeError("",
-                                   f"Shapes of inputs do not match. "
-                                   f"You supplied array lengths "
-                                   f"predictions: {len(predictions)}, is_member: {len(is_member)}."))
+        return False
 
 
 def performance_measures(ground_truth: np.ndarray,
@@ -315,31 +267,90 @@ def performance_measures(ground_truth: np.ndarray,
 
     p = np.sum(ground_truth == 1)
     n = np.sum(ground_truth == 0)
-    constants = Constants()
 
-    return {constants.TPR: tp / p,
-            constants.TNR: tn / n,
-            constants.FPR: fp / n,
-            constants.FNR: fn / p,
-            constants.PPV: tp / (tp + fp) if (tp + fp) > 0.0 else Constants.float_null,
-            constants.NPV: tn / (tn + fn) if (tn + fn) > 0.0 else Constants.float_null,
-            constants.FDR: fp / (fp + tp) if (fp + tp) > 0.0 else Constants.float_null,
-            constants.FOR: fn / (fn + tn) if (fn + tn) > 0.0 else Constants.float_null,
-            constants.ACC: (tp + tn) / (p + n) if (p + n) > 0.0 else Constants.float_null}
+    return {Constants.TPR: tp / p,
+            Constants.TNR: tn / n,
+            Constants.FPR: fp / n,
+            Constants.FNR: fn / p,
+            Constants.PPV: tp / (tp + fp) if (tp + fp) > 0.0 else Constants.float_null,
+            Constants.NPV: tn / (tn + fn) if (tn + fn) > 0.0 else Constants.float_null,
+            Constants.FDR: fp / (fp + tp) if (fp + tp) > 0.0 else Constants.float_null,
+            Constants.FOR: fn / (fn + tn) if (fn + tn) > 0.0 else Constants.float_null,
+            Constants.ACC: (tp + tn) / (p + n) if (p + n) > 0.0 else Constants.float_null}
 
 
-def check_or_convert_numpy_array(arr: Union[List, np.ndarray, pd.Series], error_message=""):
+def check_inputs(predictions: Union[List, np.ndarray, pd.Series],
+                 memberships: Union[List, np.ndarray, pd.Series],
+                 membership_labels: Union[int, float, str, List[int]],
+                 must_have_labels: bool = False,
+                 labels: Union[List, np.ndarray, pd.Series] = None,
+                 is_multi_class: bool = False) -> NoReturn:
     """
-    Convert input list, array, series to numpy array.
+    Checks that all given inputs are valid.
+
+    Parameters
+    ---------
+    predictions: Union[List, np.ndarray, pd.Series]
+        Predicted values.
+    memberships: Union[List, np.ndarray, pd.Series]
+        Group membership.
+    membership_labels: Union[int, float, str, List[int]]
+        Labels indicating membership.
+    must_have_labels: bool
+        True must have labels, False otherwise
+    labels: Union[List, np.ndarray, pd.Series]
+        Ground truth labels.
+    is_multi_class: bool
+        True if multi-class, False if binary
+    Returns
+    ---------
+    None.
     """
-    if isinstance(arr, np.ndarray):
-        return arr
-    elif isinstance(arr, pd.Series):
-        return arr.to_numpy()
-    elif isinstance(arr, list):
-        return np.array(arr)
+
+    # Need predictions and memberships
+    check_true(predictions is not None and memberships is not None,
+               ValueError("You need to specify model predictions and is_member attribute"))
+
+    # Check input types are in allowed types
+    check_input_type(predictions)
+    check_input_type(memberships)
+    check_true(type(membership_labels) in (int, str, float),
+               TypeError("Membership label type should be a single int/str primitive"))
+
+    # Check input shapes are 1D
+    check_input_1d(predictions)
+    check_input_1d(memberships)
+
+    # Check input content - only binary allowed
+    # TODO not sure if this is used/called as False, ever
+    if not is_multi_class:
+        check_binary(predictions)
+        check_binary(memberships)
+
+    check_elementwise_input_type(predictions, is_multi_class)
+    check_elementwise_input_type(memberships, is_multi_class)
+
+    # Check that our arrays are all the same length
+    if must_have_labels:
+        check_true(labels is not None, ValueError("Metric must have labels"))
+
+        check_input_type(labels)
+        check_input_1d(labels)
+        check_binary(labels)
+        check_elementwise_input_type(labels)
+
+        check_true(len(labels) == len(predictions) == len(memberships),
+                   InputShapeError("",
+                                   f"Shapes of inputs do not match. "
+                                   f"you supplied lengths of labels: "
+                                   f"{len(labels)}, predictions: {len(predictions)}"
+                                   f", is_member: {len(memberships)}."))
     else:
-        raise TypeError(error_message)
+        check_true(len(predictions) == len(memberships),
+                   InputShapeError("",
+                                   f"Shapes of inputs do not match. "
+                                   f"You supplied array lengths "
+                                   f"predictions: {len(predictions)}, is_member: {len(memberships)}."))
 
 
 @lru_cache_df(maxsize=5)
@@ -365,7 +376,7 @@ def convert_one_vs_rest(positive_label, predictions):
     return list((np.array(predictions) == positive_label).astype(int))
 
 
-def unique_multiclass_multilabel(input_: Union[List, List[List], np.ndarray, pd.Series]) -> np.ndarray:
+def get_unique_values(input_: Union[List, List[List], np.ndarray, pd.Series]) -> np.ndarray:
     """
     Method to transform input of various formats into a numpy array of unique elements.
 
@@ -393,7 +404,7 @@ def unique_multiclass_multilabel(input_: Union[List, List[List], np.ndarray, pd.
         raise TypeError(f"(numpy arr, pandas series, list, list of lists) supported. You supplied {type(input_)}")
 
 
-def get_integer_id_map(df: pd.DataFrame, row_id_column: str, col_id_column: str):
+def _get_integer_id_map(df: pd.DataFrame, row_id_column: str, col_id_column: str):
     """
     Create two mappings from original row and col ids used in the DataFrame to integer ids respectively.
 
@@ -440,7 +451,7 @@ def tocsr(df: pd.DataFrame, row_id_column: str, col_id_column: str):
     Sparse matrix capturing the interactions between row_id and col_id in the given data frame.
     """
 
-    row_id_map, col_id_map = get_integer_id_map(df, row_id_column, col_id_column)
+    row_id_map, col_id_map = _get_integer_id_map(df, row_id_column, col_id_column)
 
     # Update row_id, col_id values
     integer_row_ids = df[row_id_column].map(row_id_map).values

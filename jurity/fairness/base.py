@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 
-from jurity.utils import check_inputs_validity, unique_multiclass_multilabel, check_true
+from jurity.utils import check_inputs, get_unique_values, check_true
 
 
 class _BaseBinaryFairness:
@@ -122,8 +122,10 @@ class _BaseMultiClassMetric(_BaseBinaryFairness):
         """
         raise NotImplementedError()
 
-    def get_scores(self, predictions: Union[List[List], np.ndarray, pd.Series, List],
-                   is_member: Union[List, np.ndarray, pd.Series]) -> List[float]:
+    def get_scores(self,
+                   predictions: Union[List[List], np.ndarray, pd.Series, List],
+                   is_member: Union[List, np.ndarray, pd.Series],
+                   membership_label: Union[str, float, int] = 1) -> List[float]:
         """
         Method to calculate a fairness score for each class.
 
@@ -133,18 +135,20 @@ class _BaseMultiClassMetric(_BaseBinaryFairness):
             Binary predictions from some black-box classifier (0/1).
         is_member: Union[List, np.ndarray, pd.Series]
             Binary membership labels (0/1).
+        membership_label: Union[str, float, int] = 1
+            Labels indicating group membership.
 
         Returns
         ----------
         Fairness metric for each class.
         """
-        check_inputs_validity(predictions, is_member, optional_labels=True, binary_only=False)
+        check_inputs(predictions, is_member, membership_label, is_multi_class=True)
 
         one_hot_predictions = self._one_hot_encode_classes(predictions)
 
         scores = []
         for class_ in self.list_of_classes:
-            score = self._binary_score(one_hot_predictions[class_], is_member)
+            score = self._binary_score(one_hot_predictions[class_], is_member, membership_label)
             scores.append(score)
         return scores
 
@@ -161,7 +165,7 @@ class _BaseMultiClassMetric(_BaseBinaryFairness):
             predictions = [[i] for i in predictions]
 
         # Check that predictions only contain labels from self.list_of_classes
-        unique_predictions = unique_multiclass_multilabel(predictions)
+        unique_predictions = unique_predictions = get_unique_values(predictions)
 
         check_true(len(set(unique_predictions).difference(set(self.list_of_classes))) == 0,
                    ValueError("Supplied predictions do not match unique class labels."))
@@ -169,8 +173,6 @@ class _BaseMultiClassMetric(_BaseBinaryFairness):
         # Convert input to pandas series
         predictions = pd.Series(predictions)
 
-        return pd.DataFrame(
-            mlb.fit_transform(predictions),
-            columns=mlb.classes_,
-            index=predictions.index,
-        )
+        return pd.DataFrame(mlb.fit_transform(predictions),
+                            columns=mlb.classes_,
+                            index=predictions.index)
