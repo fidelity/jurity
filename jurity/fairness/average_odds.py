@@ -9,9 +9,9 @@ import numpy as np
 import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness
-from jurity.utils import check_and_convert_list_types, Constants
-from jurity.utils import check_inputs, is_deterministic
-from jurity.utils import performance_measures, calc_is_member
+from jurity.utils import check_and_convert_list_types, Constants, get_argmax_memberships
+from jurity.utils import check_inputs, check_inputs_proba, is_one_dimensional
+from jurity.utils import performance_measures
 from jurity.utils import split_array_based_on_membership_label
 from jurity.utils_proba import get_bootstrap_results, unpack_bootstrap
 
@@ -77,11 +77,22 @@ class AverageOdds(_BaseBinaryFairness):
         Average odds difference between groups.
         """
 
-        # Logic to check input types
-        if is_deterministic(memberships) or (surrogates is None and bootstrap_results is None):
+        # if memberships is given as likelihoods WITHOUT any surrogates, then revise it to deterministic case
+        is_memberships_1d = is_one_dimensional(memberships)
+        if not is_memberships_1d and surrogates is None and bootstrap_results is None:
+            # Subtle point: membership_labels need to be an array when membership is 2d
+            # if the user didn't specify, which defaults to 1, convert 1 -> [1] automatically
+            # BUT do not overwrite membership_labels, we are still in "deterministic" mode via argmax
+            # In deterministic mode, we need a single primitive label like 1
+            memberships = get_argmax_memberships(memberships, [1] if membership_labels == 1 else membership_labels)
+            # We now converted 2d likelihoods memberships into deterministic 1d membership, set flag to true
+            is_memberships_1d = True
+
+        # Standard deterministic calculation, unless bootstrap is given
+        if is_memberships_1d and bootstrap_results is None:
             check_inputs(predictions, memberships, membership_labels, must_have_labels=True, labels=labels)
             # Convert to numpy arrays
-            is_member = calc_is_member(memberships, membership_labels, predictions)
+            is_member = check_and_convert_list_types(memberships)
             predictions = check_and_convert_list_types(predictions)
             labels = check_and_convert_list_types(labels)
 
@@ -108,7 +119,10 @@ class AverageOdds(_BaseBinaryFairness):
                 membership_labels = [1]
 
             if bootstrap_results is None:
-                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels, labels)
+                check_inputs_proba(predictions, memberships, surrogates, membership_labels, None)
+                bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels,
+                                                          labels)
+
             tpr_group_1, tpr_group_2 = unpack_bootstrap(bootstrap_results, Constants.TPR, membership_labels)
             fpr_group_1, fpr_group_2 = unpack_bootstrap(bootstrap_results, Constants.FPR, membership_labels)
 

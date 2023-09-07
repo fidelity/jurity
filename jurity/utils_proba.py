@@ -410,7 +410,7 @@ class BiasCalculator:
         # For binary classifiers we can always calculate the prediction_ratio, even if we don't have anything else
         if Constants.prediction_ratio in tests_we_have:
             prediction_rate = df[Constants.prediction_ratio]
-            prediction_rate.name = Constants.prediction_rate
+            prediction_rate.name = Constants.PRED_RATE
             out_cols.append(prediction_rate)
         if len(out_cols) > 0:
             df = pd.concat(out_cols, axis=1)

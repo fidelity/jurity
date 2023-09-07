@@ -18,8 +18,8 @@ class BinaryDisparateImpact(_BaseBinaryFairness):
 
     def __init__(self):
         super().__init__("Disparate Impact",
-                         "Disparate Impact is the ratio of predictions for a 'positive' outcome in a binary \
-                         classification task between members of group 1 and group 2, respectively.",
+                         "Disparate Impact is the ratio of predictions for a 'positive' outcome in a binary "
+                         "classification task between members of group 1 and group 2, respectively.",
                          lower_bound=0.8,
                          upper_bound=1.2,
                          ideal_value=1)

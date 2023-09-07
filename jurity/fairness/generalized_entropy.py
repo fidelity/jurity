@@ -64,7 +64,7 @@ class GeneralizedEntropyIndex(_BaseBinaryFairness):
         """
 
         # This metric requires labels and predictions but not memberships
-        # Don't call check_inputs_validity() and do it here manually
+        # Don't call check_inputs() and do it here manually
 
         # Check input types
         check_input_type(labels)

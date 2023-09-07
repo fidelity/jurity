@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 
 from jurity.fairness.base import _BaseBinaryFairness, _BaseMultiClassMetric
-from jurity.utils import calc_is_member, check_inputs_proba, check_and_convert_list_types, Union
-from jurity.utils import split_array_based_on_membership_label, is_deterministic
+from jurity.utils import get_argmax_memberships, check_inputs_proba, check_and_convert_list_types, Union, Constants
+from jurity.utils import split_array_based_on_membership_label, is_one_dimensional, check_inputs
 from jurity.utils_proba import get_bootstrap_results, unpack_bootstrap
 
 
@@ -60,6 +60,7 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
         bootstrap_results: Optional[pd.DataFrame]
             A Pandas dataframe with inferred scores based surrogate class memberships.
             Default value is None.
+            When given, other parameters will be discarded and bootstrap results will be used.
 
         Returns
         ----------
@@ -70,12 +71,24 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
             .. [1] M. Thielbar et. al., Surrogate Membership for Inferred Metrics in Fairness Evaluation, LION 2023
         """
 
-        # Standard deterministic calculation
-        if is_deterministic(memberships) or (surrogates is None and bootstrap_results is None):
-            # Check input types and determine protected class membership
-            is_member = calc_is_member(memberships, membership_labels, predictions)
+        # if memberships is given as likelihoods WITHOUT any surrogates, then revise it to deterministic case
+        is_memberships_1d = is_one_dimensional(memberships)
+        if not is_memberships_1d and surrogates is None and bootstrap_results is None:
+            # Subtle point: membership_labels need to be an array when membership is 2d
+            # if the user didn't specify, which defaults to 1, convert 1 -> [1] automatically
+            # BUT do not overwrite membership_labels, we are still in "deterministic" mode via argmax
+            # In deterministic mode, we need a single primitive label like 1
+            memberships = get_argmax_memberships(memberships, [1] if membership_labels == 1 else membership_labels)
+            # We now converted 2d likelihoods memberships into deterministic 1d membership, set flag to true
+            is_memberships_1d = True
 
+        # Standard deterministic calculation, unless bootstrap is given
+        if is_memberships_1d and bootstrap_results is None:
+            # Check input types and convert
+            check_inputs(predictions, memberships, membership_labels)
+            is_member = check_and_convert_list_types(memberships)
             predictions = check_and_convert_list_types(predictions)
+
             # Identify the group 2 and group 1 group based on specified group label
             group_2_predictions, group_1_predictions, group_2_group, group_1_group = \
                 split_array_based_on_membership_label(predictions, is_member, membership_labels)
@@ -85,6 +98,8 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
 
         # Probabilistic calculation with inferred metrics from bootstrap
         else:
+            # We are in probabilistic mode, so membership labels need to be a list
+            # If the user didn't specify, which defaults to 1, we can now overwrite it to [1]
             if membership_labels == 1:
                 membership_labels = [1]
 
@@ -92,8 +107,9 @@ class BinaryStatisticalParity(_BaseBinaryFairness):
                 check_inputs_proba(predictions, memberships, surrogates, membership_labels, None)
                 bootstrap_results = get_bootstrap_results(predictions, memberships, surrogates, membership_labels)
 
-            group_1_predictions_pct, group_2_predictions_pct = \
-                unpack_bootstrap(bootstrap_results, "Prediction Rate", membership_labels)
+            group_1_predictions_pct, group_2_predictions_pct = unpack_bootstrap(bootstrap_results,
+                                                                                Constants.PRED_RATE,
+                                                                                membership_labels)
         return group_1_predictions_pct - group_2_predictions_pct
 
 

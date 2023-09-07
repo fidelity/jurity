@@ -23,44 +23,24 @@ class TestBinaryProbFairness(unittest.TestCase):
         metric = BinaryFairnessMetrics.StatisticalParity()
         score = metric.get_score(predictions, memberships, surrogates)
 
-    @staticmethod
-    def run_one_score(metric, labels, predictions, memberships,
-                      surrogates, membership_labels):
-        """
-        Helper function to run the appropriate score metric, depending on inputs
-        """
-        if labels is None:
-            score = metric.get_score(predictions, memberships, surrogates, membership_labels, None)
-        else:
-            score = metric.get_score(labels, predictions, memberships, surrogates, membership_labels, None)
-        return score
+    def test_arg_max(self):
+        # Data
+        predictions = [1, 1, 0, 1]
+        memberships = [[0.2, 0.8], [0.6, 0.4], [0.2, 0.8], [0.9, 0.1]]
+        surrogates = None
+        # membership_labels = [1]
+        metric = BinaryFairnessMetrics.StatisticalParity()
+        score_proba = metric.get_score(predictions, memberships, surrogates)
+        # print(score_proba)
 
-    def run_all_fairness(self, labels, predictions, memberships,
-                         surrogates, membership_labels, error_type=None, error_msg=""):
-        """
-        Helper function to run all probabilistic fairness metrics that are implemented
-        according to Constants.bootstrap_implemented
-        Checks for errors when error_type is not None.
-        Otherwise, ensures that scores are returned
-        """
-        fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
-        for f in fairness_funcs:
-            name = f[0]
-            if name not in Constants.bootstrap_implemented:
-                continue
-            class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
-            metric = class_()  # dynamically instantiate such class
-
-            if name in Constants.no_labels:  # handle cases where there are no labels
-                labels = None
-
-            if error_type is not None:
-                with self.assertRaises(error_type, msg=f"{name} {error_msg}"):
-                    score = TestBinaryProbFairness.run_one_score(metric, labels, predictions, memberships,
-                                                                 surrogates, membership_labels)
-            else:
-                score = TestBinaryProbFairness.run_one_score(metric, labels, predictions, memberships,
-                                                             surrogates, membership_labels)
+        predictions = [1, 1, 0, 1]
+        memberships = [1, 0, 1, 0]
+        # surrogates = None
+        # membership_labels = [1]
+        metric = BinaryFairnessMetrics.StatisticalParity()
+        score_deterministic = metric.get_score(predictions, memberships, surrogates)
+        # print(score_deterministic)
+        self.assertEqual(score_proba, score_deterministic)
 
     def test_prob_list(self):
         """
@@ -159,6 +139,7 @@ class TestBinaryProbFairness(unittest.TestCase):
                                          "prediction_ratio": [0.55, 0.21]})
 
         test_boot_results = pd.concat([pd.DataFrame.from_dict(answer_dict), raw_boot_results], axis=1).set_index(c)
+
         tests = [("StatisticalParity", "Prediction Rate"),
                  ("PredictiveEquality", "FPR"),
                  ("EqualOpportunity", "TPR"),
@@ -166,9 +147,10 @@ class TestBinaryProbFairness(unittest.TestCase):
 
         for t in tests:
             name = t[0]
+            # print(name)
             # There are all tests that are a simple subtraction
             answer = answer_dict[t[1]][1] - answer_dict[t[1]][0]
-            class_ = getattr(BinaryFairnessMetrics, t[0])  # grab a class which is a property of BinaryFairnessMetrics
+            class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
             metric = class_()  # dynamically instantiate such class
             if name in Constants.no_labels:
                 score = metric.get_score(None, None, None, [1], test_boot_results)
@@ -186,3 +168,42 @@ class TestBinaryProbFairness(unittest.TestCase):
         score = metric.get_score(None, None, None, None, [1], test_boot_results)
         self.assertEqual(score, answer, f"score function {name} give unexpected answer for pre-generated bootstrap. "
                                         f"\nExpected: {answer}. Got {score}.")
+
+    @staticmethod
+    def run_one_score(metric, labels, predictions, memberships,
+                      surrogates, membership_labels):
+        """
+        Helper function to run the appropriate score metric, depending on inputs
+        """
+        if labels is None:
+            score = metric.get_score(predictions, memberships, surrogates, membership_labels, None)
+        else:
+            score = metric.get_score(labels, predictions, memberships, surrogates, membership_labels, None)
+        return score
+
+    def run_all_fairness(self, labels, predictions, memberships,
+                         surrogates, membership_labels, error_type=None, error_msg=""):
+        """
+        Helper function to run all probabilistic fairness metrics that are implemented
+        according to Constants.bootstrap_implemented
+        Checks for errors when error_type is not None.
+        Otherwise, ensures that scores are returned
+        """
+        fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
+        for f in fairness_funcs:
+            name = f[0]
+            if name not in Constants.bootstrap_implemented:
+                continue
+            class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
+            metric = class_()  # dynamically instantiate such class
+
+            if name in Constants.no_labels:  # handle cases where there are no labels
+                labels = None
+
+            if error_type is not None:
+                with self.assertRaises(error_type, msg=f"{name} {error_msg}"):
+                    score = TestBinaryProbFairness.run_one_score(metric, labels, predictions, memberships,
+                                                                 surrogates, membership_labels)
+            else:
+                score = TestBinaryProbFairness.run_one_score(metric, labels, predictions, memberships,
+                                                             surrogates, membership_labels)
