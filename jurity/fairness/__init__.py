@@ -18,6 +18,7 @@ from .average_odds import AverageOdds
 from .disparate_impact import BinaryDisparateImpact, MultiDisparateImpact
 from .equal_opportunity import EqualOpportunity
 from .fnr_difference import FNRDifference
+from .for_difference import FORDifference
 from .generalized_entropy import GeneralizedEntropyIndex
 from .predictive_equality import PredictiveEquality
 from .statistical_parity import BinaryStatisticalParity, MultiStatisticalParity
@@ -33,6 +34,7 @@ class BinaryFairnessMetrics(NamedTuple):
     DisparateImpact = BinaryDisparateImpact
     EqualOpportunity = EqualOpportunity
     FNRDifference = FNRDifference
+    FORDifference = FORDifference
     GeneralizedEntropyIndex = GeneralizedEntropyIndex
     PredictiveEquality = PredictiveEquality
     StatisticalParity = BinaryStatisticalParity

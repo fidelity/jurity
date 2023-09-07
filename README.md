@@ -15,6 +15,7 @@ Documentation is available at [fidelity.github.io/jurity](https://fidelity.githu
 * [Disparate Impact](https://fidelity.github.io/jurity/about_fairness.html#disparate-impact)
 * [Equal Opportunity](https://fidelity.github.io/jurity/about_fairness.html#equal-opportunity)
 * [False Negative Rate (FNR) Difference](https://fidelity.github.io/jurity/about_fairness.html#fnr-difference)
+* [False Omission Rate (FOR) Difference](https://fidelity.github.io/jurity/about_fairness.html#for-difference)
 * [Generalized Entropy Index](https://fidelity.github.io/jurity/about_fairness.html#generalized-entropy-index)
 * [Predictive Equality](https://fidelity.github.io/jurity/about_fairness.html#predictive-equality)
 * [Statistical Parity](https://fidelity.github.io/jurity/about_fairness.html#statistical-parity)

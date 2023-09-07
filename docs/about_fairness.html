@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Algorithmic Fairness &mdash; Jurity 1.3.3 documentation</title>
+  <title>About Algorithmic Fairness &mdash; Jurity 1.3.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Jurity
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jurity
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -46,6 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#disparate-impact">Disparate Impact</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#equal-opportunity">Equal Opportunity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fnr-difference">FNR Difference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#for-difference">FOR Difference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#generalized-entropy-index">Generalized Entropy Index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#predictive-equality">Predictive Equality</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#statistical-parity">Statistical Parity</a></li>
@@ -70,8 +76,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>About Algorithmic Fairness</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">About Algorithmic Fairness</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/about_fairness.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -82,10 +88,10 @@
            <div itemprop="articleBody">
              
   <section id="about-algorithmic-fairness">
-<span id="about-fairness"></span><h1>About Algorithmic Fairness<a class="headerlink" href="#about-algorithmic-fairness" title="Permalink to this headline"></a></h1>
+<span id="about-fairness"></span><h1>About Algorithmic Fairness<a class="headerlink" href="#about-algorithmic-fairness" title="Permalink to this heading"></a></h1>
 <p>Below, see the mathematical definition for each of the fairness metrics in the library.</p>
 <section id="average-odds">
-<h2>Average Odds<a class="headerlink" href="#average-odds" title="Permalink to this headline"></a></h2>
+<h2>Average Odds<a class="headerlink" href="#average-odds" title="Permalink to this heading"></a></h2>
 <p>Average Odds denotes the average of difference in FPR and TPR for group 1 and group 2.</p>
 <div class="math notranslate nohighlight">
 \[\frac{1}{2} [(FPR_{D = \text{group 1}} - FPR_{D =
@@ -93,25 +99,29 @@
 = \text{group 1}}))]\]</div>
 </section>
 <section id="disparate-impact">
-<h2>Disparate Impact<a class="headerlink" href="#disparate-impact" title="Permalink to this headline"></a></h2>
+<h2>Disparate Impact<a class="headerlink" href="#disparate-impact" title="Permalink to this heading"></a></h2>
 <p>Disparate Impact is the ratio of predictions for a “positive” outcome in a binary classification task between members of group 1 and group 2, respectively.</p>
 <div class="math notranslate nohighlight">
 \[\frac{P(\hat{Y} = 1 | D = \text{group 1})}
     {P(\hat{Y} = 1 | D = \text{group 2})}\]</div>
 </section>
 <section id="equal-opportunity">
-<h2>Equal Opportunity<a class="headerlink" href="#equal-opportunity" title="Permalink to this headline"></a></h2>
+<h2>Equal Opportunity<a class="headerlink" href="#equal-opportunity" title="Permalink to this heading"></a></h2>
 <p>Equal Opportunity calculates the ratio of true positives to positive examples in the dataset, <span class="math notranslate nohighlight">\(TPR = TP/P\)</span>, conditioned on a protected attribute.</p>
 </section>
 <section id="fnr-difference">
-<h2>FNR Difference<a class="headerlink" href="#fnr-difference" title="Permalink to this headline"></a></h2>
+<h2>FNR Difference<a class="headerlink" href="#fnr-difference" title="Permalink to this heading"></a></h2>
 <p>FNR Difference measures the equality (or lack thereof) of the false negative rates across groups. In practice, this metric is implemented as a difference between the metric value for group 1 and group 2.</p>
 <div class="math notranslate nohighlight">
 \[E[d(X)=0 \mid Y=1, g(X)] = E[d(X)=0, Y=1]\]</div>
 </section>
+<section id="for-difference">
+<h2>FOR Difference<a class="headerlink" href="#for-difference" title="Permalink to this heading"></a></h2>
+<p>FOR Difference measures the equality (or lack thereof) across groups of the rate of inaccurate “negative” predictions by the model. It is calculated using the ratio of false negatives to negative examples in the dataset, <span class="math notranslate nohighlight">\(FOR = FN/N\)</span>, conditioned on a protected attribute.</p>
+</section>
 <section id="generalized-entropy-index">
-<h2>Generalized Entropy Index<a class="headerlink" href="#generalized-entropy-index" title="Permalink to this headline"></a></h2>
-<p>Generalized Entropy Index is proposed as a unified individual and group fairness measure in <a class="footnote-reference brackets" href="#id2" id="id1">1</a>. With <span class="math notranslate nohighlight">\(b_i = \hat{y}_i - y_i + 1\)</span>:</p>
+<h2>Generalized Entropy Index<a class="headerlink" href="#generalized-entropy-index" title="Permalink to this heading"></a></h2>
+<p>Generalized Entropy Index is proposed as a unified individual and group fairness measure in <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. With <span class="math notranslate nohighlight">\(b_i = \hat{y}_i - y_i + 1\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\mathcal{E}(\alpha) = \begin{cases}
    \frac{1}{n \alpha (\alpha-1)}\sum_{i=1}^n\left[\left(\frac{b_i}{\mu}\right)^\alpha - 1\right] &amp;
@@ -120,41 +130,41 @@
  -\frac{1}{n}\sum_{i=1}^n\ln\frac{b_{i}}{\mu},&amp; \alpha=0.
  \end{cases}\end{split}\]</div>
 <dl>
-<dt>References:</dt><dd><dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>T. Speicher, H. Heidari, N. Grgic-Hlaca, K. P. Gummadi, A. Singla, A. Weller, and M. B. Zafar,
+<dt>References:</dt><dd><aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>T. Speicher, H. Heidari, N. Grgic-Hlaca, K. P. Gummadi, A. Singla, A. Weller, and M. B. Zafar,
 A Unified Approach to Quantifying Algorithmic Unfairness: Measuring Individual and Group Unfairness via
 Inequality Indices, ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 2018.</p>
-</dd>
-</dl>
+</aside>
+</aside>
 </dd>
 </dl>
 </section>
 <section id="predictive-equality">
-<h2>Predictive Equality<a class="headerlink" href="#predictive-equality" title="Permalink to this headline"></a></h2>
+<h2>Predictive Equality<a class="headerlink" href="#predictive-equality" title="Permalink to this heading"></a></h2>
 <p>Predictive Equality is defined as the situation when accuracy of decisions is equal across two groups, as measured by false positive rate (FPR).</p>
 <div class="math notranslate nohighlight">
 \[E[d(X)|Y=0, g(X)] = E[d(X), Y=0]\]</div>
 </section>
 <section id="statistical-parity">
-<h2>Statistical Parity<a class="headerlink" href="#statistical-parity" title="Permalink to this headline"></a></h2>
+<h2>Statistical Parity<a class="headerlink" href="#statistical-parity" title="Permalink to this heading"></a></h2>
 <p>Statistical Parity measures the difference in probabilities of a positive outcome across two groups.</p>
 <div class="math notranslate nohighlight">
 \[P(\hat{Y} = 1 | D = \text{group 1}) - P(\hat{Y} = 1 | D = \text{group 2})\]</div>
 </section>
 <section id="theil-index">
-<h2>Theil Index<a class="headerlink" href="#theil-index" title="Permalink to this headline"></a></h2>
+<h2>Theil Index<a class="headerlink" href="#theil-index" title="Permalink to this heading"></a></h2>
 <p>Theil Index is the generalized entropy index with <span class="math notranslate nohighlight">\(\alpha = 1\)</span>. See Generalized Entropy Index.</p>
 </section>
 <section id="equalized-odds">
-<h2>Equalized Odds<a class="headerlink" href="#equalized-odds" title="Permalink to this headline"></a></h2>
-<p>Equalized odds is a bias mitigation technique where subset of decisions of a binary classifier is flipped at uniform random in each of two groups to achieve equality of TPR and FPR across the two groups as proposed in <a class="footnote-reference brackets" href="#id4" id="id3">2</a>. This subset rate in each group is learned via constrained optimization.</p>
+<h2>Equalized Odds<a class="headerlink" href="#equalized-odds" title="Permalink to this heading"></a></h2>
+<p>Equalized odds is a bias mitigation technique where subset of decisions of a binary classifier is flipped at uniform random in each of two groups to achieve equality of TPR and FPR across the two groups as proposed in <a class="footnote-reference brackets" href="#id4" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. This subset rate in each group is learned via constrained optimization.</p>
 <dl>
-<dt>References:</dt><dd><dl class="footnote brackets">
-<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
-<dd><p>Moritz Hardt, Eric Price, and Nathan Srebro. 2016. Equality of opportunity in supervised learning. In Proceedings of the 30th International Conference on Neural Information Processing Systems (NIPS’16).</p>
-</dd>
-</dl>
+<dt>References:</dt><dd><aside class="footnote brackets" id="id4" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>Moritz Hardt, Eric Price, and Nathan Srebro. 2016. Equality of opportunity in supervised learning. In Proceedings of the 30th International Conference on Neural Information Processing Systems (NIPS’16).</p>
+</aside>
+</aside>
 </dd>
 </dl>
 </section>
