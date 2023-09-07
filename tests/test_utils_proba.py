@@ -4,6 +4,7 @@ import warnings
 import sklearn
 import pandas as pd
 import numpy as np
+import inspect
 from scipy.stats import kstest
 from jurity.utils_proba import BiasCalculator, BiasCalcFromDataFrame, SummaryData
 from jurity.utils_proba import unpack_bootstrap
@@ -657,3 +658,27 @@ class TestWithSimulation(unittest.TestCase):
             check_series.name = n + "_ok"
             self.assertTrue(np.all(check_series.values),
                             f"{n} is out of range, on mean of {n_loops}, of {n_boots} bootstraps.")
+    def test_get_all_scores(self):
+        """
+        Test get_all_scores to make sure it returns scores for the values it's supposed to return
+        """
+        #get_all_scores only works for two categories
+        two_categories = pd.concat([self.surrogate_df[["surrogate", "W"]],
+                                    1.0 - self.surrogate_df["W"]], axis=1).set_index("surrogate")
+        two_categories.columns = ["W", "NW"]
+        from jurity.fairness import BinaryFairnessMetrics as bfm
+        output_df=bfm.get_all_scores(self.test_data["label"], self.test_data["prediction"], two_categories,
+                           self.test_data["surrogate"], [1])
+
+        from jurity.fairness import BinaryFairnessMetrics
+
+        fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
+        for fairness_func in fairness_funcs:
+            name = fairness_func[0]
+            class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
+            instance = class_()  # dynamically instantiate such class
+            v = output_df.loc[instance.name]["Value"]
+            if name in ["AverageOdds", "EqualOpportunity", "FNRDifference", "PredictiveEquality","StatisticalParity"]:
+                self.assertFalse(np.isnan(v),f"Bootstrap returns np.nan for {name}.")
+            else:
+                self.assertTrue(np.isnan(v),f"Bootstrap not implemented for {name} but returns a value.")
