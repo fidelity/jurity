@@ -321,9 +321,15 @@ class TestUtilsProba(unittest.TestCase):
 
 
 class UtilsProbaSimulator:
-    def __init__(self, model_rates_dict, in_surrogate_df, in_rng=None):
+    """
+    Simulation functions used to test probabilistic fairness.
+    Can be used by other researchers to simulate different levels of unfairness and test their own methods.
+    Members:
+    _rates_dict: Dictionary of dictionaries with expected fairness metrics for each protected class
+    rng: numpy random number generators. Set on initialization if you want to set the seed for your simulation
+    """
+    def __init__(self, model_rates_dict: dict, in_rng: numpy.random.Generator = None):
         self.rates_dict(model_rates_dict)
-        self.surrogate_df(in_surrogate_df)
         if in_rng is not None:
             self.rng(in_rng)
         else:
@@ -331,7 +337,7 @@ class UtilsProbaSimulator:
 
     def rates_dict(self, v=None):
         """
-        Set and get model_rates dictionary
+        Set and get rates_dict dictionary
         """
         if v is not None:
             if not isinstance(v, dict):
@@ -347,17 +353,10 @@ class UtilsProbaSimulator:
             self._rates_dict = v
         return self._rates_dict
 
-    def surrogate_df(self, df=None):
-        """
-        Set input dataframe.
-        It should have one row per surrogate class and membership probabilities for all input classes
-        """
-        if df is not None:
-            check_memberships_proba_df(df, set(df.index.values))
-            self._surrogate_df = df
-        return self._surrogate_df
-
     def rng(self, v=None):
+        """
+        Set and get random number generator
+        """
         if v is not None:
             if not isinstance(v, numpy.random.Generator):
                 raise ValueError("rng argument must be a numpy random number generator.")
@@ -441,7 +440,10 @@ class UtilsProbaSimulator:
         """
         Given a dataframe that has a count, produce a number of identical rows equal to that count
         """
-        check_memberships_proba_df(df,set(df.index.values),df.columns)
+        names=list(self.rates_dict().keys())
+        if not set(names).issubset(df.columns):
+            raise ValueError(f"DataFrame column names do not match keys in rates dictionary. Rates dict has: {names}.")
+        check_memberships_proba_df(df[list(self.rates_dict().keys())],set(df.index.values),names)
         e_df = df.loc[df.index.repeat(df[count_name])].drop("count", axis=1)
         return self.assign_protected_and_accuracy(e_df, self._rates_dict, self._rng)
 
@@ -598,10 +600,13 @@ class TestWithSimulation(unittest.TestCase):
         cls.rates_dict = {"W": {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1},
                           "B": {"pct_positive": 0.2, "fpr": 0.2, "fnr": 0.35},
                           'O': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1}}
-
+        #Make simulator here
         cls.rng = np.random.default_rng(347123)
-        cls.test_data = cls.explode_dataframe(input_df[["surrogate", "count", "W", "B", "O"]])
+        cls.sim=UtilsProbaSimulator(cls.rates_dict,in_rng=cls.rng)
         cls.surrogate_df = input_df[["surrogate", "W", "B", "O"]]
+
+        cls.test_data = cls.sim.explode_dataframe(input_df[["surrogate", "count","W", "B", "O"]].set_index("surrogate")).reset_index()
+
         summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df,
                                            cls.test_data["surrogate"], cls.test_data["label"])
 
@@ -613,9 +618,6 @@ class TestWithSimulation(unittest.TestCase):
         """
         results = get_bootstrap_results(self.test_data["prediction"], self.surrogate_df.set_index("surrogate"),
                                         self.test_data["surrogate"], [1, 2], self.test_data["label"])
-
-        print(results)
-
         self.assertTrue(isinstance(results, pd.DataFrame), "get_bootstrap_results does not return a Pandas DataFrame.")
         self.assertTrue(
             {Constants.FPR, Constants.FNR, Constants.TNR, Constants.TPR, Constants.ACC}.issubset(set(results.columns)),
@@ -660,7 +662,7 @@ class TestWithSimulation(unittest.TestCase):
         in_vars_dict = {}
         in_means_dict = {}
         for k, v in self.rates_dict.items():
-            a = self.confusion_matrix_prob(v['pct_positive'], v['fpr'], v['fnr'])
+            a = self.sim.confusion_matrix_prob(v['pct_positive'], v['fpr'], v['fnr'])
             # These are based on variance of a proportion: p(1-p)
             in_vars_dict[k] = [r * (1 - r) for r in a]
             in_means_dict[k] = a
