@@ -317,6 +317,28 @@ class TestUtilsProba(unittest.TestCase):
     def test_from_df(self):
         self.assertRaises(ValueError, BiasCalculator.from_df, self.summarized_df,
                           [3], ["W", "B", "O"], weight_warnings=False)
+
+    def test_summarizer(self):
+        predictions = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
+        surrogates = [1, 1, 1, 2, 3, 3, 4, 5, 5, 5, 5]
+        labels = [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0]
+        memberships = pd.DataFrame(np.array([[0.5, 0.5], [0.2, 0.8],
+                                             [0.1, 0.9],
+                                             [0.25, 0.75],
+                                             [0.3, 0.7]]))
+        memberships.columns = ["C", "D"]
+        memberships["s"] = pd.Series([1, 2, 3, 4, 5])
+        summary = SummaryData.summarize(predictions, memberships.set_index("s"), surrogates, labels)
+        self.assertTrue(summary.shape[0] == 5, "Summarizer returns dataframe with wrong shape")
+        self.assertTrue(np.all(~summary["C"].apply(np.isnan)), "Summarizer inserts NaN values.")
+        self.assertTrue(np.all(~summary["D"].apply(np.isnan)), "Summarizer inserts NaN values.")
+        expected_cols={'prediction_ratio', 'count', 'true_negative_ratio',
+                        'true_positive_ratio', 'false_negative_ratio', 'false_positive_ratio',
+                        'surrogates', 'C', 'D'}
+        returned_cols=set(summary.columns)
+        self.assertTrue(expected_cols==returned_cols,
+                    f"Summary dataframe does not return correct columns. \nReturns: {returned_cols}. \nExpected: {expected_cols}")
+
     # TODO: Write tests for check_memberships_proba
 
 
@@ -629,10 +651,14 @@ class TestWithSimulation(unittest.TestCase):
         cls.rng = np.random.default_rng(347123)
         cls.sim=UtilsProbaSimulator(cls.rates_dict,in_rng=cls.rng)
         cls.surrogate_df = input_df[["surrogate", "W", "B", "O"]]
+<<<<<<< HEAD
 
         cls.test_data = cls.sim.explode_dataframe(input_df[["surrogate", "count","W", "B", "O"]].set_index("surrogate")).reset_index()
 
         summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df,
+=======
+        summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df.set_index("surrogate"),
+>>>>>>> summarizer_bug
                                            cls.test_data["surrogate"], cls.test_data["label"])
 
         cls.bc = BiasCalculator.from_df(summary_df, [1, 2], ["W", "B", "O"])
