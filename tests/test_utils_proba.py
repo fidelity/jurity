@@ -325,11 +325,16 @@ class UtilsProbaSimulator:
     Simulation functions used to test probabilistic fairness.
     Can be used by other researchers to simulate different levels of unfairness and test their own methods.
     Members:
-    _rates_dict: Dictionary of dictionaries with expected fairness metrics for each protected class
+    _rates_dict: Dictionary of dictionaries with expected fairness metrics for each protected class,
+        has the form: {"class1":{'pct_positive':float,'fpr':float,'fnr':float}, "class2":{'pct_positive'}...}
+    _surrogate_name: Name of surrogate column for input dataframe
     rng: numpy random number generators. Set on initialization if you want to set the seed for your simulation
     """
-    def __init__(self, model_rates_dict: dict, in_rng: numpy.random.Generator = None):
+    def __init__(self, model_rates_dict: dict,
+                 in_rng: numpy.random.Generator = None,
+                 surrogate_name: str ="surrogate"):
         self.rates_dict(model_rates_dict)
+        self.surrogate_name(surrogate_name)
         if in_rng is not None:
             self.rng(in_rng)
         else:
@@ -353,6 +358,12 @@ class UtilsProbaSimulator:
             self._rates_dict = v
         return self._rates_dict
 
+    def surrogate_name(self,v=None):
+        if not v is None:
+            if not isinstance(v,str):
+                raise ValueError("surrogate_name must be a string.\n {0} supplied intead.".format(type(v)))
+            self._surrogate_name=v
+        return self._surrogate_name
     def rng(self, v=None):
         """
         Set and get random number generator
@@ -365,11 +376,11 @@ class UtilsProbaSimulator:
 
     # For the simulation, build "True" protected groups based on population
     # Note; The census data names the columns as follows:
-    def assign_protected(self, population_data, generator, surrogate_name='surrogate',
+    def assign_protected(self, population_data, generator,
                          membership_values=["W", "O", "B", "T", "A", "AI"]):
         # Passing in the global random number generator
         # Lets us make sure that we're not accidentally resetting the seed
-        surrogate_protected_prob_grouped = population_data.groupby(surrogate_name)
+        surrogate_protected_prob_grouped = population_data.groupby(self.surrogate_name())
         surrogate_groups = []
         for name, group in surrogate_protected_prob_grouped:
             probs = [group[v].unique()[0] for v in membership_values]
@@ -381,7 +392,7 @@ class UtilsProbaSimulator:
     def assign_protected_and_accuracy(self, input_data, rates_by_protected, generator,
                                       protected_name="class"):
         # Assign everyone a "true" race for simulation purposes
-        if not set(rates_by_protected.keys())==set(input_data.columns):
+        if not set(rates_by_protected.keys()).issubset(set(input_data.columns)):
             raise ValueError("Input dataframe does not have same column names as keys in rates.")
         protected_assignments = self.assign_protected(input_data, generator,
                                                       membership_values=list(rates_by_protected.keys()))
@@ -391,8 +402,10 @@ class UtilsProbaSimulator:
 
     def confusion_matrix_prob(self, percent_positive, fpr, fnr, verbose=False):
         """
-        # This is the probability that the person is labeled as positive in the data
-        Calculate the % of False Positive, False Negative, True Negative, and True Positive in total based on predefined inputs.
+        Calculate the probability of any given individual falling into each quadrant of the confusion matrix
+        percent_positive: Percent of positive cases in the training data
+        fpr: False Positive Rate from the hypothetical model
+        fnr: False Negative Rate from the hypothetical model
         """
         fp_ratio = (1 - percent_positive) * fpr
         fn_ratio = percent_positive * fnr
@@ -408,13 +421,15 @@ class UtilsProbaSimulator:
         # print("% of FP, FN, TN, TP among total: ")
         return probs
 
-    def model_outcome_by_protected(self, surrogate_protected_assignment, rates_by_protected,
+    def model_outcome_by_protected(self, protected_assignment, rates_by_protected,
                                    protected_col_name="class"):
-        # Assign true positive, true negative, etc by race
-        surrogate_protected_prob_grouped = surrogate_protected_assignment.groupby(protected_col_name)
+        """
+        Assing each individual into a column of the confusion matrix based on probabilities for their class.
+        """
+        protected_prob_grouped = protected_assignment.groupby(protected_col_name)
 
         classified_groups = []
-        for name, group in surrogate_protected_prob_grouped:
+        for name, group in protected_prob_grouped:
             rates_dict = rates_by_protected[name]
             probs = self.confusion_matrix_prob(rates_dict["pct_positive"], rates_dict["fpr"], rates_dict["fnr"])
             group['pred_category'] = np.random.choice(['fp', 'fn', 'tn', 'tp'], len(group), p=probs)
@@ -425,20 +440,31 @@ class UtilsProbaSimulator:
         return classified_data
 
     # Add columns to a pandas dataframe flagging each row as false positive, etc.
-    def accuracy_columns(self, test_data, pred_col, label_col):
+    def accuracy_columns(self, test_data: pd.DataFrame, pred_col: str, label_col:str)->pd.DataFrame:
         """
-        Add indicators for each confusion matrix qudrant. Simplifies calculating rates.
+        Add indicators for each confusion matrix quadrant. Simplifies calculating rates.
+        test_data: Input dataframe
+        pred_col: Name of column with predicted class
+        label_col: Name of column with actual class
         """
-        test_data["correct"] = (test_data[pred_col] == test_data[label_col]).astype(int)
-        test_data["true_positive"] = (test_data["correct"] & (test_data[label_col] == 1)).astype(int)
-        test_data["true_negative"] = (test_data["correct"] & (test_data[label_col] == 0)).astype(int)
-        test_data["false_negative"] = (~(test_data["correct"]) & (test_data[pred_col] == 0)).astype(int)
-        test_data["false_positive"] = (~(test_data["correct"]) & (test_data[pred_col] == 1)).astype(int)
-        return test_data
+        correct=(test_data[pred_col] == test_data[label_col]).astype(int)
+        correct.name="correct"
+        true_positive=(correct & (test_data[label_col] == 1)).astype(int)
+        true_positive.name="true_positive"
+        true_negative=(correct & (test_data[label_col] == 0)).astype(int)
+        true_negative.name="true_negative"
+        false_negative=(~(correct) & (test_data[pred_col] == 0)).astype(int)
+        false_negative.name="false_negative"
+        false_positive = (~(correct) & (test_data[pred_col] == 1)).astype(int)
+        false_positive.name="false_positive"
+        return pd.concat([test_data,correct,true_positive,true_negative,false_negative,false_positive],axis=1)
 
-    def explode_dataframe(self, df, count_name="count"):
+    def explode_dataframe(self, df, count_name="count",surrogate_name="surrogate"):
         """
         Given a dataframe that has a count, produce a number of identical rows equal to that count
+        df: pd.DataFrame with columns: count, class_1, class_2, ...  Class names must match keys from
+        self._rates_dict
+        count_name; name of count variable.
         """
         names=list(self.rates_dict().keys())
         if not set(names).issubset(df.columns):
@@ -451,9 +477,8 @@ class UtilsProbaSimulator:
 # Simulations to ensure numbers accuracy
 class TestWithSimulation(unittest.TestCase):
     """
-    Helper functions 
+    Simulation tests for whether numbers are correct based on simulated inputs
     """
-
     @classmethod
     def setUpClass(cls) -> None:
         input_df = pd.DataFrame({"surrogate": list(range(0, 99)),
