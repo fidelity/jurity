@@ -130,7 +130,8 @@ class TestUtilsProba(unittest.TestCase):
         """
         br = self.bc.transform_bootstrap_results(self.bc.run_bootstrap(5))
         self.assertEqual(br.shape, (3, 11), "Returned bootstrap has shape: {0}. Expected (3,11).".format(br.shape))
-        test_cols = [s in br.columns for s in [Constants.FPR, Constants.FNR, Constants.TPR, Constants.TNR, Constants.ACC, Constants.PRED_RATE]]
+        test_cols = [s in br.columns for s in
+                     [Constants.FPR, Constants.FNR, Constants.TPR, Constants.TNR, Constants.ACC, Constants.PRED_RATE]]
         self.assertTrue(np.all(test_cols), "Not all tests are returned by bootstrap transform")
 
     def test_transform_bootstrap_results_answer(self):
@@ -302,9 +303,11 @@ class TestUtilsProba(unittest.TestCase):
 
         for label, answer in answer_dict.items():
             self.assertEqual(unpack_bootstrap(test_boot_results, label, [1]),
-                (answer[1], answer[0]),
-                f"unpack bootstrap returns unexpected answer for {label}\n" +
-                "expected {0}, got {1} instead.".format(unpack_bootstrap(test_boot_results,label,[1]),(answer[1],answer[0])))
+                             (answer[1], answer[0]),
+                             f"unpack bootstrap returns unexpected answer for {label}\n" +
+                             "expected {0}, got {1} instead.".format(unpack_bootstrap(test_boot_results, label, [1]),
+                                                                     (answer[1], answer[0])))
+
     def test_unpack_bootstrap_err(self):
         test_unpack = self.bc.transform_bootstrap_results(self.test_boot_results)
         self.assertRaises(ValueError, unpack_bootstrap, test_unpack, "FNR", [1, 2])
@@ -312,6 +315,28 @@ class TestUtilsProba(unittest.TestCase):
     def test_from_df(self):
         self.assertRaises(ValueError, BiasCalculator.from_df, self.summarized_df,
                           [3], ["W", "B", "O"], weight_warnings=False)
+
+    def test_summarizer(self):
+        predictions = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
+        surrogates = [1, 1, 1, 2, 3, 3, 4, 5, 5, 5, 5]
+        labels = [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0]
+        memberships = pd.DataFrame(np.array([[0.5, 0.5], [0.2, 0.8],
+                                             [0.1, 0.9],
+                                             [0.25, 0.75],
+                                             [0.3, 0.7]]))
+        memberships.columns = ["C", "D"]
+        memberships["s"] = pd.Series([1, 2, 3, 4, 5])
+        summary = SummaryData.summarize(predictions, memberships.set_index("s"), surrogates, labels)
+        self.assertTrue(summary.shape[0] == 5, "Summarizer returns dataframe with wrong shape")
+        self.assertTrue(np.all(~summary["C"].apply(np.isnan)), "Summarizer inserts NaN values.")
+        self.assertTrue(np.all(~summary["D"].apply(np.isnan)), "Summarizer inserts NaN values.")
+        expected_cols={'prediction_ratio', 'count', 'true_negative_ratio',
+                        'true_positive_ratio', 'false_negative_ratio', 'false_positive_ratio',
+                        'surrogates', 'C', 'D'}
+        returned_cols=set(summary.columns)
+        self.assertTrue(expected_cols==returned_cols,
+                    f"Summary dataframe does not return correct columns. \nReturns: {returned_cols}. \nExpected: {expected_cols}")
+
     # TODO: Write tests for check_memberships_proba
 
 
@@ -607,8 +632,8 @@ class TestWithSimulation(unittest.TestCase):
         """
         Test whether bootstrap returns values that are expected based on simulated data
         """
-        #Need to build a confidence interval where we expect values to be.
-        #This requires calculation of theoretical variance/covariance matrix based on linear regression
+        # Need to build a confidence interval where we expect values to be.
+        # This requires calculation of theoretical variance/covariance matrix based on linear regression
         n_row = self.bc.X().shape[0]
         x = np.hstack((np.ones((n_row, 1)), self.bc.X()))
         # The variance-covariance matrix of a linear estimator based on input X is:
@@ -619,9 +644,9 @@ class TestWithSimulation(unittest.TestCase):
         # Only need the diagonal for this calculation
         x_portion_variance = pd.Series(np.diag(np.dot(np.dot(pred_matrix, invxTx), pred_matrix.T)))
         x_portion_variance.name = 'x_var'
-        x_portion_variance.index=self.bc.all_class_labels()
+        x_portion_variance.index = self.bc.all_class_labels()
 
-        #Get confusion matrix probabilities and variances from input rates_dict.
+        # Get confusion matrix probabilities and variances from input rates_dict.
         in_vars_dict = {}
         in_means_dict = {}
         for k, v in self.rates_dict.items():
@@ -647,13 +672,13 @@ class TestWithSimulation(unittest.TestCase):
 
         z = 1.65  # from z-table, predictions are N(in_y,var_pred_y)
         for n in names:
-            #Prediction variance is sigma_y*pred_matrix*inv(X'X)pred_matrix.T, where sigma_y is a scalar.
-            #Variance of the mean of n_boots predictions is prediction_variance/n_boots
-            var_components[n + '_st_err'] = np.sqrt(var_components[n + '_var']*var_components['x_var']/n_boots)
-            #Normal apprixmation confidence limit
+            # Prediction variance is sigma_y*pred_matrix*inv(X'X)pred_matrix.T, where sigma_y is a scalar.
+            # Variance of the mean of n_boots predictions is prediction_variance/n_boots
+            var_components[n + '_st_err'] = np.sqrt(var_components[n + '_var'] * var_components['x_var'] / n_boots)
+            # Normal apprixmation confidence limit
             check_series = (var_components[n + '_in'] - z * var_components[n + "_st_err"] <
                             var_components[n + '_ratio']) & (
-                                       var_components[n + "_in"] + z * var_components[n + "_st_err"])
+                                   var_components[n + "_in"] + z * var_components[n + "_st_err"])
             check_series.name = n + "_ok"
             self.assertTrue(np.all(check_series.values),
                             f"{n} is out of range, on mean of {n_loops}, of {n_boots} bootstraps.")

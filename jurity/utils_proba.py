@@ -748,8 +748,8 @@ class SummaryData:
             membership_names: Optional list of strings, where len() is equal to length of inner array of membership probabilities. Used to provide labels for outcomes.
         """
         if membership_names is None:
-            if isinstance(memberships,pd.DataFrame):
-                memberhips_names=memberships.columns
+            if isinstance(memberships, pd.DataFrame):
+                memberhips_names = memberships.columns
             else:
                 membership_names = ["A", "B"]
 
@@ -771,8 +771,8 @@ class SummaryData:
         # 2. A dataframe ttehat has a row for each surrogate class value and
         #   a column for each likelihood value. The dataframe must have surrogate class as an index.
         if isinstance(memberships, pd.DataFrame):
-            name=memberships.index.name
-            likes_df = memberships.reset_index().rename(columns={name:'surrogates'})
+            name = memberships.index.name
+            likes_df = memberships.reset_index().rename(columns={name: 'surrogates'})
         else:
             if len(memberships) != df.shape[0]:
                 len_predictions = len(predictions)
