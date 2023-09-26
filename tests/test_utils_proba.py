@@ -651,33 +651,11 @@ class TestWithSimulation(unittest.TestCase):
         cls.rng = np.random.default_rng(347123)
         cls.sim=UtilsProbaSimulator(cls.rates_dict,in_rng=cls.rng)
         cls.surrogate_df = input_df[["surrogate", "W", "B", "O"]]
-<<<<<<< HEAD
-
         cls.test_data = cls.sim.explode_dataframe(input_df[["surrogate", "count","W", "B", "O"]].set_index("surrogate")).reset_index()
-
-        summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df,
-=======
         summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df.set_index("surrogate"),
->>>>>>> summarizer_bug
                                            cls.test_data["surrogate"], cls.test_data["label"])
 
         cls.bc = BiasCalculator.from_df(summary_df, [1, 2], ["W", "B", "O"])
-
-    def test_membership_as_df(self):
-        """
-        Check output from get_bootstrap_results when inputs are a surrogate dataframe
-        """
-        results = get_bootstrap_results(self.test_data["prediction"], self.surrogate_df.set_index("surrogate"),
-                                        self.test_data["surrogate"], [1, 2], self.test_data["label"])
-        self.assertTrue(isinstance(results, pd.DataFrame), "get_bootstrap_results does not return a Pandas DataFrame.")
-        self.assertTrue(
-            {Constants.FPR, Constants.FNR, Constants.TNR, Constants.TPR, Constants.ACC}.issubset(set(results.columns)),
-            "get_bootstrap_results does not return a dataframe with all expected binary metrics. Columns in DataFrame are:{0}".format(
-                results.columns))
-        self.assertTrue(set(results.index.values) == set(self.surrogate_df.drop(["surrogate"], axis=1).columns),
-                        "get_bootstrap_results does not return a dataframe with rows index equal to the columns of input surrogate dataframe.\n"
-                        "returned rows are:{0}\n"
-                        "returned columns are: {1}\n".format(results.index.values, self.surrogate_df.columns))
 
     @classmethod
     def boot_stats(self, n_boots, n_loops):
@@ -745,7 +723,21 @@ class TestWithSimulation(unittest.TestCase):
             check_series.name = n + "_ok"
             self.assertTrue(np.all(check_series.values),
                             f"{n} is out of range, on mean of {n_loops}, of {n_boots} bootstraps.")
-
+    def test_membership_as_df(self):
+        """
+        Check output from get_bootstrap_results when inputs are a surrogate dataframe
+        """
+        results = get_bootstrap_results(self.test_data["prediction"], self.surrogate_df.set_index("surrogate"),
+                                        self.test_data["surrogate"], [1, 2], self.test_data["label"])
+        self.assertTrue(isinstance(results, pd.DataFrame), "get_bootstrap_results does not return a Pandas DataFrame.")
+        self.assertTrue(
+            {Constants.FPR, Constants.FNR, Constants.TNR, Constants.TPR, Constants.ACC}.issubset(set(results.columns)),
+            "get_bootstrap_results does not return a dataframe with all expected binary metrics. Columns in DataFrame are:{0}".format(
+                results.columns))
+        self.assertTrue(set(results.index.values) == set(self.surrogate_df.drop(["surrogate"], axis=1).columns),
+                        "get_bootstrap_results does not return a dataframe with rows index equal to the columns of input surrogate dataframe.\n"
+                        "returned rows are:{0}\n"
+                        "returned columns are: {1}\n".format(results.index.values, self.surrogate_df.columns))
     def test_get_all_scores(self):
         """
         Test get_all_scores to make sure it returns scores for the values it's supposed to return

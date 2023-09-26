@@ -768,9 +768,8 @@ class SummaryData:
         # 2. A dataframe ttehat has a row for each surrogate class value and
         #   a column for each likelihood value. The dataframe must have surrogate class as an index.
         if isinstance(memberships, pd.DataFrame):
-            membership_surrogates = pd.Series(memberships.index.values)
-            membership_surrogates.name = 'surrogates'
-            likes_df = pd.concat([membership_surrogates, memberships], axis=1)
+            name = memberships.index.name
+            likes_df = memberships.reset_index().rename(columns={name: 'surrogates'})
         else:
             if len(memberships) != df.shape[0]:
                 len_predictions = len(predictions)
