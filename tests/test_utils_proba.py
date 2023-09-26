@@ -471,7 +471,7 @@ class TestWithSimulation(unittest.TestCase):
         cls.rng = np.random.default_rng(347123)
         cls.test_data = cls.explode_dataframe(input_df[["surrogate", "count", "W", "B", "O"]])
         cls.surrogate_df = input_df[["surrogate", "W", "B", "O"]]
-        summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df,
+        summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df.set_index("surrogate"),
                                            cls.test_data["surrogate"], cls.test_data["label"])
 
         cls.bc = BiasCalculator.from_df(summary_df, [1, 2], ["W", "B", "O"])
