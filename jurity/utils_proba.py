@@ -464,7 +464,7 @@ class BiasCalculator:
             if binary_metrics is not None:
                 all_model_results.append(pd.concat([binary_metrics, preds], axis=1))
             else:
-                preds['class'] = self.class_labels()
+                preds['class'] = self.all_class_labels()
                 all_model_results.append(preds)
         out_data = pd.concat(all_model_results, axis=0).reset_index().drop(["index"], axis=1)
         return out_data
@@ -997,6 +997,7 @@ class SummaryData:
         accuracy_df = pd.concat([merged_data[self.surrogate_surrogate_col_name()],
                                  self.confusion_matrix_actual(merged_data, self.pred_name(), self.true_name())], axis=1)
         # Use calc_accuracy_metrics to create surrogate-level summary
+        #TODO: Accomodate cases where we don't have a binary classifier
         confusion_matrix_surrogate_summary = self.calc_accuracy_metrics(accuracy_df)
         self.check_surrogate_confusion_matrix(confusion_matrix_surrogate_summary, merged_data)
         return confusion_matrix_surrogate_summary.join(
@@ -1067,3 +1068,4 @@ class SummaryData:
                                    Constants.false_negative_ratio, Constants.false_positive_ratio]
             # Return a dataframe that has the stats by group. Use these to compare to expected values
         return check_accuracy[out_cols]
+    #TODO: Needs string method
