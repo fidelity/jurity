@@ -218,9 +218,9 @@ def is_one_dimensional(array):
     if isinstance(array, pd.Series) and array.dtype != 'object':
         return True
     elif type(array) == list:
-        print(array[0])
-        print(type(array[0]))
-        print(isinstance(array[0], np.ndarray))
+        #print(array[0])
+        #print(type(array[0]))
+        #print(isinstance(array[0], np.ndarray))
         if type(array[0]) != list and (not isinstance(array[0], np.ndarray)):
             return True
         else:
