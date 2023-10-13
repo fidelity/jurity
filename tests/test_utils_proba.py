@@ -185,7 +185,7 @@ class TestUtilsProba(unittest.TestCase):
         """
         Test that make_bias_calculator filters rows with small counts
         """
-        bc_filtered = self.bcfd.get_bias_calculator(self.summarized_df, 7)
+        bc_filtered = self.bcfd.get_bias_calculator(self.summarized_df, 7,weight_warnings=False)
         self.assertEqual(bc_filtered.X().shape[0], 3)
 
     def test_make_bias_calculator_names(self):
@@ -219,17 +219,17 @@ class TestUtilsProba(unittest.TestCase):
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1,weight_warnings=False)
         fac = BiasCalcFromDataFrame(["W", "B", "O"], "N", [1, 2],
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio, "hello world"])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1, weight_warnings=False)
         fac = BiasCalcFromDataFrame(["W", "B", "O"], "hello world", [1, 2],
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1,weight_warnings=False)
 
     def test_summary(self):
         predictions = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
@@ -604,8 +604,6 @@ class TestWithSimulation(unittest.TestCase):
         """
         results = get_bootstrap_results(self.test_data["prediction"], self.surrogate_df.set_index("surrogate"),
                                         self.test_data["surrogate"], [1, 2], self.test_data["label"])
-
-        print(results)
 
         self.assertTrue(isinstance(results, pd.DataFrame), "get_bootstrap_results does not return a Pandas DataFrame.")
         self.assertTrue(

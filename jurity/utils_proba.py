@@ -735,7 +735,8 @@ class SummaryData:
                   memberships: Union[List, np.ndarray, pd.Series, pd.DataFrame],
                   surrogates: Union[List, np.ndarray, pd.Series],
                   labels: Union[List, np.ndarray, pd.Series] = None,
-                  membership_names: List[str] = None) -> pd.DataFrame:
+                  membership_names: List[str] = None,
+                  warnings:bool = False) -> pd.DataFrame:
         """
         Return a summary dataframe suitable for bootstrap calculations.
         Arguments:
@@ -793,7 +794,7 @@ class SummaryData:
             likes_df.columns = membership_names
             likes_df = likes_df.reset_index()
         summarizer = cls("surrogates", "surrogates", "predictions", true_name=label_name, test_names=test_names)
-        return summarizer.make_summary_data(perf_df=df, surrogate_df=likes_df)
+        return summarizer.make_summary_data(perf_df=df, surrogate_df=likes_df,warnings=warnings)
 
     def __init__(self, surrogate_surrogate_col_name: str,
                  surrogate_perf_col_name: str,
@@ -983,7 +984,7 @@ class SummaryData:
             # return False
         return True
 
-    def make_summary_data(self, perf_df: pd.DataFrame, surrogate_df: pd.DataFrame = None):
+    def make_summary_data(self, perf_df: pd.DataFrame, surrogate_df: pd.DataFrame = None,warnings=True):
         """
         Function that merges two dfs to make a surrogate-based summary file that includes confusion matrix ratios.
         Arguments:
@@ -994,7 +995,7 @@ class SummaryData:
         self.check_surrogate_data(surrogate_df)
         merged_data = perf_df.merge(surrogate_df, left_on=self.surrogate_perf_col_name(),
                                     right_on=self.surrogate_surrogate_col_name())
-        self.check_merged_data(merged_data, perf_df)
+        self.check_merged_data(merged_data, perf_df,warnings)
 
         # Create accuracy columns that measure true positive, true negative etc
         accuracy_df = pd.concat([merged_data[self.surrogate_surrogate_col_name()],
