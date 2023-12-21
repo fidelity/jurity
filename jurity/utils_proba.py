@@ -58,9 +58,9 @@ def check_memberships_proba_df(memberships_df: pd.DataFrame, unique_surrogate_li
     if membership_names is None:
         membership_names = memberships_df.columns
     sum_to_one = pd.Series(memberships_df.sum(axis=1)).apply(lambda x: math.isclose(x, 1.0))
-    check_true(len(unique_surrogate_list) == memberships_df.shape[0],
+    check_true(len(unique_surrogate_list) <= memberships_df.shape[0],
                InputShapeError("", "Memberships dataframe must have one row per surrogate class."))
-    check_true(set(memberships_df.index.values) == unique_surrogate_list,
+    check_true(unique_surrogate_list.issubset(memberships_df.index.values),
                InputShapeError("", "Memberships dataframe must have an index with surrogate values"))
     check_true(memberships_df.shape[1] == len(membership_names),
                InputShapeError("", "Memberships dataframe must have one column per protected class name."))
@@ -681,7 +681,7 @@ class BiasCalcFromDataFrame:
             raise ValueError("weight name: {0} are not in dataframe.".format(self._weight_name))
         return df[self._weight_name].to_numpy(dtype='f')
 
-    def get_bias_calculator(self, df: pd.DataFrame, min_weight: int = 30, weight_warnings: bool = True):
+    def get_bias_calculator(self, df: pd.DataFrame, min_weight: int = 0, weight_warnings: bool = True):
         """
         Make bias calculator.
         Arguments:
@@ -689,10 +689,10 @@ class BiasCalcFromDataFrame:
             min_weight: surrogate classes that are smaller than this value will be dropped.
             weight_warnings: Whether to print warnings when too many rows are dropped from surrogate class matrix
         """
-        if min_weight < 10:
+        if min_weight < 5:
             if weight_warnings:
-                warnings.warn("Recommended minimum count for surrogate class is 30. "
-                              "Minimum weights of less than 10 will give unstable results.")
+                warnings.warn("Recommended minimum count for surrogate class is 5. "
+                              "Minimum weights of less than 5 will give unstable results.")
 
         if self.weight_name() in df.columns:
             subset = df[df[self._weight_name] >= min_weight]
