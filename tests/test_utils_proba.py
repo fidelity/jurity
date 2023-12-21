@@ -397,7 +397,6 @@ class UtilsProbaSimulator:
         return self._rng
 
     # For the simulation, build "True" protected groups based on population
-    # Note; The census data names the columns as follows:
     def assign_protected(self, population_data, generator,
                          membership_values=["W", "O", "B", "T", "A", "AI"]):
         # Passing in the global random number generator
