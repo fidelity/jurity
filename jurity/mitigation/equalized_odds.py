@@ -99,9 +99,17 @@ class EqualizedOdds(_BaseMitigation):
 
         # Save fairness probabilities
         self.p2p_prob_0 = variables_0["p2p"].value
+        if isinstance(self.p2p_prob_0,np.ndarray):
+            self.p2p_prob_0=self.p2p_prob_0.item()
         self.n2p_prob_0 = variables_0["n2p"].value
+        if isinstance(self.n2p_prob_0,np.ndarray):
+            self.n2p_prob_0=self.n2p_prob_0.item()
         self.p2p_prob_1 = variables_1["p2p"].value
+        if isinstance(self.p2p_prob_1,np.ndarray):
+            self.p2p_prob_1=self.p2p_prob_1.item()
         self.n2p_prob_1 = variables_1["n2p"].value
+        if isinstance(self.n2p_prob_1,np.ndarray):
+            self.n2p_prob_1=self.n2p_prob_1.item()
 
     def fit_transform(self,
                       labels: Union[List, np.ndarray, pd.Series],
@@ -227,7 +235,7 @@ class EqualizedOdds(_BaseMitigation):
         p2p = cvx.Variable(1)
         n2p = cvx.Variable(1)
         n2n = cvx.Variable(1)  # trivially equals to 1 - n2p
-        p2n = cvx.Variable(1)  # trivially equals to 1 - p2p
+        p2n = cvx.Variable(1) # trivially equals to 1 - p2p
 
         # Baseline label-wise FNR, FPR, TPR, TNR for the group
         tpr, fpr, tnr, fnr = self._get_label_wise_rates(labels, predictions)

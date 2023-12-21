@@ -1,12 +1,9 @@
 import unittest
-import warnings
-
 import numpy.random
 import sklearn
 import pandas as pd
 import numpy as np
 import inspect
-from scipy.stats import kstest
 from jurity.utils_proba import BiasCalculator, BiasCalcFromDataFrame, SummaryData
 from jurity.utils_proba import unpack_bootstrap, check_memberships_proba_df
 from jurity.utils import Constants
@@ -186,7 +183,7 @@ class TestUtilsProba(unittest.TestCase):
         """
         Test that make_bias_calculator filters rows with small counts
         """
-        bc_filtered = self.bcfd.get_bias_calculator(self.summarized_df, 7)
+        bc_filtered = self.bcfd.get_bias_calculator(self.summarized_df, 7,weight_warnings=False)
         self.assertEqual(bc_filtered.X().shape[0], 3)
 
     def test_make_bias_calculator_names(self):
@@ -220,17 +217,17 @@ class TestUtilsProba(unittest.TestCase):
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1,weight_warnings=False)
         fac = BiasCalcFromDataFrame(["W", "B", "O"], "N", [1, 2],
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio, "hello world"])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1, weight_warnings=False)
         fac = BiasCalcFromDataFrame(["W", "B", "O"], "hello world", [1, 2],
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1,weight_warnings=False)
 
     def test_summary(self):
         predictions = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
@@ -398,9 +395,11 @@ class UtilsProbaSimulator:
 
     # For the simulation, build "True" protected groups based on population
     def assign_protected(self, population_data, generator,
-                         membership_values=["W", "O", "B", "T", "A", "AI"]):
+                         membership_values=None):
         # Passing in the global random number generator
         # Lets us make sure that we're not accidentally resetting the seed
+        if membership_values is None:
+            membership_values=["W", "O", "B", "T", "A", "AI"]
         surrogate_protected_prob_grouped = population_data.groupby(self.surrogate_name())
         surrogate_groups = []
         for name, group in surrogate_protected_prob_grouped:
@@ -646,7 +645,7 @@ class TestWithSimulation(unittest.TestCase):
         cls.rates_dict = {"W": {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1},
                           "B": {"pct_positive": 0.2, "fpr": 0.2, "fnr": 0.35},
                           'O': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1}}
-        #Make simulator here
+
         cls.rng = np.random.default_rng(347123)
         cls.sim=UtilsProbaSimulator(cls.rates_dict,in_rng=cls.rng)
         cls.surrogate_df = input_df[["surrogate", "W", "B", "O"]]
@@ -655,6 +654,22 @@ class TestWithSimulation(unittest.TestCase):
                                            cls.test_data["surrogate"], cls.test_data["label"])
 
         cls.bc = BiasCalculator.from_df(summary_df, [1, 2], ["W", "B", "O"])
+    def test_membership_as_df(self):
+        """
+        Check output from get_bootstrap_results when inputs are a surrogate dataframe
+        """
+        results = get_bootstrap_results(self.test_data["prediction"], self.surrogate_df.set_index("surrogate"),
+                                        self.test_data["surrogate"], [1, 2], self.test_data["label"])
+
+        self.assertTrue(isinstance(results, pd.DataFrame), "get_bootstrap_results does not return a Pandas DataFrame.")
+        self.assertTrue(
+            {Constants.FPR, Constants.FNR, Constants.TNR, Constants.TPR, Constants.ACC}.issubset(set(results.columns)),
+            "get_bootstrap_results does not return a dataframe with all expected binary metrics. Columns in DataFrame are:{0}".format(
+                results.columns))
+        self.assertTrue(set(results.index.values) == set(self.surrogate_df.drop(["surrogate"], axis=1).columns),
+                        "get_bootstrap_results does not return a dataframe with rows index equal to the columns of input surrogate dataframe.\n"
+                        "returned rows are:{0}\n"
+                        "returned columns are: {1}\n".format(results.index.values, self.surrogate_df.columns))
 
     @classmethod
     def boot_stats(self, n_boots, n_loops):
@@ -722,21 +737,7 @@ class TestWithSimulation(unittest.TestCase):
             check_series.name = n + "_ok"
             self.assertTrue(np.all(check_series.values),
                             f"{n} is out of range, on mean of {n_loops}, of {n_boots} bootstraps.")
-    def test_membership_as_df(self):
-        """
-        Check output from get_bootstrap_results when inputs are a surrogate dataframe
-        """
-        results = get_bootstrap_results(self.test_data["prediction"], self.surrogate_df.set_index("surrogate"),
-                                        self.test_data["surrogate"], [1, 2], self.test_data["label"])
-        self.assertTrue(isinstance(results, pd.DataFrame), "get_bootstrap_results does not return a Pandas DataFrame.")
-        self.assertTrue(
-            {Constants.FPR, Constants.FNR, Constants.TNR, Constants.TPR, Constants.ACC}.issubset(set(results.columns)),
-            "get_bootstrap_results does not return a dataframe with all expected binary metrics. Columns in DataFrame are:{0}".format(
-                results.columns))
-        self.assertTrue(set(results.index.values) == set(self.surrogate_df.drop(["surrogate"], axis=1).columns),
-                        "get_bootstrap_results does not return a dataframe with rows index equal to the columns of input surrogate dataframe.\n"
-                        "returned rows are:{0}\n"
-                        "returned columns are: {1}\n".format(results.index.values, self.surrogate_df.columns))
+
     def test_get_all_scores(self):
         """
         Test get_all_scores to make sure it returns scores for the values it's supposed to return
