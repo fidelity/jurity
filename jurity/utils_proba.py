@@ -681,7 +681,7 @@ class BiasCalcFromDataFrame:
             raise ValueError("weight name: {0} are not in dataframe.".format(self._weight_name))
         return df[self._weight_name].to_numpy(dtype='f')
 
-    def get_bias_calculator(self, df: pd.DataFrame, min_weight: int = 0, weight_warnings: bool = True):
+    def get_bias_calculator(self, df: pd.DataFrame, min_weight: int = 5, weight_warnings: bool = True):
         """
         Make bias calculator.
         Arguments:
