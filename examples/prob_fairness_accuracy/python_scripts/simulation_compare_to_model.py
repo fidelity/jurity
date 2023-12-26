@@ -1,4 +1,10 @@
-#Simulations
+#Simulationed data: Model-based assignment to protected class vs probabilistic fairness
+# One of the claims in the paper is that model-based fairness metrics are biased,
+# and that the degree of bias is a function of the PPV (positive predictive value/precision)
+# and NPV (negative predctive value) of the models that predicts protected status.
+# This simulation demonstrates the difference between probabilistic estimates and
+# model-based estimates for a given input data file (located in ../input_data.surrogate_inputscsv)
+
 import pandas as pd
 import numpy as np
 import math
@@ -47,8 +53,14 @@ def performance_measures(ground_truth: np.ndarray,
             Constants.FOR: fn / (fn + tn) if (fn + tn) > 0.0 else Constants.float_null,
             Constants.ACC: (tp + tn) / (p + n) if (p + n) > 0.0 else Constants.float_null}
 
+#If true, only simulate a small dataframe. Used to test simulation syntax.
 testing_simulation=False
 n_runs=30
+
+# The test_utils_proba.py test file in jurity/tests contains a class called
+# UtilsProbaSimulator, which can simulate the confusion matrix from an unfair model for different classes.
+# Simulation is explained in :
+
 fair_sim=UtilsProbaSimulator({'not_protected': {'pct_positive': 0.2, 'fnr': 0.1, 'fpr': 0.2},'protected': {'pct_positive': 0.2, 'fnr': 0.1, 'fpr': 0.2}},surrogate_name="ZIP")
 slightly_unfair_sim=UtilsProbaSimulator({'not_protected': {'pct_positive': 0.2, 'fnr': 0.1, 'fpr': 0.2}, 'protected': {'pct_positive': 0.1, 'fnr': 0.35, 'fpr': 0.1}},surrogate_name="ZIP")
 moderately_unfair_sim=UtilsProbaSimulator({'not_protected': {'pct_positive': 0.3, 'fnr': 0.1, 'fpr': 0.3}, 'protected': {'pct_positive': 0.1, 'fnr': 0.45, 'fpr': 0.1}},surrogate_name="ZIP")
@@ -63,7 +75,8 @@ else:
            "moderately_unfair":moderately_unfair_sim,
            "very_unfair":very_unfair_sim,
            "extremely_unfair":extremely_unfair_sim}
-surrogates=pd.read_csv('./supporting_data/sampled_surrogate_inputs.csv')
+#Location of input and output files
+surrogates=pd.read_csv('../input_data/sampled_surrogate_inputs.csv')
 if testing_simulation:
     prob_output_string = '~/Documents/data/jurity_tests/simulations//model_v_prob/{0}_prob_simulation_{1}_surrogates_{2}_count_test.csv'
     model_output_string = '~/Documents/data/jurity_tests/simulations/model_v_prob/{0}_model_simulation_{1}_surrogates_{2}_count_test.csv'

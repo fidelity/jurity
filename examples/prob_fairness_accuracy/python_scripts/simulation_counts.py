@@ -1,4 +1,4 @@
-#Simulations
+#Simulation inspecting probabilistic fairness performance for different sample sizes.
 import pandas as pd
 import numpy as np
 import math
@@ -6,8 +6,6 @@ import sys
 sys.path.append('../../jurity/tests')
 sys.path.append('../../jurity/jurity')
 from jurity.fairness import BinaryFairnessMetrics as bfm
-from utils import performance_measures
-
 
 from test_utils_proba import UtilsProbaSimulator
 testing_simulation=False
