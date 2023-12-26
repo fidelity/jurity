@@ -502,14 +502,14 @@ class TestWithSimulation(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         input_df = pd.DataFrame({"surrogate": list(range(0, 99)),
-                                 "count": [83, 103, 96, 96, 102, 117, 95, 107, 106, 109, 92, 95, 105,
-                                           87, 114, 99, 99, 85, 119, 110, 97, 87, 123, 90, 90, 107,
-                                           85, 91, 111, 108, 89, 107, 91, 95, 119, 125, 86, 95, 121,
-                                           103, 99, 97, 88, 106, 96, 90, 101, 102, 99, 119, 102, 93,
-                                           105, 97, 100, 97, 88, 98, 93, 112, 91, 92, 93, 90, 109,
-                                           99, 98, 106, 115, 97, 110, 93, 85, 116, 92, 115, 88, 108,
-                                           106, 118, 114, 96, 97, 94, 96, 85, 96, 91, 101, 89, 97,
-                                           99, 86, 106, 112, 112, 114, 108, 104],
+                                 "count": [473, 516, 529, 497, 476, 529, 493, 497, 503, 490, 507, 514, 524,
+                                           485, 470, 513, 501, 505, 488, 510, 518, 501, 506, 484, 493, 504,
+                                           477, 537, 491, 535, 517, 472, 510, 478, 518, 449, 503, 503, 509,
+                                           537, 504, 533, 493, 482, 495, 497, 495, 465, 501, 512, 468, 470,
+                                           549, 510, 503, 524, 496, 526, 481, 478, 557, 487, 511, 493, 486,
+                                           517, 497, 517, 504, 472, 500, 493, 494, 504, 464, 543, 513, 486,
+                                           488, 485, 486, 480, 519, 494, 509, 501, 494, 515, 522, 500, 532,
+                                           512, 490, 486, 516, 495, 530, 542, 588],
                                  "W": [0.36137754, 0.83653862, 0.98303716, 0.52943704, 0.80254777,
                                        0.86131181, 0.78572192, 0.79557292, 0.94314381, 0.98431145,
                                        0.97623762, 0.93004508, 0.94375, 0.87960053, 0.9400488,
@@ -694,12 +694,12 @@ class TestWithSimulation(unittest.TestCase):
         # The variance-covariance matrix of a linear estimator based on input X is:
         invxTx = np.linalg.inv(np.dot(x.T, x))
 
-        pred_matrix = np.array([[1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [1.0, 0.0, 1.0]])
+        pred_matrix=np.array([[1.0,0.0,0.0],[1.0,1.0,0.0],[1.0,0.0,1.0]])
         # The variance-covariance matrix  of a linear calculation based on a prediction matrix is as follows.
         # Only need the diagonal for this calculation
-        x_portion_variance = pd.Series(np.diag(np.dot(np.dot(pred_matrix, invxTx), pred_matrix.T)))
+        x_portion_variance = pd.Series(np.diag(np.dot(np.dot(pred_matrix, invxTx), pred_matrix.T)),
+                                       index = self.bc.all_class_labels())
         x_portion_variance.name = 'x_var'
-        x_portion_variance.index = self.bc.all_class_labels()
 
         # Get confusion matrix probabilities and variances from input rates_dict.
         in_vars_dict = {}
