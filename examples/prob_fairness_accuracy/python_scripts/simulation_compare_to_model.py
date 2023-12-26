@@ -9,8 +9,8 @@ import pandas as pd
 import numpy as np
 import math
 import sys
-sys.path.append('../../jurity/tests')
-sys.path.append('../../jurity/jurity')
+sys.path.append('../../tests')
+sys.path.append('../../jurity')
 from jurity.fairness import BinaryFairnessMetrics as bfm
 from constants import Constants
 from sklearn.metrics import confusion_matrix
