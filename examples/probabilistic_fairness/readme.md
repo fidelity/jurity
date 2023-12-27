@@ -3,9 +3,9 @@ This folder contains the files necessary to reproduce the results from
 academic papers demonstrating the accuracy of probabilistic 
 fairness under different sample sizes. Probabilistic fairness is a technique 
 unique to jurity that allows users to calculate fairness metrics when protected status is 
-unknown but a <i>surrogate class</i> is available. A surrogate class is 
-an alternative feature that divides the population into groups and where the probability 
-of protected class membership is known given the surrogate class.
+unknown but a surrogate class feature is available. A <i>surrogate</i> class divides 
+the population into groups where 
+the probability of protected class membership is known given the surrogate class membership.
 
 Probabilistic fairness, its accuracy, and the simulation method used in
 these demonstrations are detailed in 

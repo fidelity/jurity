@@ -6,8 +6,8 @@ import sys
 sys.path.append('../../jurity/tests')
 sys.path.append('../../jurity/jurity')
 from jurity.fairness import BinaryFairnessMetrics as bfm
-
 from test_utils_proba import UtilsProbaSimulator
+output_path='~/Documents/data/jurity_tests/simulations/sample_size/min_weight_0/'
 testing_simulation=False
 n_runs=30
 avg_counts=[5,10,20,30,40]
@@ -26,9 +26,9 @@ scenarios={"fair":fair_sim,
 surrogates=pd.read_csv('./supporting_data/surrogate_inputs.csv')
 surrogates["ZIP"]=surrogates["ZIP"].astype(int)
 if testing_simulation:
-    output_string = '~/Documents/data/jurity_tests/simulations/sample_size/min_weight_0/{0}_simulation_count_{1}_test_surrogates_{2}.csv'
+    output_string = output_path+'{0}_simulation_count_{1}_test_surrogates_{2}.csv'
 else:
-    output_string = '~/Documents/data/jurity_tests/simulations/sample_size/min_weight_0/{0}_simulation_count_{1}_surrogates_{2}.csv'
+    output_string = output_path+'sample_size/min_weight_0/{0}_simulation_count_{1}_surrogates_{2}.csv'
 
 def run_one_sim(test_data,membership_df):
     #Sometimes the sub-sampling leads to data errors.

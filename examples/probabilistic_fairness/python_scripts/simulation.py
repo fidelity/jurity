@@ -6,8 +6,10 @@ import sys
 sys.path.append('../../jurity/tests')
 sys.path.append('../../jurity/jurity')
 from jurity.fairness import BinaryFairnessMetrics as bfm
-
 from test_utils_proba import UtilsProbaSimulator
+
+output_path='~/Documents/data/jurity_tests/simulations/'
+
 testing_simulation=False
 n_runs=30
 avg_counts=[30,50]
@@ -22,11 +24,11 @@ scenarios={"fair":fair_sim,
            "moderately_unfair":moderately_unfair_sim,
            "very_unfair":very_unfair_sim,
            "extremely_unfair":extremely_unfair_sim}
-surrogates=pd.read_csv('./supporting_data/surrogate_inputs.csv')
+surrogates=pd.read_csv('../input_data/surrogate_inputs.csv')
 if testing_simulation:
-    output_string = '~/Documents/data/jurity_tests/simulations/{0}_simulation_count_{1}_surrogates_{2}_test.csv'
+    output_string = output_path+'{0}_simulation_count_{1}_surrogates_{2}_test.csv'
 else:
-    output_string = '~/Documents/data/jurity_tests/simulations/{0}_simulation_count_{1}_surrogates_{2}.csv'
+    output_string = output_path+'{0}_simulation_count_{1}_surrogates_{2}.csv'
 
 def run_one_sim(simulator, membership_df,count_mean,rng=np.random.default_rng()):
     membership_df["count"]=pd.Series(rng.poisson(lam=count_mean,size=membership_df.shape[0]))
@@ -36,7 +38,6 @@ def run_one_sim(simulator, membership_df,count_mean,rng=np.random.default_rng())
     prob_metrics=bfm.get_all_scores(test_data["label"],test_data["prediction"],
                    membership_df.set_index("ZIP")[["not_protected","protected"]],
                    test_data["ZIP"],[1]).rename(columns={"Value":"probabilistic_estimate"})
-    #TODO: Add simulation for argmax
     predicted_class=test_data[["not_protected","protected"]].values.tolist()
     argmax_metrics=bfm.get_all_scores(test_data["label"].values,test_data["prediction"].values,
                                      predicted_class).rename(columns={"Value":"argmax_estimate"})
