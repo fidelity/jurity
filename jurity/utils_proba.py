@@ -697,8 +697,7 @@ class BiasCalcFromDataFrame:
         if self.weight_name() in df.columns:
             subset = df[df[self._weight_name] >= min_weight]
             if weight_warnings:
-                print("{0} rows removed from datafame for insufficient weight values" \
-                      .format(df.shape[0] - subset.shape[0]))
+                warnings.warn("{0} rows removed from datafame for insufficient weight values".format(df.shape[0] - subset.shape[0]))
             if subset.shape[0] < len(self.class_names()):
                 raise WeightTooLarge("Input dataframe does not have enough rows to estimate surrogate classes "
                                      "reduce minimum weight.")
@@ -791,7 +790,7 @@ class SummaryData:
             likes_df.columns = membership_names
             likes_df = likes_df.reset_index()
         summarizer = cls("surrogates", "surrogates", "predictions", true_name=label_name, test_names=test_names)
-        return summarizer.make_summary_data(perf_df=df, surrogate_df=likes_df,warnings=warnings)
+        return summarizer.make_summary_data(perf_df=df, surrogate_df=likes_df, warnings=warnings)
 
     def __init__(self, surrogate_surrogate_col_name: str,
                  surrogate_perf_col_name: str,
@@ -896,7 +895,7 @@ class SummaryData:
             n_unique_ids = df[id_col_name].nunique()
             if not n_rows == n_unique_ids:
                 raise Warning(f"Number of unique ids in {df_name} is: {n_unique_ids} but number of rows is {n_rows}")
-        print(f"There are {n_rows} in {df_name}.")
+        # print(f"There are {n_rows} in {df_name}.")
         names = df.columns
         if not set(needed_names).issubset(set(names)):
             raise ValueError("Some necessary columns not in {0} data: {1} are missing.".format(df_name, list(
@@ -981,7 +980,7 @@ class SummaryData:
             # return False
         return True
 
-    def make_summary_data(self, perf_df: pd.DataFrame, surrogate_df: pd.DataFrame = None,warnings=True):
+    def make_summary_data(self, perf_df: pd.DataFrame, surrogate_df: pd.DataFrame = None, warnings=True):
         """
         Function that merges two dfs to make a surrogate-based summary file that includes confusion matrix ratios.
         Arguments:
@@ -992,7 +991,7 @@ class SummaryData:
         self.check_surrogate_data(surrogate_df)
         merged_data = perf_df.merge(surrogate_df, left_on=self.surrogate_perf_col_name(),
                                     right_on=self.surrogate_surrogate_col_name())
-        self.check_merged_data(merged_data, perf_df,warnings)
+        self.check_merged_data(merged_data, perf_df, warnings)
 
         # Create accuracy columns that measure true positive, true negative etc
         accuracy_df = pd.concat([merged_data[self.surrogate_surrogate_col_name()],

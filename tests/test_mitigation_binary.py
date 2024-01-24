@@ -155,11 +155,11 @@ class TestBinaryMitigation(unittest.TestCase):
         p2p_prob_1 = mitigation.p2p_prob_1
         n2p_prob_1 = mitigation.n2p_prob_1
 
-        # Convert types
-        p2p_prob_0 = p2p_prob_0
-        n2p_prob_0 = n2p_prob_0
-        p2p_prob_1 = p2p_prob_1
-        n2p_prob_1 = n2p_prob_1
+        # # Convert types
+        # p2p_prob_0 = p2p_prob_0
+        # n2p_prob_0 = n2p_prob_0
+        # p2p_prob_1 = p2p_prob_1
+        # n2p_prob_1 = n2p_prob_1
 
         self.assertAlmostEqual(p2p_prob_0, 0.8429378)
         self.assertAlmostEqual(n2p_prob_0, 1.)
@@ -188,11 +188,11 @@ class TestBinaryMitigation(unittest.TestCase):
         p2p_prob_1 = mitigation.p2p_prob_1
         n2p_prob_1 = mitigation.n2p_prob_1
 
-        # Convert types
-        p2p_prob_0 = p2p_prob_0
-        n2p_prob_0 = n2p_prob_0
-        p2p_prob_1 = p2p_prob_1
-        n2p_prob_1 = n2p_prob_1
+        # # Convert types
+        # p2p_prob_0 = p2p_prob_0
+        # n2p_prob_0 = n2p_prob_0
+        # p2p_prob_1 = p2p_prob_1
+        # n2p_prob_1 = n2p_prob_1
 
         self.assertAlmostEqual(p2p_prob_0, 0.819513)
         self.assertAlmostEqual(n2p_prob_0, 1.)
