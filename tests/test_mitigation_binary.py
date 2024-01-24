@@ -150,21 +150,10 @@ class TestBinaryMitigation(unittest.TestCase):
 
         mitigation.fit(labels, predictions, likelihoods, is_member)
 
-        p2p_prob_0 = mitigation.p2p_prob_0
-        n2p_prob_0 = mitigation.n2p_prob_0
-        p2p_prob_1 = mitigation.p2p_prob_1
-        n2p_prob_1 = mitigation.n2p_prob_1
-
-        # # Convert types
-        # p2p_prob_0 = p2p_prob_0
-        # n2p_prob_0 = n2p_prob_0
-        # p2p_prob_1 = p2p_prob_1
-        # n2p_prob_1 = n2p_prob_1
-
-        self.assertAlmostEqual(p2p_prob_0, 0.8429378)
-        self.assertAlmostEqual(n2p_prob_0, 1.)
-        self.assertAlmostEqual(p2p_prob_1, 1.)
-        self.assertAlmostEqual(n2p_prob_1, 0.8893096)
+        self.assertAlmostEqual(mitigation.p2p_prob_0, 0.8429378)
+        self.assertAlmostEqual(mitigation.n2p_prob_0, 1.)
+        self.assertAlmostEqual(mitigation.p2p_prob_1, 1.)
+        self.assertAlmostEqual(mitigation.n2p_prob_1, 0.8893096)
 
     def test_numerical_stability_mixing_rate_large(self):
 
@@ -183,21 +172,10 @@ class TestBinaryMitigation(unittest.TestCase):
 
         mitigation.fit(labels, predictions, likelihoods, is_member)
 
-        p2p_prob_0 = mitigation.p2p_prob_0
-        n2p_prob_0 = mitigation.n2p_prob_0
-        p2p_prob_1 = mitigation.p2p_prob_1
-        n2p_prob_1 = mitigation.n2p_prob_1
-
-        # # Convert types
-        # p2p_prob_0 = p2p_prob_0
-        # n2p_prob_0 = n2p_prob_0
-        # p2p_prob_1 = p2p_prob_1
-        # n2p_prob_1 = n2p_prob_1
-
-        self.assertAlmostEqual(p2p_prob_0, 0.819513)
-        self.assertAlmostEqual(n2p_prob_0, 1.)
-        self.assertAlmostEqual(p2p_prob_1, 0.644566)
-        self.assertAlmostEqual(n2p_prob_1, 1.)
+        self.assertAlmostEqual(mitigation.p2p_prob_0, 0.819513)
+        self.assertAlmostEqual(mitigation.n2p_prob_0, 1.)
+        self.assertAlmostEqual(mitigation.p2p_prob_1, 0.644566)
+        self.assertAlmostEqual(mitigation.n2p_prob_1, 1.)
 
     def test_numerical_stability_bias_mitigation(self):
 

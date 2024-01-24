@@ -97,19 +97,24 @@ class EqualizedOdds(_BaseMitigation):
         # Solve
         prob.solve()
 
-        # Save fairness probabilities
+        # Save fairness probabilities (cvxpy value is a numpy array or None)
         self.p2p_prob_0 = variables_0["p2p"].value
-        if isinstance(self.p2p_prob_0,np.ndarray):
-            self.p2p_prob_0=self.p2p_prob_0.item()
         self.n2p_prob_0 = variables_0["n2p"].value
-        if isinstance(self.n2p_prob_0,np.ndarray):
-            self.n2p_prob_0=self.n2p_prob_0.item()
         self.p2p_prob_1 = variables_1["p2p"].value
-        if isinstance(self.p2p_prob_1,np.ndarray):
-            self.p2p_prob_1=self.p2p_prob_1.item()
         self.n2p_prob_1 = variables_1["n2p"].value
-        if isinstance(self.n2p_prob_1,np.ndarray):
-            self.n2p_prob_1=self.n2p_prob_1.item()
+
+        # Get the scalar/primitive value unless it is None
+        if isinstance(self.p2p_prob_0, np.ndarray):
+            self.p2p_prob_0 = self.p2p_prob_0[0]
+
+        if isinstance(self.n2p_prob_0, np.ndarray):
+            self.n2p_prob_0 = self.n2p_prob_0[0]
+
+        if isinstance(self.p2p_prob_1, np.ndarray):
+            self.p2p_prob_1 = self.p2p_prob_1[0]
+
+        if isinstance(self.n2p_prob_1, np.ndarray):
+            self.n2p_prob_1 = self.n2p_prob_1[0]
 
     def fit_transform(self,
                       labels: Union[List, np.ndarray, pd.Series],
