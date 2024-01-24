@@ -183,7 +183,7 @@ class TestUtilsProba(unittest.TestCase):
         """
         Test that make_bias_calculator filters rows with small counts
         """
-        bc_filtered = self.bcfd.get_bias_calculator(self.summarized_df, 7,weight_warnings=False)
+        bc_filtered = self.bcfd.get_bias_calculator(self.summarized_df, 7, weight_warnings=False)
         self.assertEqual(bc_filtered.X().shape[0], 3)
 
     def test_make_bias_calculator_names(self):
@@ -217,7 +217,7 @@ class TestUtilsProba(unittest.TestCase):
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1,weight_warnings=False)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1, weight_warnings=False)
         fac = BiasCalcFromDataFrame(["W", "B", "O"], "N", [1, 2],
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
@@ -227,7 +227,7 @@ class TestUtilsProba(unittest.TestCase):
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1,weight_warnings=False)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1, weight_warnings=False)
 
     def test_summary(self):
         predictions = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
