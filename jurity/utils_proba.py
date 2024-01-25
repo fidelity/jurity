@@ -59,7 +59,7 @@ def check_memberships_proba_df(memberships_df: pd.DataFrame, unique_surrogate_li
         membership_names = memberships_df.columns
     sum_to_one = pd.Series(memberships_df.sum(axis=1)).apply(lambda x: math.isclose(x, 1.0))
     check_true(len(unique_surrogate_list) <= memberships_df.shape[0],
-               InputShapeError("", "Memberships dataframe must have one row per surrogate class."))
+               InputShapeError("", "Unique surrogates in cannot exceed the number surrogate memberships."))
     check_true(unique_surrogate_list.issubset(memberships_df.index.values),
                InputShapeError("", "Memberships dataframe must have an index with surrogate values"))
     check_true(memberships_df.shape[1] == len(membership_names),
@@ -697,7 +697,8 @@ class BiasCalcFromDataFrame:
         if self.weight_name() in df.columns:
             subset = df[df[self._weight_name] >= min_weight]
             if weight_warnings:
-                warnings.warn("{0} rows removed from datafame for insufficient weight values".format(df.shape[0] - subset.shape[0]))
+                warnings.warn("{0} rows removed from datafame for insufficient weight values".format(
+                    df.shape[0] - subset.shape[0]))
             if subset.shape[0] < len(self.class_names()):
                 raise WeightTooLarge("Input dataframe does not have enough rows to estimate surrogate classes "
                                      "reduce minimum weight.")
@@ -735,7 +736,7 @@ class SummaryData:
                   surrogates: Union[List, np.ndarray, pd.Series],
                   labels: Union[List, np.ndarray, pd.Series] = None,
                   membership_names: List[str] = None,
-                  warnings:bool = False) -> pd.DataFrame:
+                  warnings: bool = False) -> pd.DataFrame:
         """
         Return a summary dataframe suitable for bootstrap calculations.
         Arguments:
@@ -997,7 +998,7 @@ class SummaryData:
         accuracy_df = pd.concat([merged_data[self.surrogate_surrogate_col_name()],
                                  self.confusion_matrix_actual(merged_data, self.pred_name(), self.true_name())], axis=1)
         # Use calc_accuracy_metrics to create surrogate-level summary
-        #TODO: Accomodate cases where we don't have a binary classifier
+        # TODO: Accomodate cases where we don't have a binary classifier
         confusion_matrix_surrogate_summary = self.calc_accuracy_metrics(accuracy_df)
         self.check_surrogate_confusion_matrix(confusion_matrix_surrogate_summary, merged_data)
         return confusion_matrix_surrogate_summary.join(
@@ -1068,4 +1069,4 @@ class SummaryData:
                                    Constants.false_negative_ratio, Constants.false_positive_ratio]
             # Return a dataframe that has the stats by group. Use these to compare to expected values
         return check_accuracy[out_cols]
-    #TODO: Needs string method
+    # TODO: Needs string method
