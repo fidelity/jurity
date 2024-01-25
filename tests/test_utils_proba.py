@@ -1,12 +1,11 @@
 import unittest
-import warnings
-
+import numpy.random
 import sklearn
 import pandas as pd
 import numpy as np
-from scipy.stats import kstest
+import inspect
 from jurity.utils_proba import BiasCalculator, BiasCalcFromDataFrame, SummaryData
-from jurity.utils_proba import unpack_bootstrap
+from jurity.utils_proba import unpack_bootstrap, check_memberships_proba_df
 from jurity.utils import Constants
 from jurity.utils_proba import get_bootstrap_results
 
@@ -130,7 +129,8 @@ class TestUtilsProba(unittest.TestCase):
         """
         br = self.bc.transform_bootstrap_results(self.bc.run_bootstrap(5))
         self.assertEqual(br.shape, (3, 11), "Returned bootstrap has shape: {0}. Expected (3,11).".format(br.shape))
-        test_cols = [s in br.columns for s in [Constants.FPR, Constants.FNR, Constants.TPR, Constants.TNR, Constants.ACC, Constants.PRED_RATE]]
+        test_cols = [s in br.columns for s in
+                     [Constants.FPR, Constants.FNR, Constants.TPR, Constants.TNR, Constants.ACC, Constants.PRED_RATE]]
         self.assertTrue(np.all(test_cols), "Not all tests are returned by bootstrap transform")
 
     def test_transform_bootstrap_results_answer(self):
@@ -183,7 +183,7 @@ class TestUtilsProba(unittest.TestCase):
         """
         Test that make_bias_calculator filters rows with small counts
         """
-        bc_filtered = self.bcfd.get_bias_calculator(self.summarized_df, 7)
+        bc_filtered = self.bcfd.get_bias_calculator(self.summarized_df, 7, weight_warnings=False)
         self.assertEqual(bc_filtered.X().shape[0], 3)
 
     def test_make_bias_calculator_names(self):
@@ -217,17 +217,17 @@ class TestUtilsProba(unittest.TestCase):
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1, weight_warnings=False)
         fac = BiasCalcFromDataFrame(["W", "B", "O"], "N", [1, 2],
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio, "hello world"])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1, weight_warnings=False)
         fac = BiasCalcFromDataFrame(["W", "B", "O"], "hello world", [1, 2],
                                     [Constants.false_positive_ratio, Constants.true_positive_ratio,
                                      Constants.false_negative_ratio,
                                      Constants.true_negative_ratio])
-        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1)
+        self.assertRaises(ValueError, fac.get_bias_calculator, self.summarized_df, 1, weight_warnings=False)
 
     def test_summary(self):
         predictions = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
@@ -302,9 +302,11 @@ class TestUtilsProba(unittest.TestCase):
 
         for label, answer in answer_dict.items():
             self.assertEqual(unpack_bootstrap(test_boot_results, label, [1]),
-                (answer[1], answer[0]),
-                f"unpack bootstrap returns unexpected answer for {label}\n" +
-                "expected {0}, got {1} instead.".format(unpack_bootstrap(test_boot_results,label,[1]),(answer[1],answer[0])))
+                             (answer[1], answer[0]),
+                             f"unpack bootstrap returns unexpected answer for {label}\n" +
+                             "expected {0}, got {1} instead.".format(unpack_bootstrap(test_boot_results, label, [1]),
+                                                                     (answer[1], answer[0])))
+
     def test_unpack_bootstrap_err(self):
         test_unpack = self.bc.transform_bootstrap_results(self.test_boot_results)
         self.assertRaises(ValueError, unpack_bootstrap, test_unpack, "FNR", [1, 2])
@@ -312,26 +314,202 @@ class TestUtilsProba(unittest.TestCase):
     def test_from_df(self):
         self.assertRaises(ValueError, BiasCalculator.from_df, self.summarized_df,
                           [3], ["W", "B", "O"], weight_warnings=False)
+
+    def test_summarizer(self):
+        predictions = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
+        surrogates = [1, 1, 1, 2, 3, 3, 4, 5, 5, 5, 5]
+        labels = [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0]
+        memberships = pd.DataFrame(np.array([[0.5, 0.5], [0.2, 0.8],
+                                             [0.1, 0.9],
+                                             [0.25, 0.75],
+                                             [0.3, 0.7]]))
+        memberships.columns = ["C", "D"]
+        memberships["s"] = pd.Series([1, 2, 3, 4, 5])
+        summary = SummaryData.summarize(predictions, memberships.set_index("s"), surrogates, labels)
+        self.assertTrue(summary.shape[0] == 5, "Summarizer returns dataframe with wrong shape")
+        self.assertTrue(np.all(~summary["C"].apply(np.isnan)), "Summarizer inserts NaN values.")
+        self.assertTrue(np.all(~summary["D"].apply(np.isnan)), "Summarizer inserts NaN values.")
+        expected_cols={'prediction_ratio', 'count', 'true_negative_ratio',
+                        'true_positive_ratio', 'false_negative_ratio', 'false_positive_ratio',
+                        'surrogates', 'C', 'D'}
+        returned_cols=set(summary.columns)
+        self.assertTrue(expected_cols==returned_cols,
+                    f"Summary dataframe does not return correct columns. \nReturns: {returned_cols}. \nExpected: {expected_cols}")
+
     # TODO: Write tests for check_memberships_proba
+
+
+class UtilsProbaSimulator:
+    """
+    Simulation functions used to test probabilistic fairness.
+    Can be used by other researchers to simulate different levels of unfairness and test their own methods.
+    Members:
+    _rates_dict: Dictionary of dictionaries with expected fairness metrics for each protected class,
+        has the form: {"class1":{'pct_positive':float,'fpr':float,'fnr':float}, "class2":{'pct_positive'}...}
+    _surrogate_name: Name of surrogate column for input dataframe
+    rng: numpy random number generators. Set on initialization if you want to set the seed for your simulation
+    """
+    def __init__(self, model_rates_dict: dict,
+                 in_rng: numpy.random.Generator = None,
+                 surrogate_name: str ="surrogate"):
+        self.rates_dict(model_rates_dict)
+        self.surrogate_name(surrogate_name)
+        if in_rng is not None:
+            self.rng(in_rng)
+        else:
+            self._rng = numpy.random.default_rng()
+
+    def rates_dict(self, v=None):
+        """
+        Set and get rates_dict dictionary
+        """
+        if v is not None:
+            if not isinstance(v, dict):
+                raise ValueError("Rates must be a dictionary. Input rates has type: {0}".format(type(dict)))
+            for k,value in v.items():
+                if not set(value.keys()) == {"pct_positive", "fpr", "fnr"}:
+                    raise ValueError("Rates must have ".format("pct_positive", "fpr", "fnr"))
+                if not isinstance(k,str):
+                    raise ValueError("Keys for main dictionary must be strings")
+                for k2,value2 in value.items():
+                    if not isinstance(value2, float):
+                        raise ValueError("Rates must be floats.")
+            self._rates_dict = v
+        return self._rates_dict
+
+    def surrogate_name(self,v=None):
+        if not v is None:
+            if not isinstance(v,str):
+                raise ValueError("surrogate_name must be a string.\n {0} supplied intead.".format(type(v)))
+            self._surrogate_name=v
+        return self._surrogate_name
+    def rng(self, v=None):
+        """
+        Set and get random number generator
+        """
+        if v is not None:
+            if not isinstance(v, numpy.random.Generator):
+                raise ValueError("rng argument must be a numpy random number generator.")
+            self._rng = v
+        return self._rng
+
+    # For the simulation, build "True" protected groups based on population
+    def assign_protected(self, population_data, generator,
+                         membership_values=None):
+        # Passing in the global random number generator
+        # Lets us make sure that we're not accidentally resetting the seed
+        if membership_values is None:
+            membership_values=["W", "O", "B", "T", "A", "AI"]
+        surrogate_protected_prob_grouped = population_data.groupby(self.surrogate_name())
+        surrogate_groups = []
+        for name, group in surrogate_protected_prob_grouped:
+            probs = [group[v].unique()[0] for v in membership_values]
+            group["class"] = generator.choice(list(membership_values), len(group), p=probs)
+            surrogate_groups.append(group)
+        out_data = pd.concat(surrogate_groups)
+        return out_data
+
+    def assign_protected_and_accuracy(self, input_data, rates_by_protected, generator,
+                                      protected_name="class"):
+        # Assign everyone a "true" race for simulation purposes
+        if not set(rates_by_protected.keys()).issubset(set(input_data.columns)):
+            raise ValueError("Input dataframe does not have same column names as keys in rates.")
+        protected_assignments = self.assign_protected(input_data, generator,
+                                                      membership_values=list(rates_by_protected.keys()))
+        model_outcomes = self.model_outcome_by_protected(protected_assignments, rates_by_protected,
+                                                         protected_col_name=protected_name)
+        return model_outcomes
+
+    def confusion_matrix_prob(self, percent_positive, fpr, fnr, verbose=False):
+        """
+        Calculate the probability of any given individual falling into each quadrant of the confusion matrix
+        percent_positive: Percent of positive cases in the training data
+        fpr: False Positive Rate from the hypothetical model
+        fnr: False Negative Rate from the hypothetical model
+        """
+        fp_ratio = (1 - percent_positive) * fpr
+        fn_ratio = percent_positive * fnr
+        tn_ratio = (1 - percent_positive) - fp_ratio
+        tp_ratio = percent_positive - fn_ratio
+        probs = [fp_ratio, fn_ratio, tn_ratio, tp_ratio]
+        if verbose:
+            print("Expected FPR: " + str(fpr))
+            print("Expected FNR: " + str(fnr))
+            print("Expected TPR: " + str(tp_ratio / (tp_ratio + fn_ratio)))
+            print("Expected TNR: " + str(tn_ratio / (tn_ratio + fp_ratio)))
+            print("Expected Accuracy: " + str((tn_ratio + tp_ratio)))
+        # print("% of FP, FN, TN, TP among total: ")
+        return probs
+
+    def model_outcome_by_protected(self, protected_assignment, rates_by_protected,
+                                   protected_col_name="class"):
+        """
+        Assing each individual into a column of the confusion matrix based on probabilities for their class.
+        """
+        protected_prob_grouped = protected_assignment.groupby(protected_col_name)
+
+        classified_groups = []
+        for name, group in protected_prob_grouped:
+            rates_dict = rates_by_protected[name]
+            probs = self.confusion_matrix_prob(rates_dict["pct_positive"], rates_dict["fpr"], rates_dict["fnr"])
+            group['pred_category'] = np.random.choice(['fp', 'fn', 'tn', 'tp'], len(group), p=probs)
+            group['label'] = np.where(group['pred_category'].isin(['tp', 'fn']), 1, 0)
+            group['prediction'] = np.where(group['pred_category'].isin(['tp', 'fp']), 1, 0)
+            classified_groups.append(group)
+        classified_data = pd.concat(classified_groups)
+        return classified_data
+
+    # Add columns to a pandas dataframe flagging each row as false positive, etc.
+    def accuracy_columns(self, test_data: pd.DataFrame, pred_col: str, label_col:str)->pd.DataFrame:
+        """
+        Add indicators for each confusion matrix quadrant. Simplifies calculating rates.
+        test_data: Input dataframe
+        pred_col: Name of column with predicted class
+        label_col: Name of column with actual class
+        """
+        correct=(test_data[pred_col] == test_data[label_col]).astype(int)
+        correct.name="correct"
+        true_positive=(correct & (test_data[label_col] == 1)).astype(int)
+        true_positive.name="true_positive"
+        true_negative=(correct & (test_data[label_col] == 0)).astype(int)
+        true_negative.name="true_negative"
+        false_negative=(~(correct) & (test_data[pred_col] == 0)).astype(int)
+        false_negative.name="false_negative"
+        false_positive = (~(correct) & (test_data[pred_col] == 1)).astype(int)
+        false_positive.name="false_positive"
+        return pd.concat([test_data,correct,true_positive,true_negative,false_negative,false_positive],axis=1)
+
+    def explode_dataframe(self, df, count_name="count",surrogate_name="surrogate"):
+        """
+        Given a dataframe that has a count, produce a number of identical rows equal to that count
+        df: pd.DataFrame with columns: count, class_1, class_2, ...  Class names must match keys from
+        self._rates_dict
+        count_name; name of count variable.
+        """
+        names=list(self.rates_dict().keys())
+        if not set(names).issubset(df.columns):
+            raise ValueError(f"DataFrame column names do not match keys in rates dictionary. Rates dict has: {names}.")
+        check_memberships_proba_df(df[list(self.rates_dict().keys())],set(df.index.values),names)
+        e_df = df.loc[df.index.repeat(df[count_name])].drop("count", axis=1)
+        return self.assign_protected_and_accuracy(e_df, self._rates_dict, self._rng)
 
 
 # Simulations to ensure numbers accuracy
 class TestWithSimulation(unittest.TestCase):
     """
-    Helper functions 
+    Simulation tests for whether numbers are correct based on simulated inputs
     """
-
     @classmethod
     def setUpClass(cls) -> None:
         input_df = pd.DataFrame({"surrogate": list(range(0, 99)),
-                                 "count": [83, 103, 96, 96, 102, 117, 95, 107, 106, 109, 92, 95, 105,
-                                           87, 114, 99, 99, 85, 119, 110, 97, 87, 123, 90, 90, 107,
-                                           85, 91, 111, 108, 89, 107, 91, 95, 119, 125, 86, 95, 121,
-                                           103, 99, 97, 88, 106, 96, 90, 101, 102, 99, 119, 102, 93,
-                                           105, 97, 100, 97, 88, 98, 93, 112, 91, 92, 93, 90, 109,
-                                           99, 98, 106, 115, 97, 110, 93, 85, 116, 92, 115, 88, 108,
-                                           106, 118, 114, 96, 97, 94, 96, 85, 96, 91, 101, 89, 97,
-                                           99, 86, 106, 112, 112, 114, 108, 104],
+                                 "count": [473, 516, 529, 497, 476, 529, 493, 497, 503, 490, 507, 514, 524,
+                                           485, 470, 513, 501, 505, 488, 510, 518, 501, 506, 484, 493, 504,
+                                           477, 537, 491, 535, 517, 472, 510, 478, 518, 449, 503, 503, 509,
+                                           537, 504, 533, 493, 482, 495, 497, 495, 465, 501, 512, 468, 470,
+                                           549, 510, 503, 524, 496, 526, 481, 478, 557, 487, 511, 493, 486,
+                                           517, 497, 517, 504, 472, 500, 493, 494, 504, 464, 543, 513, 486,
+                                           488, 485, 486, 480, 519, 494, 509, 501, 494, 515, 522, 500, 532,
+                                           512, 490, 486, 516, 495, 530, 542, 588],
                                  "W": [0.36137754, 0.83653862, 0.98303716, 0.52943704, 0.80254777,
                                        0.86131181, 0.78572192, 0.79557292, 0.94314381, 0.98431145,
                                        0.97623762, 0.93004508, 0.94375, 0.87960053, 0.9400488,
@@ -469,117 +647,19 @@ class TestWithSimulation(unittest.TestCase):
                           'O': {"pct_positive": 0.1, "fpr": 0.1, "fnr": 0.1}}
 
         cls.rng = np.random.default_rng(347123)
-        cls.test_data = cls.explode_dataframe(input_df[["surrogate", "count", "W", "B", "O"]])
+        cls.sim=UtilsProbaSimulator(cls.rates_dict,in_rng=cls.rng)
         cls.surrogate_df = input_df[["surrogate", "W", "B", "O"]]
-        summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df,
+        cls.test_data = cls.sim.explode_dataframe(input_df[["surrogate", "count","W", "B", "O"]].set_index("surrogate")).reset_index()
+        summary_df = SummaryData.summarize(cls.test_data["prediction"], cls.surrogate_df.set_index("surrogate"),
                                            cls.test_data["surrogate"], cls.test_data["label"])
 
         cls.bc = BiasCalculator.from_df(summary_df, [1, 2], ["W", "B", "O"])
-
-    # For the simulation, build "True" protected groups based on population
-    # Note; The census data names the columns as follows:
-    # pct_white_zip, pct_black_zip, etc
-    # TODO: Need to use the census labels as keys in a dictionary or use some other method
-    # So we can continue to use this when the census data changes.
-    # TODO: REMOVE race terminology
-
-    @classmethod
-    def assign_protected(cls, population_data, generator, surrogate_name='surrogate',
-                         membership_values=["W", "O", "B", "T", "A", "AI"]):
-        # Passing in the global random number generator
-        # Lets us make sure that we're not accidentally resetting the seed
-        surrogate_protected_prob_grouped = population_data.groupby(surrogate_name)
-        surrogate_groups = []
-        for name, group in surrogate_protected_prob_grouped:
-            probs = [group[v].unique()[0] for v in membership_values]
-            group["class"] = generator.choice(list(membership_values), len(group), p=probs)
-            surrogate_groups.append(group)
-        out_data = pd.concat(surrogate_groups)
-        return out_data
-
-    @classmethod
-    def assign_protected_and_accuracy(cls, input_data, rates_by_protected, generator,
-                                      protected_name="class"):
-        # Assign everyone a "true" race for simulation purposes
-        protected_assignments = cls.assign_protected(input_data, generator,
-                                                     membership_values=list(rates_by_protected.keys()))
-        # Current simulation only handles 2 categories: white or not.
-        # protected_assignments["w"] = np.where(protected_assignments[protected_col_name] == protected_group, protected_group, "unprotected")
-        # Assign each individual a quadrant in the confusion matrix based on:
-        #   Percent of positive (not predict_pos_probs)
-        #   probability of being a false positive
-        #   probability of being a false negative
-        # These are different by race and fed into the simulation through indexes
-        # Index keys are the values in the race column, e.g. "White" and "Non-White"
-        model_outcomes = cls.model_outcome_by_protected(protected_assignments, rates_by_protected,
-                                                        protected_col_name=protected_name)
-        return model_outcomes
-
-    @classmethod
-    def confusion_matrix_prob(cls, percent_positive, fpr, fnr, verbose=False):
-        """
-        # This is the probability that the person is labeled as positive in the data
-        Calculate the % of False Positive, False Negative, True Negative, and True Positive in total based on predefined inputs.
-        """
-        fp_ratio = (1 - percent_positive) * fpr
-        fn_ratio = percent_positive * fnr
-        tn_ratio = (1 - percent_positive) - fp_ratio
-        tp_ratio = percent_positive - fn_ratio
-        probs = [fp_ratio, fn_ratio, tn_ratio, tp_ratio]
-        if verbose:
-            print("Expected FPR: " + str(fpr))
-            print("Expected FNR: " + str(fnr))
-            print("Expected TPR: " + str(tp_ratio / (tp_ratio + fn_ratio)))
-            print("Expected TNR: " + str(tn_ratio / (tn_ratio + fp_ratio)))
-            print("Expected Accuracy: " + str((tn_ratio + tp_ratio)))
-        # print("% of FP, FN, TN, TP among total: ")
-        return probs
-
-    @classmethod
-    def model_outcome_by_protected(cls, surrogate_protected_assignment, rates_by_protected, protected_col_name="class"):
-        # Assign true positive, true negative, etc by race
-        surrogate_protected_prob_grouped = surrogate_protected_assignment.groupby(protected_col_name)
-
-        classified_groups = []
-        for name, group in surrogate_protected_prob_grouped:
-            rates_dict = rates_by_protected[name]
-            probs = cls.confusion_matrix_prob(rates_dict["pct_positive"], rates_dict["fpr"], rates_dict["fnr"])
-            group['pred_category'] = np.random.choice(['fp', 'fn', 'tn', 'tp'], len(group), p=probs)
-            group['label'] = np.where(group['pred_category'].isin(['tp', 'fn']), 1, 0)
-            group['prediction'] = np.where(group['pred_category'].isin(['tp', 'fp']), 1, 0)
-            classified_groups.append(group)
-        classified_data = pd.concat(classified_groups)
-        return classified_data
-
-    @classmethod
-    # Add columns to a pandas dataframe flagging each row as false positive, etc.
-    def accuracy_columns(cls, test_data, pred_col, label_col):
-        """
-        Add indicators for each confusion matrix qudrant. Simplifies calculating rates.
-        """
-        test_data["correct"] = (test_data[pred_col] == test_data[label_col]).astype(int)
-        test_data["true_positive"] = (test_data["correct"] & (test_data[label_col] == 1)).astype(int)
-        test_data["true_negative"] = (test_data["correct"] & (test_data[label_col] == 0)).astype(int)
-        test_data["false_negative"] = (~(test_data["correct"]) & (test_data[pred_col] == 0)).astype(int)
-        test_data["false_positive"] = (~(test_data["correct"]) & (test_data[pred_col] == 1)).astype(int)
-        return test_data
-
-    @classmethod
-    def explode_dataframe(cls, df, count_name="count"):
-        """
-        Given a dataframe that has a count, produce a number of identical rows equal to that count
-        """
-        e_df = df.loc[df.index.repeat(df[count_name])].drop("count", axis=1)
-        return cls.assign_protected_and_accuracy(e_df, cls.rates_dict, cls.rng)
-
     def test_membership_as_df(self):
         """
         Check output from get_bootstrap_results when inputs are a surrogate dataframe
         """
         results = get_bootstrap_results(self.test_data["prediction"], self.surrogate_df.set_index("surrogate"),
                                         self.test_data["surrogate"], [1, 2], self.test_data["label"])
-
-        print(results)
 
         self.assertTrue(isinstance(results, pd.DataFrame), "get_bootstrap_results does not return a Pandas DataFrame.")
         self.assertTrue(
@@ -607,25 +687,25 @@ class TestWithSimulation(unittest.TestCase):
         """
         Test whether bootstrap returns values that are expected based on simulated data
         """
-        #Need to build a confidence interval where we expect values to be.
-        #This requires calculation of theoretical variance/covariance matrix based on linear regression
+        # Need to build a confidence interval where we expect values to be.
+        # This requires calculation of theoretical variance/covariance matrix based on linear regression
         n_row = self.bc.X().shape[0]
         x = np.hstack((np.ones((n_row, 1)), self.bc.X()))
         # The variance-covariance matrix of a linear estimator based on input X is:
         invxTx = np.linalg.inv(np.dot(x.T, x))
 
-        pred_matrix = np.array([[1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [1.0, 0.0, 1.0]])
+        pred_matrix=np.array([[1.0,0.0,0.0],[1.0,1.0,0.0],[1.0,0.0,1.0]])
         # The variance-covariance matrix  of a linear calculation based on a prediction matrix is as follows.
         # Only need the diagonal for this calculation
-        x_portion_variance = pd.Series(np.diag(np.dot(np.dot(pred_matrix, invxTx), pred_matrix.T)))
+        x_portion_variance = pd.Series(np.diag(np.dot(np.dot(pred_matrix, invxTx), pred_matrix.T)),
+                                       index = self.bc.all_class_labels())
         x_portion_variance.name = 'x_var'
-        x_portion_variance.index=self.bc.all_class_labels()
 
-        #Get confusion matrix probabilities and variances from input rates_dict.
+        # Get confusion matrix probabilities and variances from input rates_dict.
         in_vars_dict = {}
         in_means_dict = {}
         for k, v in self.rates_dict.items():
-            a = self.confusion_matrix_prob(v['pct_positive'], v['fpr'], v['fnr'])
+            a = self.sim.confusion_matrix_prob(v['pct_positive'], v['fpr'], v['fnr'])
             # These are based on variance of a proportion: p(1-p)
             in_vars_dict[k] = [r * (1 - r) for r in a]
             in_means_dict[k] = a
@@ -647,13 +727,38 @@ class TestWithSimulation(unittest.TestCase):
 
         z = 1.65  # from z-table, predictions are N(in_y,var_pred_y)
         for n in names:
-            #Prediction variance is sigma_y*pred_matrix*inv(X'X)pred_matrix.T, where sigma_y is a scalar.
-            #Variance of the mean of n_boots predictions is prediction_variance/n_boots
-            var_components[n + '_st_err'] = np.sqrt(var_components[n + '_var']*var_components['x_var']/n_boots)
-            #Normal apprixmation confidence limit
+            # Prediction variance is sigma_y*pred_matrix*inv(X'X)pred_matrix.T, where sigma_y is a scalar.
+            # Variance of the mean of n_boots predictions is prediction_variance/n_boots
+            var_components[n + '_st_err'] = np.sqrt(var_components[n + '_var'] * var_components['x_var'] / n_boots)
+            # Normal apprixmation confidence limit
             check_series = (var_components[n + '_in'] - z * var_components[n + "_st_err"] <
                             var_components[n + '_ratio']) & (
-                                       var_components[n + "_in"] + z * var_components[n + "_st_err"])
+                                   var_components[n + "_in"] + z * var_components[n + "_st_err"])
             check_series.name = n + "_ok"
             self.assertTrue(np.all(check_series.values),
                             f"{n} is out of range, on mean of {n_loops}, of {n_boots} bootstraps.")
+
+    def test_get_all_scores(self):
+        """
+        Test get_all_scores to make sure it returns scores for the values it's supposed to return
+        """
+        # get_all_scores only works for two categories
+        two_categories = pd.concat([self.surrogate_df[["surrogate", "W"]],
+                                    1.0 - self.surrogate_df["W"]], axis=1).set_index("surrogate")
+        two_categories.columns = ["W", "NW"]
+        from jurity.fairness import BinaryFairnessMetrics as bfm
+        output_df = bfm.get_all_scores(self.test_data["label"], self.test_data["prediction"], two_categories,
+                                       self.test_data["surrogate"], [1])
+
+        from jurity.fairness import BinaryFairnessMetrics
+
+        fairness_funcs = inspect.getmembers(BinaryFairnessMetrics, predicate=inspect.isclass)[:-1]
+        for fairness_func in fairness_funcs:
+            name = fairness_func[0]
+            class_ = getattr(BinaryFairnessMetrics, name)  # grab a class which is a property of BinaryFairnessMetrics
+            instance = class_()  # dynamically instantiate such class
+            v = output_df.loc[instance.name]["Value"]
+            if name in ["AverageOdds", "EqualOpportunity", "FNRDifference", "PredictiveEquality", "StatisticalParity"]:
+                self.assertFalse(np.isnan(v), f"Bootstrap returns np.nan for {name}.")
+            else:
+                self.assertTrue(np.isnan(v), f"Bootstrap not implemented for {name} but returns a value.")

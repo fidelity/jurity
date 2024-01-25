@@ -58,9 +58,9 @@ def check_memberships_proba_df(memberships_df: pd.DataFrame, unique_surrogate_li
     if membership_names is None:
         membership_names = memberships_df.columns
     sum_to_one = pd.Series(memberships_df.sum(axis=1)).apply(lambda x: math.isclose(x, 1.0))
-    check_true(len(unique_surrogate_list) == memberships_df.shape[0],
-               InputShapeError("", "Memberships dataframe must have one row per surrogate class."))
-    check_true(set(memberships_df.index.values) == unique_surrogate_list,
+    check_true(len(unique_surrogate_list) <= memberships_df.shape[0],
+               InputShapeError("", "Unique surrogates in cannot exceed the number surrogate memberships."))
+    check_true(unique_surrogate_list.issubset(memberships_df.index.values),
                InputShapeError("", "Memberships dataframe must have an index with surrogate values"))
     check_true(memberships_df.shape[1] == len(membership_names),
                InputShapeError("", "Memberships dataframe must have one column per protected class name."))
@@ -464,7 +464,7 @@ class BiasCalculator:
             if binary_metrics is not None:
                 all_model_results.append(pd.concat([binary_metrics, preds], axis=1))
             else:
-                preds['class'] = self.class_labels()
+                preds['class'] = self.all_class_labels()
                 all_model_results.append(preds)
         out_data = pd.concat(all_model_results, axis=0).reset_index().drop(["index"], axis=1)
         return out_data
@@ -681,7 +681,7 @@ class BiasCalcFromDataFrame:
             raise ValueError("weight name: {0} are not in dataframe.".format(self._weight_name))
         return df[self._weight_name].to_numpy(dtype='f')
 
-    def get_bias_calculator(self, df: pd.DataFrame, min_weight: int = 30, weight_warnings: bool = True):
+    def get_bias_calculator(self, df: pd.DataFrame, min_weight: int = 5, weight_warnings: bool = True):
         """
         Make bias calculator.
         Arguments:
@@ -689,16 +689,16 @@ class BiasCalcFromDataFrame:
             min_weight: surrogate classes that are smaller than this value will be dropped.
             weight_warnings: Whether to print warnings when too many rows are dropped from surrogate class matrix
         """
-        if min_weight < 10:
+        if min_weight < 5:
             if weight_warnings:
-                warnings.warn("Recommended minimum count for surrogate class is 30. "
-                              "Minimum weights of less than 10 will give unstable results.")
+                warnings.warn("Recommended minimum count for surrogate class is 5. "
+                              "Minimum weights of less than 5 will give unstable results.")
 
         if self.weight_name() in df.columns:
             subset = df[df[self._weight_name] >= min_weight]
             if weight_warnings:
-                print("{0} rows removed from datafame for insufficient weight values" \
-                      .format(df.shape[0] - subset.shape[0]))
+                warnings.warn("{0} rows removed from datafame for insufficient weight values".format(
+                    df.shape[0] - subset.shape[0]))
             if subset.shape[0] < len(self.class_names()):
                 raise WeightTooLarge("Input dataframe does not have enough rows to estimate surrogate classes "
                                      "reduce minimum weight.")
@@ -735,7 +735,8 @@ class SummaryData:
                   memberships: Union[List, np.ndarray, pd.Series, pd.DataFrame],
                   surrogates: Union[List, np.ndarray, pd.Series],
                   labels: Union[List, np.ndarray, pd.Series] = None,
-                  membership_names: List[str] = None) -> pd.DataFrame:
+                  membership_names: List[str] = None,
+                  warnings: bool = False) -> pd.DataFrame:
         """
         Return a summary dataframe suitable for bootstrap calculations.
         Arguments:
@@ -768,9 +769,8 @@ class SummaryData:
         # 2. A dataframe ttehat has a row for each surrogate class value and
         #   a column for each likelihood value. The dataframe must have surrogate class as an index.
         if isinstance(memberships, pd.DataFrame):
-            membership_surrogates = pd.Series(memberships.index.values)
-            membership_surrogates.name = 'surrogates'
-            likes_df = pd.concat([membership_surrogates, memberships], axis=1)
+            name = memberships.index.name
+            likes_df = memberships.reset_index().rename(columns={name: 'surrogates'})
         else:
             if len(memberships) != df.shape[0]:
                 len_predictions = len(predictions)
@@ -791,7 +791,7 @@ class SummaryData:
             likes_df.columns = membership_names
             likes_df = likes_df.reset_index()
         summarizer = cls("surrogates", "surrogates", "predictions", true_name=label_name, test_names=test_names)
-        return summarizer.make_summary_data(perf_df=df, surrogate_df=likes_df)
+        return summarizer.make_summary_data(perf_df=df, surrogate_df=likes_df, warnings=warnings)
 
     def __init__(self, surrogate_surrogate_col_name: str,
                  surrogate_perf_col_name: str,
@@ -896,7 +896,7 @@ class SummaryData:
             n_unique_ids = df[id_col_name].nunique()
             if not n_rows == n_unique_ids:
                 raise Warning(f"Number of unique ids in {df_name} is: {n_unique_ids} but number of rows is {n_rows}")
-        print(f"There are {n_rows} in {df_name}.")
+        # print(f"There are {n_rows} in {df_name}.")
         names = df.columns
         if not set(needed_names).issubset(set(names)):
             raise ValueError("Some necessary columns not in {0} data: {1} are missing.".format(df_name, list(
@@ -981,7 +981,7 @@ class SummaryData:
             # return False
         return True
 
-    def make_summary_data(self, perf_df: pd.DataFrame, surrogate_df: pd.DataFrame = None):
+    def make_summary_data(self, perf_df: pd.DataFrame, surrogate_df: pd.DataFrame = None, warnings=True):
         """
         Function that merges two dfs to make a surrogate-based summary file that includes confusion matrix ratios.
         Arguments:
@@ -992,12 +992,13 @@ class SummaryData:
         self.check_surrogate_data(surrogate_df)
         merged_data = perf_df.merge(surrogate_df, left_on=self.surrogate_perf_col_name(),
                                     right_on=self.surrogate_surrogate_col_name())
-        self.check_merged_data(merged_data, perf_df)
+        self.check_merged_data(merged_data, perf_df, warnings)
 
         # Create accuracy columns that measure true positive, true negative etc
         accuracy_df = pd.concat([merged_data[self.surrogate_surrogate_col_name()],
                                  self.confusion_matrix_actual(merged_data, self.pred_name(), self.true_name())], axis=1)
         # Use calc_accuracy_metrics to create surrogate-level summary
+        # TODO: Accomodate cases where we don't have a binary classifier
         confusion_matrix_surrogate_summary = self.calc_accuracy_metrics(accuracy_df)
         self.check_surrogate_confusion_matrix(confusion_matrix_surrogate_summary, merged_data)
         return confusion_matrix_surrogate_summary.join(
@@ -1068,3 +1069,4 @@ class SummaryData:
                                    Constants.false_negative_ratio, Constants.false_positive_ratio]
             # Return a dataframe that has the stats by group. Use these to compare to expected values
         return check_accuracy[out_cols]
+    # TODO: Needs string method
