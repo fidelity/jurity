@@ -3,7 +3,7 @@
 
 # Jurity: Fairness & Evaluation Library
 
-Jurity ([LION'23](), [ICMLA'21](https://ieeexplore.ieee.org/document/9680169)) is a research library 
+Jurity ([LION'23](https://link.springer.com/chapter/10.1007/978-3-031-44505-7_29), [ICMLA'21](https://ieeexplore.ieee.org/document/9680169)) is a research library 
 that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. 
 The library adheres to PEP-8 standards and is tested heavily.
 
