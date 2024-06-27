@@ -189,7 +189,7 @@ Jurity requires **Python 3.7+** and can be installed from PyPI using ``pip insta
 
 ## Citation
 
-If you use MABWiser in a publication, please cite it as:
+If you use Jurity in a publication, please cite it as:
 
 ```bibtex
     @article{DBLP:conf/lion/Melinda23,
