@@ -3,6 +3,14 @@ CHANGELOG
 =========
 
 -------------------------------------------------------------------------------
+Sep 06, 2024 2.1.0
+-------------------------------------------------------------------------------
+Major
+- Remove support for Python 3.7 and add support for Python 3.11
+- Update CI test environment to drop Python 3.7 and Python 3.11
+- Fix typos in docstrings for fairness metrics get_scores method.
+
+-------------------------------------------------------------------------------
 Jan 25, 2023 2.0.1
 -------------------------------------------------------------------------------
 - (minor) adding simulator utilities and minor fixes
