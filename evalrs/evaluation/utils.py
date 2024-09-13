@@ -17,7 +17,7 @@ import boto3
 from datetime import datetime
 
 
-LFM_DATASET_PATH="https://cikm-evalrs-dataset.s3.us-west-2.amazonaws.com/evalrs_dataset.zip"
+LFM_DATASET_PATH="https://evarl-2022-public-dataset.s3.us-east-1.amazonaws.com/evalrs_dataset.zip"
 
 TOP_K_CHALLENGE = 100
 LEADERBOARD_TESTS = [
