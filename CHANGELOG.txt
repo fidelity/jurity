@@ -9,6 +9,7 @@ Major
 - Remove support for Python 3.7 and add support for Python 3.11
 - Update CI test environment to drop Python 3.7 and Python 3.11
 - Fix typos in docstrings for fairness metrics get_scores method.
+- Update S3 link in evalrs lfm_dataset_path
 
 -------------------------------------------------------------------------------
 Jan 25, 2023 2.0.1
