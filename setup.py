@@ -26,10 +26,10 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.8",
         "Operating System :: OS Independent",
     ],
     project_urls={"Source": "https://github.com/fidelity/jurity"},
     install_requires=required,
-    python_requires=">=3.6"
+    python_requires=">=3.8"
 )

@@ -185,7 +185,7 @@ print('F1 score is', f1_score.get_score(predictions, labels))
 
 ## Installation
 
-Jurity requires **Python 3.7+** and can be installed from PyPI using ``pip install jurity`` or by building from source as shown in [installation instructions](https://fidelity.github.io/jurity/install.html).
+Jurity requires **Python 3.8+** and can be installed from PyPI using ``pip install jurity`` or by building from source as shown in [installation instructions](https://fidelity.github.io/jurity/install.html).
 
 ## Citation
 

@@ -44,11 +44,10 @@ class FNRDifference(_BaseBinaryFairness):
 
         Parameters
         ----------
-        labels: labels: Union[List, np.ndarray, pd.Series]
-        Ground truth labels for each row (0/1).
+        labels: Union[List, np.ndarray, pd.Series]
+            Ground truth labels for each row (0/1).
         predictions: Union[List, np.ndarray, pd.Series]
-            Binary predictions from some black-box classifier (0/1).
-            Binary prediction for each sample from a binary (0/1) lack-box classifier.
+            Binary prediction for each sample from a binary (0/1) black-box classifier.
         memberships: Union[List, np.ndarray, pd.Series, List[List], pd.DataFrame],
             Membership attribute for each sample.
                 If deterministic, it is a binary label for each sample [0, 1, 0, .., 1]

@@ -15,7 +15,7 @@ Installation
 Requirements
 ------------
 
-The library requires Python **3.6+** and depends on standard packages such as ``pandas, numpy``
+The library requires Python **3.8+** and depends on standard packages such as ``pandas, numpy``
 The ``requirements.txt`` lists the necessary packages. 
 
 Install via pip

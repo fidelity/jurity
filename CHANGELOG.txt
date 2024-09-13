@@ -3,6 +3,17 @@ CHANGELOG
 =========
 
 -------------------------------------------------------------------------------
+Sep 06, 2024 2.1.0
+-------------------------------------------------------------------------------
+Major
+- Remove support for Python 3.7 and add support for Python 3.11 and Python 3.12
+- Update CI test environment to drop Python 3.7 and add Python 3.11, Python 3.12.
+- Fix typos in docstrings for fairness metrics get_scores method.
+- Update S3 link in evalrs lfm_dataset_path
+- Add Probabilistic Fairness Metric calculation example in quick start.
+- Adding setuptools in github worklow to address no pre-install of setuptools in Python 3.12 
+
+-------------------------------------------------------------------------------
 Jan 25, 2023 2.0.1
 -------------------------------------------------------------------------------
 - (minor) adding simulator utilities and minor fixes
