@@ -27,7 +27,7 @@ jobs:
       - name: Check
         shell: bash
         run: |
-          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade pip setuptools
           pip install -e .
           python3 -m unittest discover -v tests
           python3 setup.py install
