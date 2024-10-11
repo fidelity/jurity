@@ -3,7 +3,7 @@
 
 # Jurity: Fairness & Evaluation Library
 
-Jurity ([LION'23](https://link.springer.com/chapter/10.1007/978-3-031-44505-7_29), [ICMLA'21](https://ieeexplore.ieee.org/document/9680169)) is a research library 
+Jurity ([ACM'24](https://dl.acm.org/doi/pdf/10.1145/3700145), [ArXiv'24](https://arxiv.org/pdf/2403.12069),  [LION'23](https://link.springer.com/chapter/10.1007/978-3-031-44505-7_29), [ICMLA'21](https://ieeexplore.ieee.org/document/9680169)) is a research library 
 that provides fairness metrics, recommender system evaluations, classification metrics and bias mitigation techniques. 
 The library adheres to PEP-8 standards and is tested heavily.
 
@@ -81,7 +81,7 @@ An easy baseline is to convert these probabilities back to the deterministic set
 
 Taking this a step further, while we do not have membership information at the individual level, consider access to _surrogate membership_ at _group level_. We can then infer the fairness metrics directly.   
 
-Jurity offers both options to address the case where membership data is missing. We provide an in-depth study and formal treatment in [Surrogate Membership for Inferred Metrics in Fairness Evaluation (LION 2023)]().
+Jurity offers both options to address the case where membership data is missing. We provide an in-depth study and formal treatment in [ACM'24](https://dl.acm.org/doi/pdf/10.1145/3700145) and [LION'23](https://link.springer.com/chapter/10.1007/978-3-031-44505-7_29). For the analogous scenario of the lack of ground truth data, see [ArXiv'24](https://arxiv.org/pdf/2403.12069) and [ICMLA'21](https://ieeexplore.ieee.org/document/9680169).
 
 ```python
 from jurity.fairness import BinaryFairnessMetrics
@@ -192,6 +192,17 @@ Jurity requires **Python 3.8+** and can be installed from PyPI using ``pip insta
 If you use Jurity in a publication, please cite it as:
 
 ```bibtex
+    @article{10.1145/3700145,
+    author = {Kad\i{}o\u{g}lu, Serdar and Thielbar, Melinda},
+    title = {Surrogate Modeling to Address the Absence of Protected Membership Attributes in Fairness Evaluation},
+    year = {2024},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3700145},
+    doi = {10.1145/3700145},
+    journal = {ACM Trans. Evol. Learn. Optim.},
+    }
+
     @article{DBLP:conf/lion/Melinda23,
       author    = {Melinda Thielbar, Serdar Kadioglu, Chenhui Zhang, Rick Pack, and Lukas Dannull},
       title     = {Surrogate Membership for Inferred Metrics in Fairness Evaluation},
